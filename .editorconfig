@@ -1,0 +1,25 @@
+# Top-most EditorConfig file.
+root = true
+
+#### EditorConfig Options ####
+
+# General formatting
+[*]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+end_of_line = crlf
+charset = utf-8 bom
+
+# C# files
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:suggestion
+
+# XML and project files
+[*.{csproj,xml}]
+ij_xml_space_inside_empty_tag = true
+
+# YAML files – use 2-space indentation
+[*.{yml,yaml}]
+indent_size = 2
