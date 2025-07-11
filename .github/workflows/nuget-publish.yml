@@ -1,0 +1,50 @@
+name: Publish NuGet Package
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish to NuGet
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dotnet/HeimdallPower.Api.Client
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Validate tag format
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9\.]+)?$ ]]; then
+            echo "Invalid tag format: $GITHUB_REF_NAME"
+            echo "Expected: v<MAJOR>.<MINOR>.<PATCH> (e.g., v1.2.3 or v1.2.3-beta.1)"
+            exit 1
+          fi
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Pack using tag version
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "Packing with version: $VERSION"
+          dotnet pack --configuration Release --no-build -o out /p:PackageVersion=$VERSION
+
+      - name: Publish the package to nuget.org
+        run: |
+          for file in out/*.nupkg; do
+            dotnet nuget push "$file" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
+          done
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
