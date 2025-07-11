@@ -10,7 +10,9 @@ This repository contains SDKs and example clients for accessing the [Heimdall Po
 
 - All pull requests must have a **clear title** (min. 5 characters).
 - Include a short description of what the PR does and why.
+- Pull requests targeting `main` must be reviewed by a **code owner**.
 
+> Heimdall Power's software engineering team (`@heimdallpower/software-engineering`) is configured as the code owner. Reviews will be automatically requested when a PR is opened.
 ---
 
 ## Branching & Releases
