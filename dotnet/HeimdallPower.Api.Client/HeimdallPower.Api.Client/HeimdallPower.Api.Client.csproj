@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <PackageId>HeimdallPower.Api.Client</PackageId>
+        <Version>0.0.0</Version> <!-- Placeholder, overridden in CI -->
+        <Authors>Heimdall Power</Authors>
+        <Company>Heimdall Power</Company>
+        <Description>SDK for interacting with the Heimdall Power External API</Description>
+        <RepositoryUrl>https://github.com/heimdallpower/api-sdk</RepositoryUrl>
+        <PackageProjectUrl>https://developer.heimdallcloud.com</PackageProjectUrl>
+    </PropertyGroup>
+
+</Project>
