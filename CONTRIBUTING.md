@@ -22,3 +22,38 @@ This repository contains SDKs and example clients for accessing the [Heimdall Po
 - Tags must follow the format: `v<MAJOR>.<MINOR>.<PATCH>` (e.g., `v1.2.3`)
 - A GitHub Release must be published for the package to be built and pushed to NuGet
 - The `v` prefix is automatically stripped when packaging
+
+---
+
+## Python
+
+The `python/` folder contains the Python SDK and related utilities.
+
+### Requirements
+
+Install dependencies:
+
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+
+poetry --version 
+
+poetry install # Installs the dependecies
+```
+
+### Generating Clients from OpenAPI
+
+New modules are generated using openapi-python-client.
+
+To generate a module:
+
+```bash
+# Nagivate to the script folder and run
+./generate_module.ps1 -Module assets
+```
+
+This will:
+
+- Download the OpenAPI spec
+- Generate a python client for the module
+- Place the result under `python/heimdall_api_client/<module>`
