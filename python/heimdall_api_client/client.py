@@ -1,8 +1,11 @@
 import logging
 from typing import List, Optional
+from uuid import UUID
 from heimdall_api_client.auth import AuthService
-from heimdall_api_client.assets_api_client.api.assets import assets_v1_get_assets
+from heimdall_api_client.assets import get_assets
+from heimdall_api_client.capacity_monitoring import get_latest_heimdall_aar, get_latest_heimdall_arr_forecasts, get_latest_heimdall_dlr, get_latest_heimdall_dlr_forecasts
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
+
 
 
 class HeimdallApiClient:
@@ -37,14 +40,55 @@ class HeimdallApiClient:
     def _get_authenticated_client(self) -> AuthenticatedClient:
         token = self.auth_service.get_valid_token()
         return AuthenticatedClient(base_url=self.api_base_url, token=token)
+    
+    def _get_region(self) -> str:
+        return self.auth_service.get_region_from_token()
 
     def get_assets(self):
         """
         Returns the list of assets from the Assets API.
         """
-        client = self._get_authenticated_client()
-        response = assets_v1_get_assets.sync_detailed(client=client)
-        if response.status_code != 200:
-            self.logger.error(f"Failed to fetch assets: {response.status_code} {response.text}")
-            raise Exception(f"Error fetching assets: {response.status_code} {response.text}")
-        return response.parsed
+        return get_assets(
+            client=self._get_authenticated_client(), 
+            x_region=self._get_region()
+            )
+    
+    def get_latest_heimdall_dlr(self, line_id: UUID):
+        """
+        Returns the latest Heimdall DLR (Dynamic Line rating) data.
+        """
+        return get_latest_heimdall_dlr(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region()
+        )
+    
+    def get_latest_heimdall_aar(self, line_id: UUID):
+        """
+        Returns the latest Heimdall AAR (Available Ampacity Rating) data.
+        """
+        return get_latest_heimdall_aar(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region()
+        )
+    
+    def get_latest_heimdall_dlr_forecasts(self, line_id: UUID):
+        """
+        Returns the latest Heimdall DLR forecasts.
+        """
+        return get_latest_heimdall_dlr_forecasts(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region()
+        )
+    
+    def get_latest_heimdall_aar_forecasts(self, line_id: UUID):
+        """
+        Returns the latest Heimdall AAR forecasts.
+        """
+        return get_latest_heimdall_arr_forecasts(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region()
+        )
