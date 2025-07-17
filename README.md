@@ -17,12 +17,8 @@ Full API documentation is available at [developer.heimdallcloud.com](https://dev
 
 ## Repository Structure
 
-- `dotnet/`: .NET SDK source and examples
-- `python/`: Python SDK source and examples
-
-## Getting Started
-
-Instructions coming soon...
+- `dotnet/`: [.NET SDK source and examples](dotnet/README.md)
+- `python/`: [Python SDK source and examples](python/README.md)
 
 ## Contributing
 

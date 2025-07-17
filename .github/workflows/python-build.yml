@@ -1,0 +1,39 @@
+name: Python Build
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'python/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'python/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Lint code
+        run: poetry run ruff check .
+
+      - name: Build package
+        run: poetry build

@@ -31,6 +31,9 @@ The `python/` folder contains the Python SDK and related utilities.
 
 ### Requirements
 
+- Python 3.11+
+- Poetry (dependency and build management)
+
 Install dependencies:
 
 ```bash
@@ -40,6 +43,31 @@ poetry --version
 
 poetry install # Installs the dependecies
 ```
+
+### Code Style & Linting
+
+We use Ruff for formatting and linting.
+
+```bash
+poetry run ruff chec .
+# Optionally
+poetry run ruff check . --fix # This will also fix any liniting issues
+```
+
+Generated clients in *_api_client folders are excluded from linting.
+
+### Building the Package
+
+The SDK is packaged using Poetry. A build step is included in the CI pipeline to validate packaging.
+
+To build locally:
+
+```bash
+poetry build
+```
+
+This will produce .whl and .tar.gz files.
+>Running poetry build locally is recommended to catch issues early, such as missing ```__init__.py``` files, bad version strings, or invalid metadata.
 
 ### Generating Clients from OpenAPI
 
