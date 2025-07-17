@@ -4,15 +4,13 @@ from typing import Any, Optional, Union, cast
 import httpx
 
 from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
+from ...types import Response
 from ... import errors
 
 from ...models.assets_v1_get_assets_response_200 import AssetsV1GetAssetsResponse200
 from ...models.assets_v1_get_assets_x_region import AssetsV1GetAssetsXRegion
 from ...models.problem_details import ProblemDetails
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import Unset
 
 
 

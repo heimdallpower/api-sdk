@@ -1,12 +1,10 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar, TYPE_CHECKING
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
 
-from typing import cast
 
 if TYPE_CHECKING:
   from ..models.facility import Facility
@@ -36,7 +34,6 @@ class GridOwner:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.facility import Facility
         name = self.name
 
         facilities = []
