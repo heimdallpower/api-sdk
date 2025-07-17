@@ -4,15 +4,13 @@ from typing import Any, Optional, Union, cast
 import httpx
 
 from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
+from ...types import Response
 from ... import errors
 
 from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_response_200 import CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200
 from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_x_region import CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
 from ...models.problem_details import ProblemDetails
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import Unset
 from uuid import UUID
 
 

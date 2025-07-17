@@ -18,9 +18,10 @@ ruff = "^0.12.3"
 [tool.ruff]
 line-length = 120
 target-version = "py311"
-extend-exclude = [
-    "heimdall_api_client/*_api_client", 
-    ]
+# Exclude generated API client files from linting
+# extend-exclude = [
+#     "heimdall_api_client/*_api_client", 
+#     ]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
