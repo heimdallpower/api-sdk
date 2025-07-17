@@ -42,8 +42,8 @@ jobs:
             exit 1
           )
 
-      - name: Install dependencies
-        run: poetry install
+      - name: Install dependencies (incl. dev)
+        run: poetry install --with dev
 
       - name: Lint code
         run: poetry run ruff check .
