@@ -274,10 +274,9 @@ tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 name = "ruff"
 version = "0.12.3"
 description = "An extremely fast Python linter and code formatter, written in Rust."
-optional = true
+optional = false
 python-versions = ">=3.7"
-groups = ["main"]
-markers = "extra == \"dev\""
+groups = ["dev"]
 files = [
     {file = "ruff-0.12.3-py3-none-linux_armv6l.whl", hash = "sha256:47552138f7206454eaf0c4fe827e546e9ddac62c2a3d2585ca54d29a890137a2"},
     {file = "ruff-0.12.3-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:0a9153b000c6fe169bb307f5bd1b691221c4286c133407b8827c406a55282041"},
@@ -323,10 +322,7 @@ files = [
     {file = "typing_extensions-4.13.2.tar.gz", hash = "sha256:e6c81219bd689f51865d9e372991c540bda33a0379d5573cddb9a3a23f7caaef"},
 ]
 
-[extras]
-dev = ["ruff"]
-
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11"
-content-hash = "c93b39b294004eb36ad2e567baf0c8c03d325572b6af54a9723f5f2cb02d513e"
+content-hash = "83521df3f5f0addffc0718ecb4e8558dd29358af4646ab49ec212b63678a42a6"
