@@ -22,4 +22,4 @@ updates:
     labels:
       - "dependencies"
       - "python"
-    versioning-strategy: increase
+    versioning-strategy: auto
