@@ -41,7 +41,7 @@ curl -sSL https://install.python-poetry.org | python3 -
 
 poetry --version 
 
-poetry install # Installs the dependecies
+poetry install --with dev # Installs the dependecies
 ```
 
 ### Code Style & Linting

@@ -1,27 +1,28 @@
-[tool.poetry]
+[project]
 name = "heimdall-api-client"
 version = "0.1.0"
 description = "Python SDK for interacting with the Heimdall Power External API"
-authors = ["Heimdall Power <software-developers@heimdallpower.com>"]
-packages = [{ include = "heimdall_api_client" }]
-exclude = ["examples"]
-
-[tool.poetry.dependencies]
-python = ">=3.11"
-httpx = "^0.24"
-pydantic = "^2.0"
-PyJWT = "^2.8"
+authors = [
+  { name = "Heimdall Power", email = "software-developers@heimdallpower.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+  "httpx>=0.24,<1.0",
+  "pydantic>=2.0,<3.0",
+  "PyJWT>=2.8,<3.0"
+]
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.12.3"
 
+[tool.poetry]
+packages = [{ include = "heimdall_api_client" }]
+exclude = ["examples"]
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"
-# Exclude generated API client files from linting
-# extend-exclude = [
-#     "heimdall_api_client/*_api_client", 
-#     ]
+# extend-exclude = ["heimdall_api_client/*_api_client"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
