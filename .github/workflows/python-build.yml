@@ -26,6 +26,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Poetry
+        run: pip install poetry
+
       - name: Validate pyproject.toml structure
         run: poetry check
 
@@ -38,9 +41,6 @@ jobs:
             echo "::error file=poetry.lock::poetry.lock is not up to date with pyproject.toml. Run 'poetry lock' and commit the result."
             exit 1
           )
-            
-      - name: Install Poetry
-        run: pip install poetry
 
       - name: Install dependencies
         run: poetry install
