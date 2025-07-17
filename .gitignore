@@ -82,9 +82,6 @@ build/
 # Python test cache
 .pytest_cache/
 
-# Poetry
-poetry.lock
-
 # Python CLI tools
 .mypy_cache/
 .dmypy.json
