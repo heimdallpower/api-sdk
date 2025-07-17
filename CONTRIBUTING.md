@@ -44,6 +44,13 @@ poetry --version
 poetry install --with dev # Installs the dependecies
 ```
 
+#### Update dependencies
+
+```bash
+poetry update --dry-run # view avaiables dependency updates
+poetry update # updates all dependecies. Note, does not alter the pyproject.toml file
+```
+
 ### Code Style & Linting
 
 We use Ruff for formatting and linting.
