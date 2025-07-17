@@ -26,6 +26,19 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Validate pyproject.toml structure
+        run: poetry check
+
+      - name: Regenerate poetry.lock to check sync
+        run: poetry lock
+
+      - name: Fail if poetry.lock is out of sync
+        run: |
+          git diff --exit-code poetry.lock || (
+            echo "::error file=poetry.lock::poetry.lock is not up to date with pyproject.toml. Run 'poetry lock' and commit the result."
+            exit 1
+          )
+            
       - name: Install Poetry
         run: pip install poetry
 
