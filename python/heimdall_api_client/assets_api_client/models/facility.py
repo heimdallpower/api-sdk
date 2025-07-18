@@ -4,7 +4,9 @@ from typing import Any, TypeVar, TYPE_CHECKING
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..types import UNSET, Unset
 
+from typing import Union
 from uuid import UUID
 
 if TYPE_CHECKING:
@@ -24,12 +26,12 @@ class Facility:
         Attributes:
             id (UUID): Unique identifier of the facility. Example: 00000000-0000-0000-0000-000000000000.
             name (str): Name of the facility. Example: Facility A.
-            line (Line):
+            line (Union[Unset, Line]):
      """
 
     id: UUID
     name: str
-    line: 'Line'
+    line: Union[Unset, 'Line'] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -41,7 +43,9 @@ class Facility:
 
         name = self.name
 
-        line = self.line.to_dict()
+        line: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.line, Unset):
+            line = self.line.to_dict()
 
 
         field_dict: dict[str, Any] = {}
@@ -49,8 +53,9 @@ class Facility:
         field_dict.update({
             "id": id,
             "name": name,
-            "line": line,
         })
+        if line is not UNSET:
+            field_dict["line"] = line
 
         return field_dict
 
@@ -67,7 +72,12 @@ class Facility:
 
         name = d.pop("name")
 
-        line = Line.from_dict(d.pop("line"))
+        _line = d.pop("line", UNSET)
+        line: Union[Unset, Line]
+        if isinstance(_line,  Unset):
+            line = UNSET
+        else:
+            line = Line.from_dict(_line)
 
 
 

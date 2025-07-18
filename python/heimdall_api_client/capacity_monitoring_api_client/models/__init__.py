@@ -1,6 +1,5 @@
 """ Contains all the data models used in inputs/outputs """
 
-from .aar import Aar
 from .api_response import ApiResponse
 from .capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_response_200 import CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200
 from .capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_x_region import CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsXRegion
@@ -16,12 +15,13 @@ from .capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import C
 from .capacity_monitoring_v1_lines_get_latest_heimdall_dlr_x_region import CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
 from .circuit_rating import CircuitRating
 from .circuit_rating_forecasts import CircuitRatingForecasts
-from .dlr import Dlr
+from .heimdall_aar import HeimdallAar
 from .heimdall_aar_forecasts import HeimdallAarForecasts
+from .heimdall_dlr import HeimdallDlr
 from .heimdall_dlr_forecasts import HeimdallDlrForecasts
-from .latest_aar import LatestAar
 from .latest_circuit_rating import LatestCircuitRating
-from .latest_dlr import LatestDlr
+from .latest_heimdall_aar import LatestHeimdallAar
+from .latest_heimdall_dlr import LatestHeimdallDlr
 from .predicted_circuit_rating_forecast import PredictedCircuitRatingForecast
 from .predicted_forecast import PredictedForecast
 from .probabilistic_circuit_rating_ampacity import ProbabilisticCircuitRatingAmpacity
@@ -29,7 +29,6 @@ from .probabilistic_line_ampacity import ProbabilisticLineAmpacity
 from .problem_details import ProblemDetails
 
 __all__ = (
-    "Aar",
     "ApiResponse",
     "CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200",
     "CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsXRegion",
@@ -45,12 +44,13 @@ __all__ = (
     "CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion",
     "CircuitRating",
     "CircuitRatingForecasts",
-    "Dlr",
+    "HeimdallAar",
     "HeimdallAarForecasts",
+    "HeimdallDlr",
     "HeimdallDlrForecasts",
-    "LatestAar",
     "LatestCircuitRating",
-    "LatestDlr",
+    "LatestHeimdallAar",
+    "LatestHeimdallDlr",
     "PredictedCircuitRatingForecast",
     "PredictedForecast",
     "ProbabilisticCircuitRatingAmpacity",

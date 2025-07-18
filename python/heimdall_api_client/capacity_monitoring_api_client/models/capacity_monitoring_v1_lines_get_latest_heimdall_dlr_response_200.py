@@ -7,7 +7,7 @@ from attrs import field as _attrs_field
 
 
 if TYPE_CHECKING:
-  from ..models.latest_dlr import LatestDlr
+  from ..models.latest_heimdall_dlr import LatestHeimdallDlr
 
 
 
@@ -21,10 +21,10 @@ T = TypeVar("T", bound="CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200
 class CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
     """ 
         Attributes:
-            data (LatestDlr):
+            data (LatestHeimdallDlr):
      """
 
-    data: 'LatestDlr'
+    data: 'LatestHeimdallDlr'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -47,9 +47,9 @@ class CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.latest_dlr import LatestDlr
+        from ..models.latest_heimdall_dlr import LatestHeimdallDlr
         d = dict(src_dict)
-        data = LatestDlr.from_dict(d.pop("data"))
+        data = LatestHeimdallDlr.from_dict(d.pop("data"))
 
 
 

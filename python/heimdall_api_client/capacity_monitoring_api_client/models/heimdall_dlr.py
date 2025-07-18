@@ -13,15 +13,15 @@ import datetime
 
 
 
-T = TypeVar("T", bound="Aar")
+T = TypeVar("T", bound="HeimdallDlr")
 
 
 
 @_attrs_define
-class Aar:
+class HeimdallDlr:
     """ 
         Attributes:
-            timestamp (datetime.datetime): Time (in UTC) when the Heimdall AAR was calculated. Example:
+            timestamp (datetime.datetime): Time (in UTC) when the Heimdall DLR was calculated. Example:
                 2024-07-01T12:00:00.001Z.
             value (float): The minimum calculated ampacity (in amperes) at the given timestamp. Example: 375.4.
      """
@@ -61,14 +61,14 @@ class Aar:
 
         value = d.pop("value")
 
-        aar = cls(
+        heimdall_dlr = cls(
             timestamp=timestamp,
             value=value,
         )
 
 
-        aar.additional_properties = d
-        return aar
+        heimdall_dlr.additional_properties = d
+        return heimdall_dlr
 
     @property
     def additional_keys(self) -> list[str]:

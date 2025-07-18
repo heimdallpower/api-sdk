@@ -6,7 +6,7 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from typing import Union
+from typing import cast, Union
 from uuid import UUID
 
 
@@ -23,11 +23,11 @@ class SpanPhase:
     """ 
         Attributes:
             id (UUID): Unique identifier of the span phase. Example: 00000000-0000-0000-0000-000000000000.
-            name (Union[Unset, str]): Name of the span phase, defined by the grid owner. Example: Phase A.
+            name (Union[None, Unset, str]): Name of the span phase, defined by the grid owner. Example: Phase A.
      """
 
     id: UUID
-    name: Union[Unset, str] = UNSET
+    name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -37,7 +37,11 @@ class SpanPhase:
     def to_dict(self) -> dict[str, Any]:
         id = str(self.id)
 
-        name = self.name
+        name: Union[None, Unset, str]
+        if isinstance(self.name, Unset):
+            name = UNSET
+        else:
+            name = self.name
 
 
         field_dict: dict[str, Any] = {}
@@ -60,7 +64,15 @@ class SpanPhase:
 
 
 
-        name = d.pop("name", UNSET)
+        def _parse_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        name = _parse_name(d.pop("name", UNSET))
+
 
         span_phase = cls(
             id=id,

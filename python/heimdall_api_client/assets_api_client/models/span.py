@@ -6,6 +6,7 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from typing import cast
 from typing import Union
 from uuid import UUID
 
@@ -26,14 +27,14 @@ class Span:
         Attributes:
             id (UUID): Unique identifier of the span. Example: 00000000-0000-0000-0000-000000000000.
             span_phases (list['SpanPhase']): List of span phases associated with the span.
-            mast_name_a (Union[Unset, str]): Name of the first mast in the span. Example: Mast A.
-            mast_name_b (Union[Unset, str]): Name of the second mast in the span. Example: Mast B.
+            mast_name_a (Union[None, Unset, str]): Name of the first mast in the span. Example: Mast A.
+            mast_name_b (Union[None, Unset, str]): Name of the second mast in the span. Example: Mast B.
      """
 
     id: UUID
     span_phases: list['SpanPhase']
-    mast_name_a: Union[Unset, str] = UNSET
-    mast_name_b: Union[Unset, str] = UNSET
+    mast_name_a: Union[None, Unset, str] = UNSET
+    mast_name_b: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -50,9 +51,17 @@ class Span:
 
 
 
-        mast_name_a = self.mast_name_a
+        mast_name_a: Union[None, Unset, str]
+        if isinstance(self.mast_name_a, Unset):
+            mast_name_a = UNSET
+        else:
+            mast_name_a = self.mast_name_a
 
-        mast_name_b = self.mast_name_b
+        mast_name_b: Union[None, Unset, str]
+        if isinstance(self.mast_name_b, Unset):
+            mast_name_b = UNSET
+        else:
+            mast_name_b = self.mast_name_b
 
 
         field_dict: dict[str, Any] = {}
@@ -89,9 +98,25 @@ class Span:
             span_phases.append(span_phases_item)
 
 
-        mast_name_a = d.pop("mast_name_a", UNSET)
+        def _parse_mast_name_a(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
 
-        mast_name_b = d.pop("mast_name_b", UNSET)
+        mast_name_a = _parse_mast_name_a(d.pop("mast_name_a", UNSET))
+
+
+        def _parse_mast_name_b(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        mast_name_b = _parse_mast_name_b(d.pop("mast_name_b", UNSET))
+
 
         span = cls(
             id=id,
