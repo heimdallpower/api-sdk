@@ -20,9 +20,9 @@ for facility in grid_owner.facilities:
         continue
     try:
         dlr_response = client.get_latest_heimdall_dlr(line_id=line.id)
-        dlr = dlr_response.data.dlr
+        dlr = dlr_response.data.heimdall_dlr
         dlr_forecast_response = client.get_latest_heimdall_dlr_forecasts(line_id=line.id)
-        dlr_forecast = dlr_forecast_response.data.dlr_forecasts
+        dlr_forecast = dlr_forecast_response.data.heimdall_dlr_forecasts
         print(f"Facility: {facility.name}")
         print(f"  Line: {line.name} (ID: {line.id})\n")
         print(f"    {dlr_response.data.metric}, timestamp {dlr.timestamp}\n")

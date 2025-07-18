@@ -27,14 +27,14 @@ class HeimdallAarForecasts:
             unit (str): The unit of the values in the response. Example: Ampere.
             updated_timestamp (datetime.datetime): The timestamp when the forecasts were last updated. Example:
                 2024-07-01T12:00:00.001Z.
-            aar_forecasts (list['PredictedForecast']): The forecasts for a 1 hour interval starting from the
+            heimdall_aar_forecasts (list['PredictedForecast']): The forecasts for a 1 hour interval starting from the
                 `updated_timestamp`. The predicted forecasts includes different percentages of confidence.
      """
 
     metric: str
     unit: str
     updated_timestamp: datetime.datetime
-    aar_forecasts: list['PredictedForecast']
+    heimdall_aar_forecasts: list['PredictedForecast']
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -48,10 +48,10 @@ class HeimdallAarForecasts:
 
         updated_timestamp = self.updated_timestamp.isoformat()
 
-        aar_forecasts = []
-        for aar_forecasts_item_data in self.aar_forecasts:
-            aar_forecasts_item = aar_forecasts_item_data.to_dict()
-            aar_forecasts.append(aar_forecasts_item)
+        heimdall_aar_forecasts = []
+        for heimdall_aar_forecasts_item_data in self.heimdall_aar_forecasts:
+            heimdall_aar_forecasts_item = heimdall_aar_forecasts_item_data.to_dict()
+            heimdall_aar_forecasts.append(heimdall_aar_forecasts_item)
 
 
 
@@ -62,7 +62,7 @@ class HeimdallAarForecasts:
             "metric": metric,
             "unit": unit,
             "updated_timestamp": updated_timestamp,
-            "aar_forecasts": aar_forecasts,
+            "heimdall_aar_forecasts": heimdall_aar_forecasts,
         })
 
         return field_dict
@@ -82,21 +82,21 @@ class HeimdallAarForecasts:
 
 
 
-        aar_forecasts = []
-        _aar_forecasts = d.pop("aar_forecasts")
-        for aar_forecasts_item_data in (_aar_forecasts):
-            aar_forecasts_item = PredictedForecast.from_dict(aar_forecasts_item_data)
+        heimdall_aar_forecasts = []
+        _heimdall_aar_forecasts = d.pop("heimdall_aar_forecasts")
+        for heimdall_aar_forecasts_item_data in (_heimdall_aar_forecasts):
+            heimdall_aar_forecasts_item = PredictedForecast.from_dict(heimdall_aar_forecasts_item_data)
 
 
 
-            aar_forecasts.append(aar_forecasts_item)
+            heimdall_aar_forecasts.append(heimdall_aar_forecasts_item)
 
 
         heimdall_aar_forecasts = cls(
             metric=metric,
             unit=unit,
             updated_timestamp=updated_timestamp,
-            aar_forecasts=aar_forecasts,
+            heimdall_aar_forecasts=heimdall_aar_forecasts,
         )
 
 

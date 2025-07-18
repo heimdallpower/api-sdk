@@ -7,28 +7,28 @@ from attrs import field as _attrs_field
 
 
 if TYPE_CHECKING:
-  from ..models.aar import Aar
+  from ..models.heimdall_dlr import HeimdallDlr
 
 
 
 
 
-T = TypeVar("T", bound="LatestAar")
+T = TypeVar("T", bound="LatestHeimdallDlr")
 
 
 
 @_attrs_define
-class LatestAar:
+class LatestHeimdallDlr:
     """ 
         Attributes:
-            metric (str): What kind of data does this response contain. Example: Heimdall AAR.
+            metric (str): What kind of data does this response contain. Example: Heimdall DLR.
             unit (str): The unit of the value in the response. Example: Ampere.
-            aar (Aar):
+            heimdall_dlr (HeimdallDlr):
      """
 
     metric: str
     unit: str
-    aar: 'Aar'
+    heimdall_dlr: 'HeimdallDlr'
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -40,7 +40,7 @@ class LatestAar:
 
         unit = self.unit
 
-        aar = self.aar.to_dict()
+        heimdall_dlr = self.heimdall_dlr.to_dict()
 
 
         field_dict: dict[str, Any] = {}
@@ -48,7 +48,7 @@ class LatestAar:
         field_dict.update({
             "metric": metric,
             "unit": unit,
-            "aar": aar,
+            "heimdall_dlr": heimdall_dlr,
         })
 
         return field_dict
@@ -57,26 +57,26 @@ class LatestAar:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aar import Aar
+        from ..models.heimdall_dlr import HeimdallDlr
         d = dict(src_dict)
         metric = d.pop("metric")
 
         unit = d.pop("unit")
 
-        aar = Aar.from_dict(d.pop("aar"))
+        heimdall_dlr = HeimdallDlr.from_dict(d.pop("heimdall_dlr"))
 
 
 
 
-        latest_aar = cls(
+        latest_heimdall_dlr = cls(
             metric=metric,
             unit=unit,
-            aar=aar,
+            heimdall_dlr=heimdall_dlr,
         )
 
 
-        latest_aar.additional_properties = d
-        return latest_aar
+        latest_heimdall_dlr.additional_properties = d
+        return latest_heimdall_dlr
 
     @property
     def additional_keys(self) -> list[str]:
