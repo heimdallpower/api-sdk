@@ -11,9 +11,7 @@ from ...models.grid_insights_v1_lines_get_latest_conductor_temperature_response_
 from ...models.grid_insights_v1_lines_get_latest_conductor_temperature_x_region import GridInsightsV1LinesGetLatestConductorTemperatureXRegion
 from ...models.problem_details import ProblemDetails
 from ...models.unit_system import UnitSystem
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import Unset
 from uuid import UUID
 
 

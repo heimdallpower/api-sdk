@@ -4,15 +4,13 @@ from typing import Any, Optional, Union, cast
 import httpx
 
 from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
+from ...types import Response
 from ... import errors
 
 from ...models.grid_insights_v1_lines_get_latest_current_response_200 import GridInsightsV1LinesGetLatestCurrentResponse200
 from ...models.grid_insights_v1_lines_get_latest_current_x_region import GridInsightsV1LinesGetLatestCurrentXRegion
 from ...models.problem_details import ProblemDetails
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import Unset
 from uuid import UUID
 
 
