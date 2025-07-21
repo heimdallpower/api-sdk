@@ -92,3 +92,25 @@ class HeimdallApiClient:
             line_id=line_id,
             region=self._get_region()
         )
+
+    def get_latest_circuit_rating(self, facility_id: UUID):
+        """
+        Returns the latest circuit rating for a given facility.
+        """
+        from heimdall_api_client.capacity_monitoring import get_latest_circuit_ratring
+        return get_latest_circuit_ratring(
+            client=self._get_authenticated_client(),
+            facility_id=facility_id,
+            x_region=self._get_region()
+        )
+    
+    def get_latest_circuit_rating_forecasts(self, facility_id: UUID):
+        """
+        Returns the latest circuit rating forecasts for a given facility.
+        """
+        from heimdall_api_client.capacity_monitoring import get_latest_circuit_rating_forecasts
+        return get_latest_circuit_rating_forecasts(
+            client=self._get_authenticated_client(),
+            facility_id=facility_id,
+            x_region=self._get_region()
+        )

@@ -30,3 +30,17 @@ def get_latest_heimdall_arr_forecasts(client: AuthenticatedClient, line_id: UUID
     if response.status_code != 200:
         raise Exception(f"Error fetching latest Heimdall AAR forecasts: {response.status_code} {response.text}")
     return response.parsed
+
+def get_latest_circuit_ratring(client: AuthenticatedClient, facility_id: UUID, x_region: str):
+    from heimdall_api_client.capacity_monitoring_api_client.api.facility import capacity_monitoring_v1_facilities_get_latest_circuit_rating as get_latest_circuit_rating
+    response = get_latest_circuit_rating.sync_detailed(client=client, facility_id=facility_id, x_region=x_region)
+    if response.status_code != 200:
+        raise Exception(f"Error fetching latest circuit rating: {response.status_code} {response.text}")
+    return response.parsed
+
+def get_latest_circuit_rating_forecasts(client: AuthenticatedClient, facility_id: UUID, x_region: str):
+    from heimdall_api_client.capacity_monitoring_api_client.api.facility import capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts as get_latest_circuit_rating_forecasts
+    response = get_latest_circuit_rating_forecasts.sync_detailed(client=client, facility_id=facility_id, x_region=x_region)
+    if response.status_code != 200:
+        raise Exception(f"Error fetching latest circuit rating forecasts: {response.status_code} {response.text}")
+    return response.parsed
