@@ -6,7 +6,7 @@ public record CircuitRatingDto
     /// Time (in UTC) when the circuit rating was.
     /// </summary>
     /// <example>2024-07-01T12:00:00.001Z</example>
-    public DateTime Timestamp { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>
     /// The measured circuit rating value.

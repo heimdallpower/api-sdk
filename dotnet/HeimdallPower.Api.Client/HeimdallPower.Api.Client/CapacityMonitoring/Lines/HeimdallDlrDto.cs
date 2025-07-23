@@ -6,7 +6,7 @@ public record HeimdallDlrDto
     /// Time (in UTC) when the Heimdall DLR was calculated.
     /// </summary>
     /// <example>2024-01-01T12:00:00Z</example>
-    public DateTime Timestamp { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>
     /// The minimum calculated ampacity (in amperes) at the given timestamp.

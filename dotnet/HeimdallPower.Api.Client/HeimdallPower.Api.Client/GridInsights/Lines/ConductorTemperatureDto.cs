@@ -6,7 +6,7 @@ public record ConductorTemperatureDto
     /// Time (in UTC) when the conductor temperature was measured.
     /// </summary>
     /// <example>2024-01-01T12:00:00Z</example>
-    public DateTime Timestamp { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>
     /// The maximum conductor temperature measured for the line at the given timestamp.

@@ -6,7 +6,7 @@ public record CurrentDto
     /// Time (in UTC) when the current was measured.
     /// </summary>
     /// <example>2023-12-01T12:00:00Z</example>
-    public DateTime Timestamp { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>
     /// The maximum current measured for the line at the given time.

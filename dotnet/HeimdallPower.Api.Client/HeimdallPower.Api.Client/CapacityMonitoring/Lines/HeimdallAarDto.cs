@@ -6,7 +6,7 @@ public record HeimdallAarDto
     /// Timestamp of the Heimdall AAR measurement.
     /// </summary>
     /// <example>2023-10-25T13:45:30Z</example>
-    public DateTime Timestamp { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>
     /// The measured value for this timestamp.

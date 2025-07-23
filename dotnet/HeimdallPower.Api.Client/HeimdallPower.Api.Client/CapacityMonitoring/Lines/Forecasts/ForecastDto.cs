@@ -6,7 +6,7 @@ public record ForecastDto
     /// Timestamp for the predicted forecast.
     /// </summary>
     /// <example>2024-01-01T12:00:00Z</example>
-    public DateTime Timestamp { get; init; }
+    public DateTimeOffset Timestamp { get; init; }
 
     /// <summary>
     /// The base prediction value for the forecast.

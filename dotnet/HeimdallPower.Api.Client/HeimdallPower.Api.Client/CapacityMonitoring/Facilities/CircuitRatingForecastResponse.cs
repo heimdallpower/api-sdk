@@ -18,7 +18,7 @@ public record CircuitRatingForecastResponse
     /// The timestamp when the forecasts were last updated.
     /// </summary>
     /// <example>2024-07-01T12:00:00.001Z</example>
-    public DateTime UpdatedTimestamp { get; init; }
+    public DateTimeOffset UpdatedTimestamp { get; init; }
 
     /// <summary>
     /// The forecasts for a 1-hour interval starting from the updated_timestamp.

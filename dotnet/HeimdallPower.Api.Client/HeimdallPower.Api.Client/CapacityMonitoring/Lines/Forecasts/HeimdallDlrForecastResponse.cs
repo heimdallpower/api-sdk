@@ -18,7 +18,7 @@ public record HeimdallDlrForecastResponse
     /// The timestamp when the forecasts were last updated.
     /// </summary>
     /// <example>2024-01-19T10:30:00Z</example>
-    public DateTime UpdatedTimestamp { get; init; }
+    public DateTimeOffset UpdatedTimestamp { get; init; }
 
     /// <summary>
     /// The forecasts for a 1-hour interval starting from the updated_timestamp.
