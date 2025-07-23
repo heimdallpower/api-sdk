@@ -5,19 +5,19 @@ namespace HeimdallPower.Api.Client;
 
 internal static class UrlBuilder
 {
-    //Modules
+    // Modules
     private const string CapacityMonitoring = "capacity_monitoring";
     private const string GridInsight = "grid_insights";
     private const string Assets = "assets";
 
     private const string V1 = "v1";
 
-    //Resources
+    // Resources
     private const string Lines = "lines";
     private const string Facilities = "facilities";
     private const string AssetsResource = "assets";
 
-    //Endpoints
+    // Endpoints
     private const string CircuitRatingForecasts = "circuit_ratings/forecasts";
     private const string CircuitRatingLatest = "circuit_ratings/latest";
     private const string ConductorTemperatures = "conductor_temperatures/latest";

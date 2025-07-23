@@ -49,9 +49,9 @@ public class HeimdallApiHttpClient(string clientId, string clientSecret)
 
     private async Task UpdateAccessTokenIfExpired()
     {
-        if (DateTime.Now > _tokenExpiresOn)
+        if (DateTimeOffset.UtcNow > _tokenExpiresOn)
         {
-            AuthenticationResult authenticationResult = await _msalClient.AcquireTokenForClient(new[] { Scope }).ExecuteAsync();
+            var authenticationResult = await _msalClient.AcquireTokenForClient([Scope]).ExecuteAsync();
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(authenticationResult.AccessToken);
             var region = token.Claims.First(claim => claim.Type == "region").Value;
