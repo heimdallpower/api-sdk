@@ -112,7 +112,7 @@ public class HeimdallApiClient(string clientId, string clientSecret)
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall DLR forecasts.</param>
-    public async Task<HeimdallDlrForecastResponse?> GetHeimdallDlrForecast(Guid lineId)
+    public async Task<HeimdallDlrForecastResponse?> GetHeimdallDlrForecasts(Guid lineId)
     {
         var url = UrlBuilder.BuildDlrForecastUrl(lineId);
         var response = await _heimdallApiClient.Get<ApiResponse<HeimdallDlrForecastResponse>>(url);
@@ -127,7 +127,7 @@ public class HeimdallApiClient(string clientId, string clientSecret)
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall AAR forecasts.</param>
-    public async Task<HeimdallAarForecastResponse?> GetHeimdallAarForecast(Guid lineId)
+    public async Task<HeimdallAarForecastResponse?> GetHeimdallAarForecasts(Guid lineId)
     {
         var url = UrlBuilder.BuildAarForecastUrl(lineId);
         var response = await _heimdallApiClient.Get<ApiResponse<HeimdallAarForecastResponse>>(url);
@@ -141,7 +141,7 @@ public class HeimdallApiClient(string clientId, string clientSecret)
     /// and are provided in 1-hour intervals.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    public async Task<CircuitRatingForecastResponse?> GetCircuitRatingForecast(Guid facilityId)
+    public async Task<CircuitRatingForecastResponse?> GetCircuitRatingForecasts(Guid facilityId)
     {
         var url = UrlBuilder.BuildCircuitRatingForecastUrl(facilityId);
         var response = await _heimdallApiClient.Get<ApiResponse<CircuitRatingForecastResponse>>(url);
