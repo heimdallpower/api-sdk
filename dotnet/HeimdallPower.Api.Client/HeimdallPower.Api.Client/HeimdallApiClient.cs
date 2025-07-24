@@ -53,7 +53,7 @@ public class HeimdallApiClient(string clientId, string clientSecret)
     /// The current is aggregated across the entire line using a 5-minute sliding window, where the maximum value is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest current.</param>
-    public async Task<LatestCurrentResponse?> GetLatestCurrent(Guid lineId, string unitSystem = "metric")
+    public async Task<LatestCurrentResponse?> GetLatestCurrent(Guid lineId)
     {
         var url = UrlBuilder.BuildLatestCurrentsUrl(lineId);
         var response = await _heimdallApiClient.Get<ApiResponse<LatestCurrentResponse>>(url);
@@ -67,6 +67,7 @@ public class HeimdallApiClient(string clientId, string clientSecret)
     /// The conductor temperature is aggregated across the entire line using a 5-minute sliding window, where the maximum and minimum values are calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest conductor temperature.</param>
+    /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
     public async Task<LatestConductorTemperatureResponse?> GetLatestConductorTemperature(Guid lineId, string unitSystem = "metric")
     {
         var url = UrlBuilder.BuildLatestConductorTemperatureUrl(lineId, unitSystem);
