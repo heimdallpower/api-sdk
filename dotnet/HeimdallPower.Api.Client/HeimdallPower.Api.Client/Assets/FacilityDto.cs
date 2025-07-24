@@ -12,7 +12,7 @@ public record FacilityDto
     /// Name of the facility.
     /// </summary>
     /// <example>Facility A</example>
-    public string Name { get; init; }
+    public required string Name { get; init; }
 
     /// <summary>
     /// Line associated with the facility, if available.

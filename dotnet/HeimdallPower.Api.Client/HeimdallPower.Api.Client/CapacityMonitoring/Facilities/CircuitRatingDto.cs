@@ -1,5 +1,9 @@
 namespace HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
 
+/// <summary>
+/// The circuit rating is defined as the lowest of either Heimdall DLR, lowest steady-state rating among all facility components, or the facility's upper limit.
+/// The upper limit can be either a fixed value or a percentage of the line's steady-state rating.
+/// </summary>
 public record CircuitRatingDto
 {
     /// <summary>

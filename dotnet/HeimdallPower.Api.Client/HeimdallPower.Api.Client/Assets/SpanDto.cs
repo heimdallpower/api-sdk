@@ -1,5 +1,9 @@
 ﻿namespace HeimdallPower.Api.Client.Assets;
 
+/// <summary>
+/// A span is a segment of a line between two towers (masts), uniquely identified by the mast pair.
+/// A span includes one or more span phases.
+/// </summary>
 public record SpanDto
 {
     /// <summary>
