@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <NoWarn>$(NoWarn);1591</NoWarn>
         <Nullable>enable</Nullable>
         <PackageId>HeimdallPower.Api.Client</PackageId>
         <Version>0.0.0</Version> <!-- Placeholder, overridden in CI -->

@@ -27,5 +27,5 @@ public record SpanDto
     /// <summary>
     /// List of span phases associated with the span.
     /// </summary>
-    public IReadOnlyCollection<SpanPhaseDto> SpanPhases { get; init; }
+    public required IReadOnlyCollection<SpanPhaseDto> SpanPhases { get; init; }
 }
