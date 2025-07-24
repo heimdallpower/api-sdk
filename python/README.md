@@ -16,6 +16,16 @@ curl -sSL https://install.python-poetry.org | python3 -
 poetry install
 ```
 
+### Installing the SDK
+
+The package can be downloaded and installed unsing the github relase artifacts
+
+```bash
+pip install https://github.com/heimdallpower/api-sdk/releases/download/v1.2.3/heimdall_api_sdk-1.2.3-py3-none-any.whl
+```
+
+> Replace the version and filename with the latest from [Releases](https://github.com/heimdallpower/api-sdk/releases)
+
 ### Usage Example
 
 ```python
