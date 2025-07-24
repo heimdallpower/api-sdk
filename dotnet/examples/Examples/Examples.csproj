@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="HeimdallPower.Api.Client" Version="1.0.0" />
+      <PackageReference Include="HeimdallPower.Api.Client" Version="2.0.0" />
     </ItemGroup>
 
 </Project>

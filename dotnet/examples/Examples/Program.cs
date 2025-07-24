@@ -12,22 +12,28 @@ var api = new HeimdallApiClient(clientId, clientSecret);
 
 // Fetch Lines data
 var lines = await api.GetLines();
-var line = lines.FirstOrDefault(line => line.Name.Equals(lineName));
+var line = lines.FirstOrDefault(line => (bool)line?.Name.Equals(lineName));
 
 // Fetch Facilities data
 var facilities = await api.GetFacilities();
-var facility = facilities.FirstOrDefault(f => f.Line.Name.Equals(lineName));
+var facility = facilities.FirstOrDefault(f => (bool)f.Line?.Name.Equals(lineName));
 
-// Fetch Aggregated Measurements data
-var measurementsLine = await api.GetLatestCurrent(line.Id);
-var measurementsSpan = await api.GetLatestConductorTemperature(line.Id);
+if (line != null)
+{
+    // Fetch Aggregated Measurements data
+    var latestCurrent = await api.GetLatestCurrent(line.Id);
+    var latestConductorTemperature = await api.GetLatestConductorTemperature(line.Id);
 
-// Fetch DLR data
-var latestDlr = await api.GetLatestHeimdallDlr(line.Id);
-var latestAar = await api.GetLatestHeimdallAar(line.Id);
-var forecastDlr = await api.GetHeimdallDlrForecast(line.Id);
-var forecastAar = await api.GetHeimdallAarForecast(line.Id);
+    // Fetch DLR data
+    var latestHeimdallDlr = await api.GetLatestHeimdallDlr(line.Id);
+    var latestHeimdallAar = await api.GetLatestHeimdallAar(line.Id);
+    var heimdallDlrForecasts = await api.GetHeimdallDlrForecasts(line.Id);
+    var heimdallAarForecasts = await api.GetHeimdallAarForecasts(line.Id);
+}
 
-// Fetch Circuit Rating data
-var circuitRatingForecast = await api.GetCircuitRatingForecast(facility.Id);
-var circuitRating = await api.GetLatestCircuitRating(facility.Id);
+if (facility != null)
+{
+    // Fetch Circuit Rating data
+    var circuitRatingForecast = await api.GetCircuitRatingForecasts(facility.Id);
+    var latestCircuitRating = await api.GetLatestCircuitRating(facility.Id);
+}
