@@ -1,5 +1,8 @@
 ﻿namespace HeimdallPower.Api.Client.Assets;
 
+/// <summary>
+/// A span phase is an individual phase within a span, identifiable by a grid owner-defined name.
+/// </summary>
 public record SpanPhaseDto
 {
     /// <summary>

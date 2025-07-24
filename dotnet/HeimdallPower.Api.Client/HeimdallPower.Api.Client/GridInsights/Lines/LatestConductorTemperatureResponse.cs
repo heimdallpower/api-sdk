@@ -6,16 +6,16 @@ public record LatestConductorTemperatureResponse
     /// The kind of data this response contains.
     /// </summary>
     /// <example>Conductor temperature</example>
-    public string Metric { get; init; }
+    public required string Metric { get; init; }
 
     /// <summary>
     /// The unit of the value in the response.
     /// </summary>
     /// <example>C</example>
-    public string Unit { get; init; }
+    public required string Unit { get; init; }
 
     /// <summary>
     /// The conductor temperature measurements containing timestamp and min/max values
     /// </summary>
-    public ConductorTemperatureDto ConductorTemperature { get; init; }
+    public required ConductorTemperatureDto ConductorTemperature { get; init; }
 }

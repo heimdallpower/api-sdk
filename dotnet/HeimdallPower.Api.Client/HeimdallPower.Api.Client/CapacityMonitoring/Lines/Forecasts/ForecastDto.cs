@@ -11,25 +11,25 @@ public record ForecastDto
     /// <summary>
     /// The base prediction value for the forecast.
     /// </summary>
-    public ProbabilisticLineAmpacityDto Prediction { get; init; }
+    public required ProbabilisticLineAmpacityDto Prediction { get; init; }
 
     /// <summary>
     /// The 80th percentile prediction value, representing an 80% confidence interval.
     /// </summary>
-    public ProbabilisticLineAmpacityDto P80 { get; init; }
+    public required ProbabilisticLineAmpacityDto P80 { get; init; }
 
     /// <summary>
     /// The 90th percentile prediction value, representing a 90% confidence interval.
     /// </summary>
-    public ProbabilisticLineAmpacityDto P90 { get; init; }
+    public required ProbabilisticLineAmpacityDto P90 { get; init; }
 
     /// <summary>
     /// The 95th percentile prediction value, representing a 95% confidence interval.
     /// </summary>
-    public ProbabilisticLineAmpacityDto P95 { get; init; }
+    public required ProbabilisticLineAmpacityDto P95 { get; init; }
 
     /// <summary>
     /// The 99th percentile prediction value, representing a 99% confidence interval.
     /// </summary>
-    public ProbabilisticLineAmpacityDto P99 { get; init; }
+    public required ProbabilisticLineAmpacityDto P99 { get; init; }
 }
