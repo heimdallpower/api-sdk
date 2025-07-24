@@ -34,6 +34,6 @@ if (line != null)
 if (facility != null)
 {
     // Fetch Circuit Rating data
-    var circuitRatingForecast = await api.GetCircuitRatingForecasts(facility.Id);
+    var circuitRatingForecasts = await api.GetCircuitRatingForecasts(facility.Id);
     var latestCircuitRating = await api.GetLatestCircuitRating(facility.Id);
 }
