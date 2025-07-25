@@ -114,3 +114,25 @@ class HeimdallApiClient:
             facility_id=facility_id,
             x_region=self._get_region()
         )
+    
+    def get_latest_conductor_temperature(self, line_id: UUID):
+        """
+        Returns the latest conductor temperature for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_latest_conductor_temperature
+        return get_latest_conductor_temperature(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region()
+        )
+    
+    def get_latest_current(self, line_id: UUID):
+        """
+        Returns the latest current for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_latest_current
+        return get_latest_current(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region()
+        )
