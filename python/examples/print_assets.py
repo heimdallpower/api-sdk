@@ -2,7 +2,7 @@ from heimdall_api_client.client import HeimdallApiClient
 import logging
 import pprint
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARN)
 
 client = HeimdallApiClient(
     client_id="your_client_id",

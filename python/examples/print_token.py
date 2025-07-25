@@ -1,7 +1,7 @@
 import logging
 from heimdall_api_client.auth import AuthService
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARN)
 
 auth = AuthService(
     client_id="your_client_id",
