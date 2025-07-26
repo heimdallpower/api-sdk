@@ -94,7 +94,7 @@ internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpC
 
     private async Task RefreshAccessToken()
     {
-        await _tokenLock.WaitAsync();
+        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30));
         try
         {
             var authenticationResult = await _msalClient.AcquireTokenForClient([Scope]).ExecuteAsync();
