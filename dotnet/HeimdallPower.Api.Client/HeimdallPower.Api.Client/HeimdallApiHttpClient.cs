@@ -86,7 +86,7 @@ internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpC
 
     private async Task UpdateAccessTokenIfExpired()
     {
-        if (_tokenExpiresOn == default || DateTimeOffset.UtcNow.AddMinutes(2) > _tokenExpiresOn)
+        if (_tokenExpiresOn == default || DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) > _tokenExpiresOn)
         {
             await RefreshAccessToken();
         }
