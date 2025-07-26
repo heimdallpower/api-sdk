@@ -18,7 +18,7 @@ Replace <latest_version> with the latest version from [NuGet](https://www.nuget.
 
 ### Usage Example
 
-```dotnet
+```csharp
 ﻿using HeimdallPower.Api.Client;
 
 var clientId = "insert-your-client-id-here";
