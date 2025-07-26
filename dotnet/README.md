@@ -28,4 +28,4 @@ var heimdallApiclient = new HeimdallApiClient(clientId, clientSecret);
 
 ```
 
-more examples can be seen in the [examples folder](examples).
+More examples can be seen in the [examples folder](examples).
