@@ -32,6 +32,7 @@ internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpC
     private const string Authority = $"{Instance}/tfp/{Domain}/{Policy}";
 
     private DateTimeOffset _tokenExpiresOn = default;
+    private static readonly TimeSpan TokenExpirationBuffer = TimeSpan.FromMinutes(2);
 
     public async Task<T> GetAsync<T>(string url)
     {
