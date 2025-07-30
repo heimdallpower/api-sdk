@@ -32,12 +32,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     {
         var url = UrlBuilder.BuildAssetsUrl();
         var response = await _heimdallApiClient.GetAsync<ApiResponse<AssetsResponse>>(url);
-        return response.Data.GridOwners
-            .Where(go => go?.Facilities is { Count: > 0 })
-            .SelectMany(go => go.Facilities
-                .Where(facility => facility?.Line != null)
-                .Select(facility => facility.Line))
-            .ToList();
+        return response.Data.AllLines();
     }
 
     /// <summary>
@@ -48,10 +43,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
         var url = UrlBuilder.BuildAssetsUrl();
         var response = await _heimdallApiClient.GetAsync<ApiResponse<AssetsResponse>>(url);
 
-        return response.Data.GridOwners
-            .Where(go => go?.Facilities is { Count: > 0 })
-            .SelectMany(go => go.Facilities)
-            .ToList();
+        return response.Data.AllFacilities();
     }
 
     /// <summary>

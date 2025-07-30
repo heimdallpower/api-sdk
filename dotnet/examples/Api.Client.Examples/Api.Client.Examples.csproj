@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="HeimdallPower.Api.Client" Version="2.0.0" />
+      <ProjectReference Include="..\..\HeimdallPower.Api.Client\HeimdallPower.Api.Client\HeimdallPower.Api.Client.csproj" />
     </ItemGroup>
 
 </Project>
