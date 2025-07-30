@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeimdallPower.Api.Client", "HeimdallPower.Api.Client\HeimdallPower.Api.Client\HeimdallPower.Api.Client.csproj", "{741E80ED-CB90-46AB-ADC3-B098B6385263}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeimdallPower.Api.Client.Extensions", "HeimdallPower.Api.Client\HeimdallPower.Api.Client.Extensions\HeimdallPower.Api.Client.Extensions.csproj", "{BEFF24DA-8F6C-4DAC-91E0-B3036F43A300}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{741E80ED-CB90-46AB-ADC3-B098B6385263}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{741E80ED-CB90-46AB-ADC3-B098B6385263}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{741E80ED-CB90-46AB-ADC3-B098B6385263}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEFF24DA-8F6C-4DAC-91E0-B3036F43A300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEFF24DA-8F6C-4DAC-91E0-B3036F43A300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEFF24DA-8F6C-4DAC-91E0-B3036F43A300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEFF24DA-8F6C-4DAC-91E0-B3036F43A300}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
