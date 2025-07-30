@@ -15,6 +15,17 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     private readonly HeimdallApiHttpClient _heimdallApiClient = new(clientId, clientSecret, httpClient);
 
     /// <summary>
+    /// Get all assets.
+    /// </summary>
+    /// <returns>The full asset hierarchy including grid owners, facilities, and lines.</returns>
+    public async Task<AssetsResponse> GetAssetsAsync()
+    {
+        var url = UrlBuilder.BuildAssetsUrl();
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<AssetsResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
     /// Get a list of all lines associated with the grid owner.
     /// </summary>
     public async Task<List<LineDto?>> GetLinesAsync()
