@@ -8,24 +8,47 @@ The SDK simplifies authentication and interaction with the External API using st
 
 ## Installation
 
-The package is available on NuGet:
+The package is available on [NuGet](https://www.nuget.org/profiles/heimdall_power):
 
 ```bash
-dotnet add package HeimdallPower.Api.Client --version <latest_version>
+dotnet add package HeimdallPower.Api.Client
 ```
 
-Replace <latest_version> with the latest version from [NuGet](https://www.nuget.org/packages/HeimdallPower.Api.Client).
+If you want DI integration and built-in resiliency, install:
+
+```bash
+dotnet add package HeimdallPower.Api.Client.Extensions
+```
 
 ### Usage Example
 
 ```csharp
 ﻿using HeimdallPower.Api.Client;
 
-var clientId = "insert-your-client-id-here";
-var clientSecret = "insert-your-client-secret-here";
+var clientId = "your-client-id";
+var clientSecret = "your-client-secret";
 
-var heimdallApiclient = new HeimdallApiClient(clientId, clientSecret);
+var heimdallApiClient = new HeimdallApiClient(clientId, clientSecret);
 
+```
+
+Using the optional HeimdallPower.Api.Client.Extensions package:
+
+```csharp
+using HeimdallPower.Api.Client;
+using HeimdallPower.Api.Client.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+
+var services = new ServiceCollection();
+
+services.AddHeimdallPowerApiClient(options =>
+{
+    options.ClientId = "your-client-id",
+    options.ClientSecret = "your-client-secret"
+});
+
+var provider = services.BuildServiceProvider();
+var heimdallApiClient = provider.GetRequiredService<HeimdallApiClient>();
 ```
 
 More examples can be seen in the [examples folder](examples).
