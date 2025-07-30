@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: dotnet/HeimdallPower.Api.Client/HeimdallPower.Api.Client
+        working-directory: dotnet
 
     steps:
       - name: Checkout repository
@@ -39,11 +39,13 @@ jobs:
         run: |
           VERSION=${GITHUB_REF_NAME#v}
           echo "Packing with version: $VERSION"
-          dotnet pack --configuration Release --no-build -o out /p:PackageVersion=$VERSION
+          dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client/HeimdallPower.Api.Client.csproj --configuration Release --no-build -o out /p:PackageVersion=$VERSION
+          dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client.Extensions/HeimdallPower.Api.Client.Extensions.csproj --configuration Release --no-build -o out /p:PackageVersion=$VERSION
 
       - name: Publish the package to nuget.org
         run: |
           for file in out/*.nupkg; do
+            echo "Publishing $file"
             dotnet nuget push "$file" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
           done
         env:
