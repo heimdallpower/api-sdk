@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <Nullable>enable</Nullable>
+        <PackageId>HeimdallPower.Api.Client.Extensions</PackageId>
+        <Version>0.0.0</Version> <!-- Placeholder, overridden in CI -->
+        <Authors>Heimdall Power</Authors>
+        <Company>Heimdall Power</Company>
+        <Description>Heimdall Power API client extensions for the Heimdall API SDK</Description>
+        <RepositoryUrl>https://github.com/heimdallpower/api-sdk</RepositoryUrl>
+        <PackageProjectUrl>https://developer.heimdallcloud.com</PackageProjectUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.7.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HeimdallPower.Api.Client\HeimdallPower.Api.Client.csproj" />
+    </ItemGroup>
+
+</Project>
