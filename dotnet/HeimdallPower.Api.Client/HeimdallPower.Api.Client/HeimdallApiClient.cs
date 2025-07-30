@@ -17,7 +17,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// <summary>
     /// Get a list of all lines associated with the grid owner.
     /// </summary>
-    public async Task<List<LineDto?>> GetLines()
+    public async Task<List<LineDto?>> GetLinesAsync()
     {
         var url = UrlBuilder.BuildAssetsUrl();
         var response = await _heimdallApiClient.GetAsync<ApiResponse<AssetsResponse>>(url);
@@ -32,7 +32,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// <summary>
     /// Get a list of facilities associated with the grid owner.
     /// </summary>
-    public async Task<List<FacilityDto>> GetFacilities()
+    public async Task<List<FacilityDto>> GetFacilitiesAsync()
     {
         var url = UrlBuilder.BuildAssetsUrl();
         var response = await _heimdallApiClient.GetAsync<ApiResponse<AssetsResponse>>(url);
@@ -49,7 +49,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// The current is aggregated across the entire line using a 5-minute sliding window, where the maximum value is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest current.</param>
-    public async Task<LatestCurrentResponse> GetLatestCurrent(Guid lineId)
+    public async Task<LatestCurrentResponse> GetLatestCurrentAsync(Guid lineId)
     {
         var url = UrlBuilder.BuildLatestCurrentsUrl(lineId);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCurrentResponse>>(url);
@@ -64,7 +64,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest conductor temperature.</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
-    public async Task<LatestConductorTemperatureResponse> GetLatestConductorTemperature(Guid lineId, string unitSystem = "metric")
+    public async Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric")
     {
         var url = UrlBuilder.BuildLatestConductorTemperatureUrl(lineId, unitSystem);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestConductorTemperatureResponse>>(url);
@@ -78,7 +78,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum ampacity is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
-    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlr(Guid lineId)
+    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId)
     {
         var url = UrlBuilder.BuildHeimdallDlrUrl(lineId);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallDlrResponse>>(url);
@@ -93,7 +93,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// Heimdall AAR is aggregated over the entire line. Using a 5-minute sliding window, the minimum ampacity is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall AAR.</param>
-    public async Task<LatestHeimdallAarResponse> GetLatestHeimdallAar(Guid lineId)
+    public async Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId)
     {
         var url = UrlBuilder.BuildHeimdallAarUrl(lineId);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallAarResponse>>(url);
@@ -108,7 +108,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall DLR forecasts.</param>
-    public async Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecasts(Guid lineId)
+    public async Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId)
     {
         var url = UrlBuilder.BuildDlrForecastUrl(lineId);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallDlrForecastResponse>>(url);
@@ -123,7 +123,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall AAR forecasts.</param>
-    public async Task<HeimdallAarForecastResponse> GetHeimdallAarForecasts(Guid lineId)
+    public async Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId)
     {
         var url = UrlBuilder.BuildAarForecastUrl(lineId);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallAarForecastResponse>>(url);
@@ -137,7 +137,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// and are provided in 1-hour intervals.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    public async Task<CircuitRatingForecastResponse> GetCircuitRatingForecasts(Guid facilityId)
+    public async Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId)
     {
         var url = UrlBuilder.BuildCircuitRatingForecastUrl(facilityId);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingForecastResponse>>(url);
@@ -151,7 +151,7 @@ public class HeimdallApiClient(string clientId, string clientSecret, HttpClient?
     /// and are provided in 1-hour intervals.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRating(Guid facilityId)
+    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId)
     {
         var url = UrlBuilder.BuildCircuitRatingUrl(facilityId);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCircuitRatingResponse>>(url);
