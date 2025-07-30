@@ -2,13 +2,13 @@
 using System.Text;
 using System.Web;
 
-namespace HeimdallPower.Api.Client.ExtensionMethods;
+namespace HeimdallPower.Api.Client;
 
-public static class NameValueCollectionExtensions
+internal static class NameValueCollectionExtensions
 {
     public static string ToQueryString(this NameValueCollection nameValueCollection)
     {
-        NameValueCollection httpValueCollection = HttpUtility.ParseQueryString(string.Empty, Encoding.UTF8);
+        var httpValueCollection = HttpUtility.ParseQueryString(string.Empty, Encoding.UTF8);
         httpValueCollection.Add(nameValueCollection);
         return $"?{httpValueCollection}";
     }

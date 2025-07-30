@@ -1,5 +1,4 @@
 ﻿using System.Collections.Specialized;
-using HeimdallPower.Api.Client.ExtensionMethods;
 
 namespace HeimdallPower.Api.Client;
 
