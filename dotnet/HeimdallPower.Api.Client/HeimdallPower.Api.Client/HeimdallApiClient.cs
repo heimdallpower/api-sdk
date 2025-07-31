@@ -10,9 +10,9 @@ namespace HeimdallPower.Api.Client;
 /// A client that lets you consume the Heimdall Power API.
 /// Throws <see cref="HeimdallApiException"/> on errors.
 /// </summary>
-public class HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null)
+public class HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null)
 {
-    private readonly HeimdallApiHttpClient _heimdallApiClient = new(clientId, clientSecret, httpClient);
+    private readonly HeimdallApiHttpClient _heimdallApiClient = new(clientId, clientSecret, httpClient, clientMetadata);
 
     /// <summary>
     /// Get all assets.

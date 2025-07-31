@@ -35,7 +35,7 @@ public static class HeimdallApiClientExtensions
             var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient(clientName);
 
-            return new HeimdallApiClient(options.ClientId, options.ClientSecret, httpClient);
+            return new HeimdallApiClient(options.ClientId, options.ClientSecret, httpClient, options.ClientMetadata);
         });
 
         return services;
