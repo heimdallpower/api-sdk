@@ -21,8 +21,9 @@ class HeimdallApiClient:
         auth_policy: str = "b2c_1a_clientcredentialsflow",
         tenant: str = "hpadb2cprod",
         auth_authority_domain: str = "hpadb2cprod.b2clogin.com",
-        auth_scope: Optional[List[str]] = None,
-        logger: Optional[logging.Logger] = None,
+        auth_scope: Optional[List[str]] | None = None,
+        logger: Optional[logging.Logger] | None = None,
+        client_metadata: dict[str, str] | None = None
     ):
         self.logger = logger or logging.getLogger(__name__)
 
@@ -37,9 +38,17 @@ class HeimdallApiClient:
 
         self.api_base_url = api_base_url
 
+        default_metadata = {
+            "x-client-name": "python-sdk",
+            "x-client-version": "0.0.0",
+        }
+
+        # Ensure user values override the defaults
+        self.client_metadata = {**default_metadata, **(client_metadata or {})}
+
     def _get_authenticated_client(self) -> AuthenticatedClient:
         token = self.auth_service.get_valid_token()
-        return AuthenticatedClient(base_url=self.api_base_url, token=token)
+        return AuthenticatedClient(base_url=self.api_base_url, token=token, headers=self.client_metadata)
     
     def _get_region(self) -> str:
         return self.auth_service.get_region_from_token()

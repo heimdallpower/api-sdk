@@ -1,12 +1,13 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Reflection;
 using System.Text.Json;
 using Microsoft.Identity.Client;
 
 namespace HeimdallPower.Api.Client;
 
-internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpClient? httpClient = null)
+internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null)
 {
     private HttpClient HttpClient { get; } = httpClient ?? new() { BaseAddress = new Uri(ApiUrl) };
 
@@ -93,6 +94,33 @@ internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpC
         }
     }
 
+    private static readonly string AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
+    private const string ClientName = "dotnet-sdk";
+
+    /// <summary>
+    /// Builds the client headers to be sent with each request.
+    /// Includes client name, version, and any additional metadata provided.
+    /// </summary>
+    /// <returns></returns>
+    private Dictionary<string, string> BuildClientHeaders()
+    {
+        var headers = new Dictionary<string, string>
+        {
+            { "x-client-name", ClientName },
+            { "x-client-version", AssemblyVersion },
+        };
+
+        if (clientMetadata != null)
+        {
+            foreach (var kvp in clientMetadata)
+            {
+                headers[kvp.Key] = kvp.Value; // Overwrite defaults if present
+            }
+        }
+
+        return headers;
+    }
+
     private async Task RefreshAccessToken()
     {
         await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30));
@@ -103,6 +131,14 @@ internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpC
             var token = handler.ReadJwtToken(authenticationResult.AccessToken);
             var region = token.Claims.First(claim => claim.Type == "region").Value;
             HttpClient.DefaultRequestHeaders.Add("x-region", region);
+            foreach (var header in BuildClientHeaders())
+            {
+                if (header.Key.Equals("x-region", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue; // Skip adding x-region as this should be set from the token
+                }
+                HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+            }
             _tokenExpiresOn = authenticationResult.ExpiresOn;
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
         }

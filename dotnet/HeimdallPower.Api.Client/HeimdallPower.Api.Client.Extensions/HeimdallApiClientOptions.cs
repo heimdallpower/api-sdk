@@ -14,4 +14,9 @@ public class HeimdallApiClientOptions
     /// The client secret for the Heimdall Power API.
     /// </summary>
     public required string ClientSecret { get; init; }
+
+    /// <summary>
+    /// Additional metadata to include in the request headers.
+    /// </summary>
+    public Dictionary<string, string>? ClientMetadata { get; init; }
 }
