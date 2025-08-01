@@ -13,7 +13,7 @@
         <Description>Heimdall Power API client extensions for the Heimdall API SDK</Description>
         <RepositoryUrl>https://github.com/heimdallpower/api-sdk</RepositoryUrl>
         <PackageProjectUrl>https://developer.heimdallcloud.com</PackageProjectUrl>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
