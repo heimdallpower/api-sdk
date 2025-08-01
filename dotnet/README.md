@@ -52,3 +52,7 @@ var heimdallApiClient = provider.GetRequiredService<HeimdallApiClient>();
 ```
 
 More examples can be seen in the [examples folder](examples).
+
+## License
+
+This SDK is licensed under the [MIT License](LICENSE).

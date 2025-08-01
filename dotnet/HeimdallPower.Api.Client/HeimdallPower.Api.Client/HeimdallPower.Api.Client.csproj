@@ -14,6 +14,7 @@
         <Description>SDK for interacting with the Heimdall Power External API</Description>
         <RepositoryUrl>https://github.com/heimdallpower/api-sdk</RepositoryUrl>
         <PackageProjectUrl>https://developer.heimdallcloud.com</PackageProjectUrl>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     </PropertyGroup>
 
     <ItemGroup>
