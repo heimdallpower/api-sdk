@@ -1,22 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Net;
-using System.Net.Http.Headers;
+﻿using System.Net;
 using System.Reflection;
 using System.Text.Json;
-using Microsoft.Identity.Client;
 
 namespace HeimdallPower.Api.Client;
 
-internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null)
+internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, HttpClient httpClient, Dictionary<string, string>? clientMetadata = null)
 {
-    private HttpClient HttpClient { get; } = httpClient ?? new() { BaseAddress = new Uri(ApiUrl) };
+    private HttpClient HttpClient { get; } = httpClient;
 
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
-
-    private readonly IConfidentialClientApplication _msalClient = ConfidentialClientApplicationBuilder.Create(clientId)
-        .WithClientSecret(clientSecret)
-        .WithAuthority(Authority)
-        .Build();
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -25,14 +17,7 @@ internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpC
         WriteIndented = true
     };
 
-    private const string ApiUrl = "https://external-api.heimdallcloud.com";
-    private const string Policy = "B2C_1A_CLIENTCREDENTIALSFLOW";
-    private const string Instance = "https://hpadb2cprod.b2clogin.com";
-    private const string Domain = "hpadb2cprod.onmicrosoft.com";
-    private const string Scope = $"https://{Domain}/dc5758ae-4eea-416e-9e61-812914d9a49a/.default";
-    private const string Authority = $"{Instance}/tfp/{Domain}/{Policy}";
-
-    private DateTimeOffset _tokenExpiresOn = default;
+    private DateTimeOffset _tokenExpiresOn;
     private static readonly TimeSpan TokenExpirationBuffer = TimeSpan.FromMinutes(2);
 
     public async Task<T> GetAsync<T>(string url)
@@ -126,21 +111,21 @@ internal class HeimdallApiHttpClient(string clientId, string clientSecret, HttpC
         await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30));
         try
         {
-            var authenticationResult = await _msalClient.AcquireTokenForClient([Scope]).ExecuteAsync();
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(authenticationResult.AccessToken);
-            var region = token.Claims.First(claim => claim.Type == "region").Value;
-            HttpClient.DefaultRequestHeaders.Add("x-region", region);
+            await accessTokenProvider.AcquireTokenAsync();
+            _tokenExpiresOn = accessTokenProvider.GetTokenExpiry();
+            foreach (var header in accessTokenProvider.GetAccessHeaders())
+            {
+                HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+            }
             foreach (var header in BuildClientHeaders())
             {
                 if (header.Key.Equals("x-region", StringComparison.OrdinalIgnoreCase))
                 {
                     continue; // Skip adding x-region as this should be set from the token
                 }
+
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
-            _tokenExpiresOn = authenticationResult.ExpiresOn;
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authenticationResult.AccessToken);
         }
         finally
         {

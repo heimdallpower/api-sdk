@@ -10,9 +10,25 @@ namespace HeimdallPower.Api.Client;
 /// A client that lets you consume the Heimdall Power API.
 /// Throws <see cref="HeimdallApiException"/> on errors.
 /// </summary>
-public class HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null)
+public class HeimdallApiClient
 {
-    private readonly HeimdallApiHttpClient _heimdallApiClient = new(clientId, clientSecret, httpClient, clientMetadata);
+    private const string ApiUrl = "https://external-api.heimdallcloud.com";
+    private const string Policy = "B2C_1A_CLIENTCREDENTIALSFLOW";
+    private const string Instance = "https://hpadb2cprod.b2clogin.com";
+    private const string Domain = "hpadb2cprod.onmicrosoft.com";
+    private const string Scope = $"https://{Domain}/dc5758ae-4eea-416e-9e61-812914d9a49a/.default";
+    private const string Authority = $"{Instance}/tfp/{Domain}/{Policy}";
+    private readonly HeimdallApiHttpClient _heimdallApiClient;
+
+    /// <summary>
+    /// A client that lets you consume the Heimdall Power API.
+    /// Throws <see cref="HeimdallApiException"/> on errors.
+    /// </summary>
+    public HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null)
+    {
+        var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, Authority, Scope);
+        _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, httpClient ?? new HttpClient { BaseAddress = new Uri(ApiUrl) }, clientMetadata);
+    }
 
     /// <summary>
     /// Get all assets.

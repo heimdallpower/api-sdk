@@ -1,0 +1,34 @@
+name: .NET Integration Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'dotnet/**'
+  workflow_dispatch:
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dotnet
+    if: github.repository_owner == 'heimdallpower'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run integration tests
+        env:
+          HEIMDALL_CLIENT_ID: ${{ secrets.HEIMDALL_CLIENT_ID }}
+          HEIMDALL_CLIENT_SECRET: ${{ secrets.HEIMDALL_CLIENT_SECRET }}
+        run: dotnet test --filter Category=Integration --configuration Release

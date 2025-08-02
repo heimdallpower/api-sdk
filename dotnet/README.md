@@ -23,7 +23,7 @@ dotnet add package HeimdallPower.Api.Client.Extensions
 ### Usage Example
 
 ```csharp
-﻿using HeimdallPower.Api.Client;
+using HeimdallPower.Api.Client;
 
 var clientId = "your-client-id";
 var clientSecret = "your-client-secret";
@@ -43,8 +43,8 @@ var services = new ServiceCollection();
 
 services.AddHeimdallPowerApiClient(options =>
 {
-    options.ClientId = "your-client-id",
-    options.ClientSecret = "your-client-secret"
+    options.ClientId = "your-client-id";
+    options.ClientSecret = "your-client-secret";
 });
 
 var provider = services.BuildServiceProvider();

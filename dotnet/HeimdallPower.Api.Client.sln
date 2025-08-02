@@ -6,6 +6,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeimdallPower.Api.Client.Ex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Client.Examples", "examples\Api.Client.Examples\Api.Client.Examples.csproj", "{08F47872-3376-472F-B10E-EFF39EF3CFF8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{39C80089-F861-4AAB-AF7E-699DFCB359A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration", "{10EE1B99-3A8D-4D3C-890F-296CDD6037ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeimdallPower.Api.Client.IntegrationTests", "tests\integration\HeimdallPower.Api.Client.IntegrationTests\HeimdallPower.Api.Client.IntegrationTests.csproj", "{E5BCB312-BED1-4866-B14B-255A599F6EBB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +30,16 @@ Global
 		{08F47872-3376-472F-B10E-EFF39EF3CFF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08F47872-3376-472F-B10E-EFF39EF3CFF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08F47872-3376-472F-B10E-EFF39EF3CFF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5BCB312-BED1-4866-B14B-255A599F6EBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5BCB312-BED1-4866-B14B-255A599F6EBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5BCB312-BED1-4866-B14B-255A599F6EBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5BCB312-BED1-4866-B14B-255A599F6EBB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{10EE1B99-3A8D-4D3C-890F-296CDD6037ED} = {39C80089-F861-4AAB-AF7E-699DFCB359A9}
+		{E5BCB312-BED1-4866-B14B-255A599F6EBB} = {10EE1B99-3A8D-4D3C-890F-296CDD6037ED}
 	EndGlobalSection
 EndGlobal
