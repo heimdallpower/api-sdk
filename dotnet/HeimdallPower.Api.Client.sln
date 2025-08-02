@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeimdallPower.Api.Client.IntegrationTests", "tests\integration\HeimdallPower.Api.Client.IntegrationTests\HeimdallPower.Api.Client.IntegrationTests.csproj", "{E5BCB312-BED1-4866-B14B-255A599F6EBB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{71D0FD6A-66C5-4B49-8E9C-CC6B21DED409}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +43,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{10EE1B99-3A8D-4D3C-890F-296CDD6037ED} = {39C80089-F861-4AAB-AF7E-699DFCB359A9}
 		{E5BCB312-BED1-4866-B14B-255A599F6EBB} = {10EE1B99-3A8D-4D3C-890F-296CDD6037ED}
+		{08F47872-3376-472F-B10E-EFF39EF3CFF8} = {71D0FD6A-66C5-4B49-8E9C-CC6B21DED409}
 	EndGlobalSection
 EndGlobal
