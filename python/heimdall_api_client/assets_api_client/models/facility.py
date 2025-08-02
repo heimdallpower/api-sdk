@@ -6,6 +6,7 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from typing import cast
 from typing import Union
 from uuid import UUID
 
@@ -26,12 +27,12 @@ class Facility:
         Attributes:
             id (UUID): Unique identifier of the facility. Example: 00000000-0000-0000-0000-000000000000.
             name (str): Name of the facility. Example: Facility A.
-            line (Union[Unset, Line]):
+            line (Union['Line', None, Unset]): Line associated with the facility, if available.
      """
 
     id: UUID
     name: str
-    line: Union[Unset, 'Line'] = UNSET
+    line: Union['Line', None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -39,13 +40,18 @@ class Facility:
 
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.line import Line
         id = str(self.id)
 
         name = self.name
 
-        line: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.line, Unset):
+        line: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.line, Unset):
+            line = UNSET
+        elif isinstance(self.line, Line):
             line = self.line.to_dict()
+        else:
+            line = self.line
 
 
         field_dict: dict[str, Any] = {}
@@ -72,14 +78,24 @@ class Facility:
 
         name = d.pop("name")
 
-        _line = d.pop("line", UNSET)
-        line: Union[Unset, Line]
-        if isinstance(_line,  Unset):
-            line = UNSET
-        else:
-            line = Line.from_dict(_line)
+        def _parse_line(data: object) -> Union['Line', None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                line_type_0 = Line.from_dict(data)
 
 
+
+                return line_type_0
+            except: # noqa: E722
+                pass
+            return cast(Union['Line', None, Unset], data)
+
+        line = _parse_line(d.pop("line", UNSET))
 
 
         facility = cls(

@@ -1,0 +1,38 @@
+name: Python Integration Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "python/**"
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python
+
+    env:
+      HEIMDALL_CLIENT_ID: ${{ secrets.HEIMDALL_CLIENT_ID }}
+      HEIMDALL_CLIENT_SECRET: ${{ secrets.HEIMDALL_CLIENT_SECRET }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run integration tests
+        run: poetry run pytest -m integration --tb=short

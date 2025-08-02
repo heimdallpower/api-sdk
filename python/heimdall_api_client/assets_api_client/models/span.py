@@ -27,8 +27,8 @@ class Span:
         Attributes:
             id (UUID): Unique identifier of the span. Example: 00000000-0000-0000-0000-000000000000.
             span_phases (list['SpanPhase']): List of span phases associated with the span.
-            mast_name_a (Union[None, Unset, str]): Name of the first mast in the span. Example: Mast A.
-            mast_name_b (Union[None, Unset, str]): Name of the second mast in the span. Example: Mast B.
+            mast_name_a (Union[None, Unset, str]):
+            mast_name_b (Union[None, Unset, str]):
      """
 
     id: UUID
