@@ -29,12 +29,9 @@ class AuthService:
         self.tenant = tenant
         self.auth_policy = auth_policy
         self.authority_domain = authority_domain
-        self.scope = scope or [
-            "https://hpadb2cprod.onmicrosoft.com/dc5758ae-4eea-416e-9e61-812914d9a49a/.default"
-        ]
+        self.scope = scope or ["https://hpadb2cprod.onmicrosoft.com/dc5758ae-4eea-416e-9e61-812914d9a49a/.default"]
         self.token_url = (
-            f"https://{self.authority_domain}/"
-            f"{self.tenant}.onmicrosoft.com/{self.auth_policy}/oauth2/v2.0/token"
+            f"https://{self.authority_domain}/{self.tenant}.onmicrosoft.com/{self.auth_policy}/oauth2/v2.0/token"
         )
         self._access_token: Optional[str] = None
         self._expires_at: Optional[datetime] = None

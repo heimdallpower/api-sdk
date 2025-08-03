@@ -5,59 +5,46 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 
-
 if TYPE_CHECKING:
-  from ..models.circuit_rating_forecasts import CircuitRatingForecasts
-
-
-
+    from ..models.circuit_rating_forecasts import CircuitRatingForecasts
 
 
 T = TypeVar("T", bound="CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200")
 
 
-
 @_attrs_define
 class CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200:
-    """ 
-        Attributes:
-            data (CircuitRatingForecasts):
-     """
+    """
+    Attributes:
+        data (CircuitRatingForecasts):
+    """
 
-    data: 'CircuitRatingForecasts'
+    data: "CircuitRatingForecasts"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         data = self.data.to_dict()
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "data": data,
-        })
+        field_dict.update(
+            {
+                "data": data,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.circuit_rating_forecasts import CircuitRatingForecasts
+
         d = dict(src_dict)
         data = CircuitRatingForecasts.from_dict(d.pop("data"))
-
-
-
 
         capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_response_200 = cls(
             data=data,
         )
-
 
         capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_response_200.additional_properties = d
         return capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_response_200

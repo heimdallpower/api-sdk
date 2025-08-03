@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.WARN)
 auth = AuthService(
     client_id="your_client_id",
     client_secret="your_client_secret",
-    )
+)
 
 token = auth.get_valid_token()
 print(f"Access Token: {token}")

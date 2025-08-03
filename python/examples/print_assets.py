@@ -11,7 +11,7 @@ client = HeimdallApiClient(
 
 assets = client.get_assets()
 pprint.pprint(assets)
-#new line
+# new line
 print("\nAssets retrieved successfully:\n")
 # Print the assets in a readable format
 for gridowner in assets.data.grid_owners:
@@ -20,7 +20,7 @@ for gridowner in assets.data.grid_owners:
         print("\n")
         print(f"  Facility: {facility.name}")
         print(f"  ID: {facility.id}")
-        if facility.line: # A Facility can have zero or one line
+        if facility.line:  # A Facility can have zero or one line
             print(f"  Line ID: {facility.line.id}")
             print(f"  Line Name: {facility.line.name}")
             for span in facility.line.spans:

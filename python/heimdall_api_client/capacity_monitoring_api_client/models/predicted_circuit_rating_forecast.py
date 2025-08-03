@@ -9,39 +9,31 @@ from dateutil.parser import isoparse
 import datetime
 
 if TYPE_CHECKING:
-  from ..models.probabilistic_circuit_rating_ampacity import ProbabilisticCircuitRatingAmpacity
-
-
-
+    from ..models.probabilistic_circuit_rating_ampacity import ProbabilisticCircuitRatingAmpacity
 
 
 T = TypeVar("T", bound="PredictedCircuitRatingForecast")
 
 
-
 @_attrs_define
 class PredictedCircuitRatingForecast:
-    """ 
-        Attributes:
-            timestamp (datetime.datetime): Timestamp for the predicted forecast. Example: 2024-07-01T12:00:00.001Z.
-            prediction (ProbabilisticCircuitRatingAmpacity):
-            p80 (ProbabilisticCircuitRatingAmpacity):
-            p90 (ProbabilisticCircuitRatingAmpacity):
-            p95 (ProbabilisticCircuitRatingAmpacity):
-            p99 (ProbabilisticCircuitRatingAmpacity):
-     """
+    """
+    Attributes:
+        timestamp (datetime.datetime): Timestamp for the predicted forecast. Example: 2024-07-01T12:00:00.001Z.
+        prediction (ProbabilisticCircuitRatingAmpacity):
+        p80 (ProbabilisticCircuitRatingAmpacity):
+        p90 (ProbabilisticCircuitRatingAmpacity):
+        p95 (ProbabilisticCircuitRatingAmpacity):
+        p99 (ProbabilisticCircuitRatingAmpacity):
+    """
 
     timestamp: datetime.datetime
-    prediction: 'ProbabilisticCircuitRatingAmpacity'
-    p80: 'ProbabilisticCircuitRatingAmpacity'
-    p90: 'ProbabilisticCircuitRatingAmpacity'
-    p95: 'ProbabilisticCircuitRatingAmpacity'
-    p99: 'ProbabilisticCircuitRatingAmpacity'
+    prediction: "ProbabilisticCircuitRatingAmpacity"
+    p80: "ProbabilisticCircuitRatingAmpacity"
+    p90: "ProbabilisticCircuitRatingAmpacity"
+    p95: "ProbabilisticCircuitRatingAmpacity"
+    p99: "ProbabilisticCircuitRatingAmpacity"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         timestamp = self.timestamp.isoformat()
@@ -56,55 +48,37 @@ class PredictedCircuitRatingForecast:
 
         p99 = self.p99.to_dict()
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "timestamp": timestamp,
-            "prediction": prediction,
-            "p80": p80,
-            "p90": p90,
-            "p95": p95,
-            "p99": p99,
-        })
+        field_dict.update(
+            {
+                "timestamp": timestamp,
+                "prediction": prediction,
+                "p80": p80,
+                "p90": p90,
+                "p95": p95,
+                "p99": p99,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.probabilistic_circuit_rating_ampacity import ProbabilisticCircuitRatingAmpacity
+
         d = dict(src_dict)
         timestamp = isoparse(d.pop("timestamp"))
 
-
-
-
         prediction = ProbabilisticCircuitRatingAmpacity.from_dict(d.pop("prediction"))
-
-
-
 
         p80 = ProbabilisticCircuitRatingAmpacity.from_dict(d.pop("p80"))
 
-
-
-
         p90 = ProbabilisticCircuitRatingAmpacity.from_dict(d.pop("p90"))
-
-
-
 
         p95 = ProbabilisticCircuitRatingAmpacity.from_dict(d.pop("p95"))
 
-
-
-
         p99 = ProbabilisticCircuitRatingAmpacity.from_dict(d.pop("p99"))
-
-
-
 
         predicted_circuit_rating_forecast = cls(
             timestamp=timestamp,
@@ -114,7 +88,6 @@ class PredictedCircuitRatingForecast:
             p95=p95,
             p99=p99,
         )
-
 
         predicted_circuit_rating_forecast.additional_properties = d
         return predicted_circuit_rating_forecast

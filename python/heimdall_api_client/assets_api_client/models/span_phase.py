@@ -10,29 +10,20 @@ from typing import cast, Union
 from uuid import UUID
 
 
-
-
-
-
 T = TypeVar("T", bound="SpanPhase")
-
 
 
 @_attrs_define
 class SpanPhase:
-    """ 
-        Attributes:
-            id (UUID): Unique identifier of the span phase. Example: 00000000-0000-0000-0000-000000000000.
-            name (Union[None, Unset, str]): Name of the span phase, defined by the grid owner. Example: Phase A.
-     """
+    """
+    Attributes:
+        id (UUID): Unique identifier of the span phase. Example: 00000000-0000-0000-0000-000000000000.
+        name (Union[None, Unset, str]): Name of the span phase, defined by the grid owner. Example: Phase A.
+    """
 
     id: UUID
     name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         id = str(self.id)
@@ -43,26 +34,22 @@ class SpanPhase:
         else:
             name = self.name
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "id": id,
-        })
+        field_dict.update(
+            {
+                "id": id,
+            }
+        )
         if name is not UNSET:
             field_dict["name"] = name
 
         return field_dict
 
-
-
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         id = UUID(d.pop("id"))
-
-
-
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -73,12 +60,10 @@ class SpanPhase:
 
         name = _parse_name(d.pop("name", UNSET))
 
-
         span_phase = cls(
             id=id,
             name=name,
         )
-
 
         span_phase.additional_properties = d
         return span_phase

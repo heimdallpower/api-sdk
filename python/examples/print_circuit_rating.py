@@ -23,8 +23,12 @@ for facility in grid_owner.facilities:
         print(f"Facility: {facility.name}")
         print(f"    {circuit_rating_response.data.metric}, timestamp {circuit_rating.timestamp}\n")
         print(f"        {circuit_rating.value} {circuit_rating_response.data.unit}\n")
-        print(f"    {circuit_rating_forecast_response.data.metric}, updated at {circuit_rating_forecast_response.data.updated_timestamp}:")
+        print(
+            f"    {circuit_rating_forecast_response.data.metric}, updated at {circuit_rating_forecast_response.data.updated_timestamp}:"
+        )
         for forecast in circuit_rating_forecast:
-            print(f"      {forecast.timestamp}: {forecast.prediction.value} {circuit_rating_forecast_response.data.unit}")
+            print(
+                f"      {forecast.timestamp}: {forecast.prediction.value} {circuit_rating_forecast_response.data.unit}"
+            )
     except Exception as e:
         print(f"  Failed to fetch circuit rating for facility '{facility.name}' (ID: {facility.id}): {e}\n")

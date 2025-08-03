@@ -11,35 +11,27 @@ from typing import Union
 from uuid import UUID
 
 if TYPE_CHECKING:
-  from ..models.span_phase import SpanPhase
-
-
-
+    from ..models.span_phase import SpanPhase
 
 
 T = TypeVar("T", bound="Span")
 
 
-
 @_attrs_define
 class Span:
-    """ 
-        Attributes:
-            id (UUID): Unique identifier of the span. Example: 00000000-0000-0000-0000-000000000000.
-            span_phases (list['SpanPhase']): List of span phases associated with the span.
-            mast_name_a (Union[None, Unset, str]): Name of the first mast in the span. Example: Mast A.
-            mast_name_b (Union[None, Unset, str]): Name of the second mast in the span. Example: Mast B.
-     """
+    """
+    Attributes:
+        id (UUID): Unique identifier of the span. Example: 00000000-0000-0000-0000-000000000000.
+        span_phases (list['SpanPhase']): List of span phases associated with the span.
+        mast_name_a (Union[None, Unset, str]): Name of the first mast in the span. Example: Mast A.
+        mast_name_b (Union[None, Unset, str]): Name of the second mast in the span. Example: Mast B.
+    """
 
     id: UUID
-    span_phases: list['SpanPhase']
+    span_phases: list["SpanPhase"]
     mast_name_a: Union[None, Unset, str] = UNSET
     mast_name_b: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         id = str(self.id)
@@ -48,8 +40,6 @@ class Span:
         for span_phases_item_data in self.span_phases:
             span_phases_item = span_phases_item_data.to_dict()
             span_phases.append(span_phases_item)
-
-
 
         mast_name_a: Union[None, Unset, str]
         if isinstance(self.mast_name_a, Unset):
@@ -63,13 +53,14 @@ class Span:
         else:
             mast_name_b = self.mast_name_b
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "id": id,
-            "span_phases": span_phases,
-        })
+        field_dict.update(
+            {
+                "id": id,
+                "span_phases": span_phases,
+            }
+        )
         if mast_name_a is not UNSET:
             field_dict["mast_name_a"] = mast_name_a
         if mast_name_b is not UNSET:
@@ -77,26 +68,19 @@ class Span:
 
         return field_dict
 
-
-
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.span_phase import SpanPhase
+
         d = dict(src_dict)
         id = UUID(d.pop("id"))
 
-
-
-
         span_phases = []
         _span_phases = d.pop("span_phases")
-        for span_phases_item_data in (_span_phases):
+        for span_phases_item_data in _span_phases:
             span_phases_item = SpanPhase.from_dict(span_phases_item_data)
 
-
-
             span_phases.append(span_phases_item)
-
 
         def _parse_mast_name_a(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -107,7 +91,6 @@ class Span:
 
         mast_name_a = _parse_mast_name_a(d.pop("mast_name_a", UNSET))
 
-
         def _parse_mast_name_b(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -117,14 +100,12 @@ class Span:
 
         mast_name_b = _parse_mast_name_b(d.pop("mast_name_b", UNSET))
 
-
         span = cls(
             id=id,
             span_phases=span_phases,
             mast_name_a=mast_name_a,
             mast_name_b=mast_name_b,
         )
-
 
         span.additional_properties = d
         return span

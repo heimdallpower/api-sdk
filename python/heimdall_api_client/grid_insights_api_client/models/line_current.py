@@ -9,54 +9,41 @@ from dateutil.parser import isoparse
 import datetime
 
 
-
-
-
-
 T = TypeVar("T", bound="LineCurrent")
-
 
 
 @_attrs_define
 class LineCurrent:
-    """ 
-        Attributes:
-            timestamp (datetime.datetime): Time (in UTC) when the current was measured. Example: 2024-07-01T12:00:00.001Z.
-            value (float): The maximum current measured for the line at the given time. Example: 452.3.
-     """
+    """
+    Attributes:
+        timestamp (datetime.datetime): Time (in UTC) when the current was measured. Example: 2024-07-01T12:00:00.001Z.
+        value (float): The maximum current measured for the line at the given time. Example: 452.3.
+    """
 
     timestamp: datetime.datetime
     value: float
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         timestamp = self.timestamp.isoformat()
 
         value = self.value
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "timestamp": timestamp,
-            "value": value,
-        })
+        field_dict.update(
+            {
+                "timestamp": timestamp,
+                "value": value,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         timestamp = isoparse(d.pop("timestamp"))
-
-
-
 
         value = d.pop("value")
 
@@ -64,7 +51,6 @@ class LineCurrent:
             timestamp=timestamp,
             value=value,
         )
-
 
         line_current.additional_properties = d
         return line_current

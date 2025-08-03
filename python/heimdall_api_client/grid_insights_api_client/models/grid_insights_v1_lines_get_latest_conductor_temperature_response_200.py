@@ -5,59 +5,46 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 
-
 if TYPE_CHECKING:
-  from ..models.latest_conductor_temperature import LatestConductorTemperature
-
-
-
+    from ..models.latest_conductor_temperature import LatestConductorTemperature
 
 
 T = TypeVar("T", bound="GridInsightsV1LinesGetLatestConductorTemperatureResponse200")
 
 
-
 @_attrs_define
 class GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
-    """ 
-        Attributes:
-            data (LatestConductorTemperature):
-     """
+    """
+    Attributes:
+        data (LatestConductorTemperature):
+    """
 
-    data: 'LatestConductorTemperature'
+    data: "LatestConductorTemperature"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         data = self.data.to_dict()
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "data": data,
-        })
+        field_dict.update(
+            {
+                "data": data,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.latest_conductor_temperature import LatestConductorTemperature
+
         d = dict(src_dict)
         data = LatestConductorTemperature.from_dict(d.pop("data"))
-
-
-
 
         grid_insights_v1_lines_get_latest_conductor_temperature_response_200 = cls(
             data=data,
         )
-
 
         grid_insights_v1_lines_get_latest_conductor_temperature_response_200.additional_properties = d
         return grid_insights_v1_lines_get_latest_conductor_temperature_response_200

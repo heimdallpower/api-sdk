@@ -5,35 +5,26 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 
-
 if TYPE_CHECKING:
-  from ..models.line_current import LineCurrent
-
-
-
+    from ..models.line_current import LineCurrent
 
 
 T = TypeVar("T", bound="LatestLineCurrent")
 
 
-
 @_attrs_define
 class LatestLineCurrent:
-    """ 
-        Attributes:
-            metric (str): What kind of data does this response contain. Example: Current.
-            unit (str): The unit of the value in the response. Example: Ampere.
-            current (LineCurrent):
-     """
+    """
+    Attributes:
+        metric (str): What kind of data does this response contain. Example: Current.
+        unit (str): The unit of the value in the response. Example: Ampere.
+        current (LineCurrent):
+    """
 
     metric: str
     unit: str
-    current: 'LineCurrent'
+    current: "LineCurrent"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         metric = self.metric
@@ -42,22 +33,22 @@ class LatestLineCurrent:
 
         current = self.current.to_dict()
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "metric": metric,
-            "unit": unit,
-            "current": current,
-        })
+        field_dict.update(
+            {
+                "metric": metric,
+                "unit": unit,
+                "current": current,
+            }
+        )
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.line_current import LineCurrent
+
         d = dict(src_dict)
         metric = d.pop("metric")
 
@@ -65,15 +56,11 @@ class LatestLineCurrent:
 
         current = LineCurrent.from_dict(d.pop("current"))
 
-
-
-
         latest_line_current = cls(
             metric=metric,
             unit=unit,
             current=current,
         )
-
 
         latest_line_current.additional_properties = d
         return latest_line_current

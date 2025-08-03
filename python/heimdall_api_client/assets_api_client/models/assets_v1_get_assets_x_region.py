@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class AssetsV1GetAssetsXRegion(str, Enum):
     EU = "eu"
     US = "us"

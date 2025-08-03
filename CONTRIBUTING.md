@@ -56,12 +56,10 @@ poetry update # updates all dependecies. Note, does not alter the pyproject.toml
 We use Ruff for formatting and linting.
 
 ```bash
-poetry run ruff chec .
-# Optionally
-poetry run ruff check . --fix # This will also fix any liniting issues
-```
+poetry run ruff check . --fix 
 
-Generated clients in *_api_client folders are excluded from linting.
+poetry run ruff formate .
+```
 
 ### Building the Package
 

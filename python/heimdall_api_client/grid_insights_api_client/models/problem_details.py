@@ -9,24 +9,19 @@ from ..types import UNSET, Unset
 from typing import Union
 
 
-
-
-
-
 T = TypeVar("T", bound="ProblemDetails")
-
 
 
 @_attrs_define
 class ProblemDetails:
-    """ 
-        Attributes:
-            type_ (Union[Unset, str]):
-            title (Union[Unset, str]):
-            status (Union[Unset, int]):
-            detail (Union[Unset, str]):
-            instance (Union[Unset, str]):
-     """
+    """
+    Attributes:
+        type_ (Union[Unset, str]):
+        title (Union[Unset, str]):
+        status (Union[Unset, int]):
+        detail (Union[Unset, str]):
+        instance (Union[Unset, str]):
+    """
 
     type_: Union[Unset, str] = UNSET
     title: Union[Unset, str] = UNSET
@@ -34,10 +29,6 @@ class ProblemDetails:
     detail: Union[Unset, str] = UNSET
     instance: Union[Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         type_ = self.type_
@@ -50,11 +41,9 @@ class ProblemDetails:
 
         instance = self.instance
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-        })
+        field_dict.update({})
         if type_ is not UNSET:
             field_dict["type"] = type_
         if title is not UNSET:
@@ -67,8 +56,6 @@ class ProblemDetails:
             field_dict["instance"] = instance
 
         return field_dict
-
-
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -90,7 +77,6 @@ class ProblemDetails:
             detail=detail,
             instance=instance,
         )
-
 
         problem_details.additional_properties = d
         return problem_details

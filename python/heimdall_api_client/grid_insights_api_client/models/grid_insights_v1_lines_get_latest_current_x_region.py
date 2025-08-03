@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class GridInsightsV1LinesGetLatestCurrentXRegion(str, Enum):
     EU = "eu"
     US = "us"
