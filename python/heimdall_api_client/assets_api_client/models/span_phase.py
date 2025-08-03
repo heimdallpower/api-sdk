@@ -23,7 +23,7 @@ class SpanPhase:
     """ 
         Attributes:
             id (UUID): Unique identifier of the span phase. Example: 00000000-0000-0000-0000-000000000000.
-            name (Union[None, Unset, str]):
+            name (Union[None, Unset, str]): Name of the span phase, defined by the grid owner. Example: Phase A.
      """
 
     id: UUID

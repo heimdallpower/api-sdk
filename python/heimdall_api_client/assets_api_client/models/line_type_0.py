@@ -14,12 +14,12 @@ if TYPE_CHECKING:
 
 
 
-T = TypeVar("T", bound="Line")
+T = TypeVar("T", bound="LineType0")
 
 
 
 @_attrs_define
-class Line:
+class LineType0:
     """ 
         Attributes:
             id (UUID): Unique identifier of the line. Example: 00000000-0000-0000-0000-000000000000.
@@ -90,7 +90,7 @@ class Line:
             spans.append(spans_item)
 
 
-        line = cls(
+        line_type_0 = cls(
             id=id,
             name=name,
             available_forecast_hours=available_forecast_hours,
@@ -98,8 +98,8 @@ class Line:
         )
 
 
-        line.additional_properties = d
-        return line
+        line_type_0.additional_properties = d
+        return line_type_0
 
     @property
     def additional_keys(self) -> list[str]:

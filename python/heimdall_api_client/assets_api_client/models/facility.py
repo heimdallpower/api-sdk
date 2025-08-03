@@ -11,7 +11,7 @@ from typing import Union
 from uuid import UUID
 
 if TYPE_CHECKING:
-  from ..models.line import Line
+  from ..models.line_type_0 import LineType0
 
 
 
@@ -27,12 +27,12 @@ class Facility:
         Attributes:
             id (UUID): Unique identifier of the facility. Example: 00000000-0000-0000-0000-000000000000.
             name (str): Name of the facility. Example: Facility A.
-            line (Union['Line', None, Unset]): Line associated with the facility, if available.
+            line (Union['LineType0', None, Unset]):
      """
 
     id: UUID
     name: str
-    line: Union['Line', None, Unset] = UNSET
+    line: Union['LineType0', None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
 
@@ -40,7 +40,7 @@ class Facility:
 
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.line import Line
+        from ..models.line_type_0 import LineType0
         id = str(self.id)
 
         name = self.name
@@ -48,7 +48,7 @@ class Facility:
         line: Union[None, Unset, dict[str, Any]]
         if isinstance(self.line, Unset):
             line = UNSET
-        elif isinstance(self.line, Line):
+        elif isinstance(self.line, LineType0):
             line = self.line.to_dict()
         else:
             line = self.line
@@ -69,7 +69,7 @@ class Facility:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.line import Line
+        from ..models.line_type_0 import LineType0
         d = dict(src_dict)
         id = UUID(d.pop("id"))
 
@@ -78,7 +78,7 @@ class Facility:
 
         name = d.pop("name")
 
-        def _parse_line(data: object) -> Union['Line', None, Unset]:
+        def _parse_line(data: object) -> Union['LineType0', None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -86,14 +86,14 @@ class Facility:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                line_type_0 = Line.from_dict(data)
+                componentsschemas_line_type_0 = LineType0.from_dict(data)
 
 
 
-                return line_type_0
+                return componentsschemas_line_type_0
             except: # noqa: E722
                 pass
-            return cast(Union['Line', None, Unset], data)
+            return cast(Union['LineType0', None, Unset], data)
 
         line = _parse_line(d.pop("line", UNSET))
 
