@@ -1,12 +1,11 @@
 name: Python Integration Tests
 
 on:
-  workflow_dispatch:
   push:
-    branches: [main]
-  pull_request:
+    branches: [ main ]
     paths:
-      - "python/**"
+      - 'python/**'
+  workflow_dispatch:
 
 jobs:
   integration-tests:
@@ -14,6 +13,7 @@ jobs:
     defaults:
       run:
         working-directory: python
+    if: github.repository_owner == 'heimdallpower'
 
     env:
       HEIMDALL_CLIENT_ID: ${{ secrets.HEIMDALL_CLIENT_ID }}
