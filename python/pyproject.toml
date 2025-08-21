@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.12.8"
+ruff = "^0.12.9"
 pytest = "^8.4.1"
 
 [tool.poetry]
