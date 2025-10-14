@@ -24,10 +24,10 @@ public class HeimdallApiClient
     /// A client that lets you consume the Heimdall Power API.
     /// Throws <see cref="HeimdallApiException"/> on errors.
     /// </summary>
-    public HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null)
+    public HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null, HttpClientHandler? httpClientHandler = null)
     {
         var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, Authority, Scope);
-        _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, httpClient ?? new HttpClient { BaseAddress = new Uri(ApiUrl) }, clientMetadata);
+        _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, httpClient ?? new HttpClient(httpClientHandler ?? new HttpClientHandler()) { BaseAddress = new Uri(ApiUrl) }, clientMetadata);
     }
 
     /// <summary>
