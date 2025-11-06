@@ -13,6 +13,13 @@ updates:
     labels:
       - "dependencies"
       - "dotnet"
+    groups:
+      nuget-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "pip"
     directory: "/python"
@@ -23,3 +30,10 @@ updates:
       - "dependencies"
       - "python"
     versioning-strategy: auto
+    groups:
+      pip-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
