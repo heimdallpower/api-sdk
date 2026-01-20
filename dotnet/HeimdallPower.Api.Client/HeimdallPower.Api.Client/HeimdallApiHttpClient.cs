@@ -113,6 +113,10 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
         {
             await accessTokenProvider.AcquireTokenAsync();
             _tokenExpiresOn = accessTokenProvider.GetTokenExpiry();
+
+            HttpClient.DefaultRequestHeaders.Remove("Authorization");
+            HttpClient.DefaultRequestHeaders.Remove("Region");
+
             foreach (var header in accessTokenProvider.GetAccessHeaders())
             {
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
@@ -124,6 +128,7 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
                     continue; // Skip adding x-region as this should be set from the token
                 }
 
+                HttpClient.DefaultRequestHeaders.Remove(header.Key);
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
         }
