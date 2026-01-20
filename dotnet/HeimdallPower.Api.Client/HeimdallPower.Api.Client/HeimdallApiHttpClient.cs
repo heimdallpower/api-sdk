@@ -111,10 +111,16 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
         await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30));
         try
         {
+            // Check if another thread already refreshed while we were waiting
+            if (_tokenExpiresOn != default && DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) <= _tokenExpiresOn)
+                return;
+
             await accessTokenProvider.AcquireTokenAsync();
             _tokenExpiresOn = accessTokenProvider.GetTokenExpiry();
+
             foreach (var header in accessTokenProvider.GetAccessHeaders())
             {
+                HttpClient.DefaultRequestHeaders.Remove(header.Key);
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
             foreach (var header in BuildClientHeaders())
@@ -124,6 +130,7 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
                     continue; // Skip adding x-region as this should be set from the token
                 }
 
+                HttpClient.DefaultRequestHeaders.Remove(header.Key);
                 HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
         }
