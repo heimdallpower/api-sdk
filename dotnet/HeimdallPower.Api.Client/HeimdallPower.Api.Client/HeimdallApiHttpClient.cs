@@ -4,11 +4,9 @@ using System.Text.Json;
 
 namespace HeimdallPower.Api.Client;
 
-internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, HttpClient httpClient, Dictionary<string, string>? clientMetadata = null)
+internal class HeimdallApiHttpClient(HttpClient httpClient)
 {
     private HttpClient HttpClient { get; } = httpClient;
-
-    private readonly SemaphoreSlim _tokenLock = new(1, 1);
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -17,18 +15,12 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
         WriteIndented = true
     };
 
-    private DateTimeOffset _tokenExpiresOn;
-    private static readonly TimeSpan TokenExpirationBuffer = TimeSpan.FromMinutes(2);
-
     public async Task<T> GetAsync<T>(string url)
     {
-        return await ExecuteWithAuthRetry(async () =>
-        {
-            var response = await HttpClient.GetAsync(url);
-            var jsonString = await HandleResponse(response);
-            return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
-                   ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
-        });
+        var response = await HttpClient.GetAsync(url);
+        var jsonString = await HandleResponse(response);
+        return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
+               ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
     }
 
     private static async Task<string> HandleResponse(HttpResponseMessage response)
@@ -53,88 +45,5 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
             throw new HeimdallApiException(problem, response.StatusCode, response.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
         }
         throw new HeimdallApiException($"Request failed with status code {response.StatusCode}: {content}", response.StatusCode, response.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
-    }
-
-
-
-    private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc)
-    {
-        try
-        {
-            await UpdateAccessTokenIfExpired();
-            return await operationFunc();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            await RefreshAccessToken();
-            return await operationFunc();
-        }
-    }
-
-    private async Task UpdateAccessTokenIfExpired()
-    {
-        if (_tokenExpiresOn == default || DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) > _tokenExpiresOn)
-        {
-            await RefreshAccessToken();
-        }
-    }
-
-    private static readonly string AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
-    private const string ClientName = "dotnet-sdk";
-
-    /// <summary>
-    /// Builds the client headers to be sent with each request.
-    /// Includes client name, version, and any additional metadata provided.
-    /// </summary>
-    /// <returns></returns>
-    private Dictionary<string, string> BuildClientHeaders()
-    {
-        var headers = new Dictionary<string, string>
-        {
-            { "x-client-name", ClientName },
-            { "x-client-version", AssemblyVersion },
-        };
-
-        if (clientMetadata != null)
-        {
-            foreach (var kvp in clientMetadata)
-            {
-                headers[kvp.Key] = kvp.Value; // Overwrite defaults if present
-            }
-        }
-
-        return headers;
-    }
-
-    private async Task RefreshAccessToken()
-    {
-        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30));
-        try
-        {
-            await accessTokenProvider.AcquireTokenAsync();
-            _tokenExpiresOn = accessTokenProvider.GetTokenExpiry();
-
-            HttpClient.DefaultRequestHeaders.Remove("Authorization");
-            HttpClient.DefaultRequestHeaders.Remove("Region");
-
-            foreach (var header in accessTokenProvider.GetAccessHeaders())
-            {
-                HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-            }
-            foreach (var header in BuildClientHeaders())
-            {
-                if (header.Key.Equals("x-region", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue; // Skip adding x-region as this should be set from the token
-                }
-
-                HttpClient.DefaultRequestHeaders.Remove(header.Key);
-                HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-            }
-        }
-        finally
-        {
-            _tokenLock.Release();
-        }
     }
 }

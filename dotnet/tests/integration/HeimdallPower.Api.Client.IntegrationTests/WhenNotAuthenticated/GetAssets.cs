@@ -9,7 +9,7 @@ public class GetAssets(GetAssets.Scenario scenario) : IClassFixture<GetAssets.Sc
         {
             const string clientSecret = "invalid-client-secret";
             const string clientId = "invalid-client-id";
-            Client = new HeimdallApiClient(clientId, clientSecret, new HttpClient(), new Dictionary<string, string>
+            Client = new HeimdallApiClient(clientId, clientSecret,new Dictionary<string, string>
             {
                 { "c-client-name", "HeimdallPower.Api.Client.IntegrationTests" },
                 { "c-client-version", "0.0.0" },

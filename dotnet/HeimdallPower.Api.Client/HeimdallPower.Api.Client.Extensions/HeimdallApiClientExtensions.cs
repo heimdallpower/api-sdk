@@ -21,21 +21,22 @@ public static class HeimdallApiClientExtensions
 
         services.Configure(configureOptions);
 
+        services.AddTransient<AuthenticationHandler>();
+
         services.AddHttpClient(clientName)
             .ConfigureHttpClient((_, client) =>
             {
                 client.BaseAddress = new Uri("https://external-api.heimdallcloud.com");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             })
+            .AddHttpMessageHandler<AuthenticationHandler>()
             .AddStandardResilienceHandler();
 
         services.AddSingleton(sp =>
         {
             var options = sp.GetRequiredService<IOptions<HeimdallApiClientOptions>>().Value;
-            var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-            var httpClient = httpClientFactory.CreateClient(clientName);
 
-            return new HeimdallApiClient(options.ClientId, options.ClientSecret, httpClient, options.ClientMetadata);
+            return new HeimdallApiClient(options.ClientId, options.ClientSecret, options.ClientMetadata);
         });
 
         return services;
