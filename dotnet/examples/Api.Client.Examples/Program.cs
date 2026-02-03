@@ -28,7 +28,7 @@ var latestIcing = await api.GetLatestIcingAsync(line.Id);
 
 Console.WriteLine($"- Current: {latestCurrent.Current.Value} {latestCurrent.Unit} at {latestCurrent.Current.Timestamp}");
 Console.WriteLine($"- Conductor Temperature: {latestConductorTemperature.ConductorTemperature.Max} {latestConductorTemperature.Unit} at {latestConductorTemperature.ConductorTemperature.Timestamp}");
-Console.WriteLine($"- Icing: Maximum Ice weight: {latestIcing.Icing.Max.IceWeight} at span phase: {latestIcing.Icing.Max.IceWeight.SpanPhaseId}");
+Console.WriteLine($"- Icing: Maximum Ice weight: {latestIcing.Icing.Max.IceWeight.Value} at span phase: {latestIcing.Icing.Max.IceWeight.SpanPhaseId}");
 
 // Fetch DLR data
 var latestDlr = await api.GetLatestHeimdallDlrAsync(line.Id);

@@ -65,7 +65,7 @@ internal static class UrlBuilder
             .AddQueryParam("unit_system", unitSystem);
 
         if (since.HasValue)
-            queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString());
+            queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString("o"));
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingLatest, queryParams: queryParams);
     }
