@@ -1,3 +1,5 @@
+using HeimdallPower.Api.Client.GridInsights.Lines.Dtos;
+
 namespace HeimdallPower.Api.Client.GridInsights.Lines;
 
 public record LatestConductorTemperatureResponse
