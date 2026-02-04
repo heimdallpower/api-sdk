@@ -2,22 +2,22 @@ using HeimdallPower.Api.Client.GridInsights.Lines.Dtos;
 
 namespace HeimdallPower.Api.Client.GridInsights.Lines;
 
-public record LatestCurrentResponse
+public record LatestIcingResponse
 {
     /// <summary>
     /// The kind of data this response contains.
     /// </summary>
-    /// <example>Current</example>
+    /// <example>Icing</example>
     public required string Metric { get; init; }
 
     /// <summary>
-    /// The unit of the value in the response.
+    /// The unit description for the response (multiple units across measurements).
     /// </summary>
-    /// <example>Ampere</example>
+    /// <example>Multiple (see measurements)</example>
     public required string Unit { get; init; }
 
     /// <summary>
-    /// The latest current measurement data including timestamp and value.
+    /// The icing measurements including max and per-span/phase values.
     /// </summary>
-    public required CurrentDto Current { get; init; }
+    public required IcingDto Icing { get; init; }
 }

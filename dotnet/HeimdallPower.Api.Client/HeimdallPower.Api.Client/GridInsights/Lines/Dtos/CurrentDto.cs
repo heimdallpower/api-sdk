@@ -1,4 +1,4 @@
-﻿namespace HeimdallPower.Api.Client.GridInsights.Lines;
+﻿namespace HeimdallPower.Api.Client.GridInsights.Lines.Dtos;
 
 public record CurrentDto
 {

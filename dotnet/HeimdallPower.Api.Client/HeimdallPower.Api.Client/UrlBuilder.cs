@@ -25,6 +25,7 @@ internal static class UrlBuilder
     private const string HeimdallAar = "heimdall_aars/latest";
     private const string HeimdallDlrForecast = "heimdall_dlrs/forecasts";
     private const string HeimdallAarForecast = "heimdall_aars/forecasts";
+    private const string IcingLatest = "icing/latest";
 
     public static string BuildLatestConductorTemperatureUrl(Guid lineId, string unitSystem)
     {
@@ -57,6 +58,17 @@ internal static class UrlBuilder
 
     public static string BuildCircuitRatingUrl(Guid facilityId)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest);
+
+    public static string BuildLatestIcingUrl(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("unit_system", unitSystem);
+
+        if (since.HasValue)
+            queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString("o"));
+
+        return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingLatest, queryParams: queryParams);
+    }
 
     private static string GetResourceUrl(string module, string apiVersion, string resource)
         => $"{module}/{apiVersion}/{resource}";

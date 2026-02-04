@@ -24,9 +24,11 @@ Console.WriteLine($"Using line: {line.Name} (ID: {line.Id})");
 // Fetch Aggregated Measurements data
 var latestCurrent = await api.GetLatestCurrentAsync(line.Id);
 var latestConductorTemperature = await api.GetLatestConductorTemperatureAsync(line.Id);
+var latestIcing = await api.GetLatestIcingAsync(line.Id);
 
 Console.WriteLine($"- Current: {latestCurrent.Current.Value} {latestCurrent.Unit} at {latestCurrent.Current.Timestamp}");
 Console.WriteLine($"- Conductor Temperature: {latestConductorTemperature.ConductorTemperature.Max} {latestConductorTemperature.Unit} at {latestConductorTemperature.ConductorTemperature.Timestamp}");
+Console.WriteLine($"- Icing: Maximum Ice weight: {latestIcing.Icing.Max.IceWeight.Value} at span phase: {latestIcing.Icing.Max.IceWeight.SpanPhaseId}");
 
 // Fetch DLR data
 var latestDlr = await api.GetLatestHeimdallDlrAsync(line.Id);

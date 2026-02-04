@@ -91,6 +91,19 @@ public class HeimdallApiClient
     }
 
     /// <summary>
+    /// Get the most recent icing measurements for the line, including maximum values and per-span/phase metrics.
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve the latest icing measurements.</param>
+    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
+    /// <param name="since">Optional cutoff time (UTC). Only measurements at or after this instant are considered. Older data for a span phase is excluded. If omitted, defaults to 30 min ago.</param>
+    public async Task<LatestIcingResponse> GetLatestIcingAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null)
+    {
+        var url = UrlBuilder.BuildLatestIcingUrl(lineId, unitSystem, since);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestIcingResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// Heimdall DLR is calculated according to our own proprietary method, based on the CIGRE TB-601 standard for thermal calculation for OHLs.
     /// This method also takes the conductor temperature and current into account and uses these to adjust the weather parameters during calculations.
