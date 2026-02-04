@@ -1,6 +1,8 @@
 import logging
 from typing import List, Optional
 from uuid import UUID
+import datetime
+from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
 from heimdall_api_client.auth import AuthService
 from heimdall_api_client.assets import get_assets
 from heimdall_api_client.capacity_monitoring import (
@@ -132,3 +134,22 @@ class HeimdallApiClient:
         from heimdall_api_client.grid_insights import get_latest_current
 
         return get_latest_current(client=self._get_authenticated_client(), line_id=line_id, region=self._get_region())
+
+    def get_latest_icing(
+        self,
+        line_id: UUID,
+        unit_system: UnitSystem | str | None = None,
+        since: datetime.datetime | None = None,
+    ):
+        """
+        Returns the latest icing measurements for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_latest_icing
+
+        return get_latest_icing(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region(),
+            unit_system=unit_system,
+            since=since,
+        )
