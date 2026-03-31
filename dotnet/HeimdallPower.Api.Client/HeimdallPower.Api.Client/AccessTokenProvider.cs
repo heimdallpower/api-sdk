@@ -59,7 +59,7 @@ internal class AccessTokenProvider(string clientId, string clientSecret, string 
         return new Dictionary<string, string>()
         {
             { "Authorization", $"Bearer {_authResult.AccessToken}" },
-            { "Region", GetRegion() }
+            { "x-region", GetRegion() }
         };
     }
 }
