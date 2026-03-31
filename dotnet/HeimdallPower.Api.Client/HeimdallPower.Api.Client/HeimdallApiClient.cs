@@ -10,7 +10,7 @@ namespace HeimdallPower.Api.Client;
 /// A client that lets you consume the Heimdall Power API.
 /// Throws <see cref="HeimdallApiException"/> on errors.
 /// </summary>
-public class HeimdallApiClient
+public class HeimdallApiClient : IHeimdallApiClient
 {
     private const string ApiUrl = "https://external-api.heimdallcloud.com";
     private const string Policy = "B2C_1A_CLIENTCREDENTIALSFLOW";
