@@ -51,7 +51,29 @@ var provider = services.BuildServiceProvider();
 var heimdallApiClient = provider.GetRequiredService<HeimdallApiClient>();
 ```
 
+You can also inject `IHeimdallApiClient` for the abstraction.
+
 More examples can be seen in the [examples folder](examples).
+
+### Proxy Configuration
+
+Configure an outbound HTTP proxy via `ProxyOptions`:
+
+```csharp
+services.AddHeimdallPowerApiClient(options =>
+{
+    options.ClientId = "your-client-id";
+    options.ClientSecret = "your-client-secret";
+    options.Proxy = new ProxyOptions
+    {
+        Address = "http://proxy.example.com:8080",
+        Username = "proxy-user",     // optional
+        Password = "proxy-password", // optional
+    };
+});
+```
+
+When no explicit `Address` is set, the SDK falls back to `HTTPS_PROXY`/`HTTP_PROXY`/`NO_PROXY` environment variables. The proxy applies to both API calls and token acquisition.
 
 ## License
 
