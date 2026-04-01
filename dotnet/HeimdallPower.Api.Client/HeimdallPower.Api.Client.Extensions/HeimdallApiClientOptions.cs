@@ -19,4 +19,10 @@ public class HeimdallApiClientOptions
     /// Additional metadata to include in the request headers.
     /// </summary>
     public Dictionary<string, string>? ClientMetadata { get; set; }
+
+    /// <summary>
+    /// Optional proxy configuration. When set, all HTTP requests (API calls and token acquisition)
+    /// are routed through the specified proxy.
+    /// </summary>
+    public ProxyOptions? Proxy { get; set; }
 }
