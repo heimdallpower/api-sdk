@@ -10,12 +10,29 @@ internal interface IAccessTokenProvider
     IDictionary<string, string> GetAccessHeaders();
 }
 
-internal class AccessTokenProvider(string clientId, string clientSecret, string authority, string scope) : IAccessTokenProvider
+internal class AccessTokenProvider(
+    string clientId,
+    string clientSecret,
+    string authority,
+    string scope,
+    HttpMessageHandler? proxyHandler = null) : IAccessTokenProvider
 {
-    private readonly IConfidentialClientApplication _msalClient = ConfidentialClientApplicationBuilder.Create(clientId)
-        .WithClientSecret(clientSecret)
-        .WithAuthority(authority)
-        .Build();
+    private readonly IConfidentialClientApplication _msalClient = BuildMsalClient(clientId, clientSecret, authority, proxyHandler);
+
+    private static IConfidentialClientApplication BuildMsalClient(
+        string clientId, string clientSecret, string authority, HttpMessageHandler? proxyHandler)
+    {
+        var builder = ConfidentialClientApplicationBuilder.Create(clientId)
+            .WithClientSecret(clientSecret)
+            .WithAuthority(authority);
+
+        if (proxyHandler != null)
+        {
+            builder.WithHttpClientFactory(new MsalProxyHttpClientFactory(proxyHandler));
+        }
+
+        return builder.Build();
+    }
 
     private AuthenticationResult? _authResult;
 
@@ -62,4 +79,13 @@ internal class AccessTokenProvider(string clientId, string clientSecret, string 
             { "x-region", GetRegion() }
         };
     }
+}
+
+/// <summary>
+/// Adapts an <see cref="HttpMessageHandler"/> to MSAL's <see cref="IMsalHttpClientFactory"/>
+/// so that MSAL token requests are routed through a proxy.
+/// </summary>
+internal class MsalProxyHttpClientFactory(HttpMessageHandler handler) : IMsalHttpClientFactory
+{
+    public HttpClient GetHttpClient() => new(handler, disposeHandler: false);
 }

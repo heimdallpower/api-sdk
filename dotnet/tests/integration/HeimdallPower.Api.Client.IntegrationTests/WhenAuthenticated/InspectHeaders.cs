@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;
 
 [Trait("Category", "Integration")]
@@ -7,7 +5,7 @@ public class InspectHeaders(InspectHeaders.Scenario scenario) : IClassFixture<In
 {
     public class Scenario : AuthenticatedHeimdallApiClient
     {
-        public HttpRequestMessage? CapturedRequest { get; private set; }
+        public HttpRequestMessage? CapturedRequest { get; }
 
         public Scenario()
         {

@@ -27,6 +27,11 @@ public static class HeimdallApiClientExtensions
                 client.BaseAddress = new Uri("https://external-api.heimdallcloud.com");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             })
+            .ConfigurePrimaryHttpMessageHandler(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<HeimdallApiClientOptions>>().Value;
+                return ProxyHandlerFactory.CreateHandler(options.Proxy) ?? new HttpClientHandler();
+            })
             .AddStandardResilienceHandler();
 
         services.AddSingleton(sp =>
@@ -34,9 +39,12 @@ public static class HeimdallApiClientExtensions
             var options = sp.GetRequiredService<IOptions<HeimdallApiClientOptions>>().Value;
             var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient(clientName);
+            var proxyHandler = ProxyHandlerFactory.CreateHandler(options.Proxy);
 
-            return new HeimdallApiClient(options.ClientId, options.ClientSecret, httpClient, options.ClientMetadata);
+            return new HeimdallApiClient(options.ClientId, options.ClientSecret, httpClient, options.ClientMetadata, proxyHandler);
         });
+
+        services.AddSingleton<IHeimdallApiClient>(sp => sp.GetRequiredService<HeimdallApiClient>());
 
         return services;
     }
