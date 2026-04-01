@@ -1,4 +1,4 @@
-name: .NET Build
+name: .NET Build and Test
 
 on:
     push:
@@ -31,3 +31,6 @@ jobs:
 
       - name: Build
         run: dotnet build --no-restore
+
+      - name: Run unit tests
+        run: dotnet test --no-build --filter Category=Unit
