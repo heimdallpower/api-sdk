@@ -1,12 +1,12 @@
+from __future__ import annotations
+
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-
 from dateutil.parser import isoparse
-import datetime
 
 if TYPE_CHECKING:
     from ..models.probabilistic_line_ampacity import ProbabilisticLineAmpacity
@@ -19,7 +19,7 @@ T = TypeVar("T", bound="PredictedForecast")
 class PredictedForecast:
     """
     Attributes:
-        timestamp (datetime.datetime): Timestamp for the predicted forecast. Example: 2024-07-01T12:00:00.001Z.
+        timestamp (datetime.datetime): Timestamp for the predicted forecast. Example: 2024-07-01 12:00:00.001000+00:00.
         prediction (ProbabilisticLineAmpacity):
         p80 (ProbabilisticLineAmpacity):
         p90 (ProbabilisticLineAmpacity):
@@ -28,11 +28,11 @@ class PredictedForecast:
     """
 
     timestamp: datetime.datetime
-    prediction: "ProbabilisticLineAmpacity"
-    p80: "ProbabilisticLineAmpacity"
-    p90: "ProbabilisticLineAmpacity"
-    p95: "ProbabilisticLineAmpacity"
-    p99: "ProbabilisticLineAmpacity"
+    prediction: ProbabilisticLineAmpacity
+    p80: ProbabilisticLineAmpacity
+    p90: ProbabilisticLineAmpacity
+    p95: ProbabilisticLineAmpacity
+    p99: ProbabilisticLineAmpacity
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

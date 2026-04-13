@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
+from urllib.parse import quote
+from uuid import UUID
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_response_200 import (
     CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200,
 )
@@ -14,16 +14,14 @@ from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_x_region imp
     CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion,
 )
 from ...models.problem_details import ProblemDetails
-from ...types import Unset
-from uuid import UUID
+from ...types import Response, Unset
 
 
 def _get_kwargs(
     line_id: UUID,
     *,
-    x_region: Union[
-        Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    ] = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
@@ -32,7 +30,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/capacity_monitoring/v1/lines/{line_id}/heimdall_aars/latest".format(
-            line_id=line_id,
+            line_id=quote(str(line_id), safe=""),
         ),
     }
 
@@ -41,26 +39,31 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
     if response.status_code == 200:
         response_200 = CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200.from_dict(response.json())
 
         return response_200
+
     if response.status_code == 401:
         response_401 = cast(Any, None)
         return response_401
+
     if response.status_code == 403:
         response_403 = ProblemDetails.from_dict(response.json())
 
         return response_403
+
     if response.status_code == 404:
         response_404 = cast(Any, None)
         return response_404
+
     if response.status_code == 500:
         response_500 = ProblemDetails.from_dict(response.json())
 
         return response_500
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -68,8 +71,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -81,11 +84,10 @@ def _build_response(
 def sync_detailed(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    ] = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Response[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
+) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
     """Get latest Heimdall AAR
 
      This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
@@ -101,7 +103,7 @@ def sync_detailed(
 
     Args:
         line_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion]):  Default:
+        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
     Raises:
@@ -109,7 +111,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]
+        Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
@@ -127,11 +129,10 @@ def sync_detailed(
 def sync(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    ] = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Optional[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
+) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
     """Get latest Heimdall AAR
 
      This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
@@ -147,7 +148,7 @@ def sync(
 
     Args:
         line_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion]):  Default:
+        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
     Raises:
@@ -155,7 +156,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]
+        Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails
     """
 
     return sync_detailed(
@@ -168,11 +169,10 @@ def sync(
 async def asyncio_detailed(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    ] = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Response[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
+) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
     """Get latest Heimdall AAR
 
      This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
@@ -188,7 +188,7 @@ async def asyncio_detailed(
 
     Args:
         line_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion]):  Default:
+        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
     Raises:
@@ -196,7 +196,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]
+        Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
@@ -212,11 +212,10 @@ async def asyncio_detailed(
 async def asyncio(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    ] = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Optional[Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
+) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
     """Get latest Heimdall AAR
 
      This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
@@ -232,7 +231,7 @@ async def asyncio(
 
     Args:
         line_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion]):  Default:
+        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
     Raises:
@@ -240,7 +239,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200, ProblemDetails]
+        Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails
     """
 
     return (

@@ -1,13 +1,12 @@
+from __future__ import annotations
+
+import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-
 from dateutil.parser import isoparse
-import datetime
-
 
 T = TypeVar("T", bound="HeimdallDlr")
 
@@ -16,8 +15,8 @@ T = TypeVar("T", bound="HeimdallDlr")
 class HeimdallDlr:
     """
     Attributes:
-        timestamp (datetime.datetime): Time (in UTC) when the Heimdall DLR was calculated. Example:
-            2024-07-01T12:00:00.001Z.
+        timestamp (datetime.datetime): Time (in UTC) when the Heimdall DLR was calculated. Example: 2024-07-01
+            12:00:00.001000+00:00.
         value (float): The minimum calculated ampacity (in amperes) at the given timestamp. Example: 375.4.
     """
 

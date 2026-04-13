@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
+from urllib.parse import quote
+from uuid import UUID
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_response_200 import (
     CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200,
 )
@@ -14,16 +14,14 @@ from ...models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_x_reg
     CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion,
 )
 from ...models.problem_details import ProblemDetails
-from ...types import Unset
-from uuid import UUID
+from ...types import Response, Unset
 
 
 def _get_kwargs(
     facility_id: UUID,
     *,
-    x_region: Union[
-        Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
-    ] = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
+    x_region: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
+    | Unset = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
@@ -32,7 +30,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/capacity_monitoring/v1/facilities/{facility_id}/circuit_ratings/latest".format(
-            facility_id=facility_id,
+            facility_id=quote(str(facility_id), safe=""),
         ),
     }
 
@@ -41,26 +39,31 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails | None:
     if response.status_code == 200:
         response_200 = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200.from_dict(response.json())
 
         return response_200
+
     if response.status_code == 401:
         response_401 = cast(Any, None)
         return response_401
+
     if response.status_code == 403:
         response_403 = ProblemDetails.from_dict(response.json())
 
         return response_403
+
     if response.status_code == 404:
         response_404 = cast(Any, None)
         return response_404
+
     if response.status_code == 500:
         response_500 = ProblemDetails.from_dict(response.json())
 
         return response_500
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -68,8 +71,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -81,11 +84,10 @@ def _build_response(
 def sync_detailed(
     facility_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
-    ] = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
-) -> Response[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
+    | Unset = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
+) -> Response[Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails]:
     """Get latest circuit rating
 
      This endpoint returns the most recent circuit rating for the facility.
@@ -106,15 +108,15 @@ def sync_detailed(
 
     Args:
         facility_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion]):
-            Default: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
+        x_region (CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion | Unset):  Default:
+            CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]
+        Response[Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
@@ -132,11 +134,10 @@ def sync_detailed(
 def sync(
     facility_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
-    ] = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
-) -> Optional[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
+    | Unset = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
+) -> Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails | None:
     """Get latest circuit rating
 
      This endpoint returns the most recent circuit rating for the facility.
@@ -157,15 +158,15 @@ def sync(
 
     Args:
         facility_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion]):
-            Default: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
+        x_region (CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion | Unset):  Default:
+            CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]
+        Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails
     """
 
     return sync_detailed(
@@ -178,11 +179,10 @@ def sync(
 async def asyncio_detailed(
     facility_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
-    ] = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
-) -> Response[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
+    | Unset = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
+) -> Response[Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails]:
     """Get latest circuit rating
 
      This endpoint returns the most recent circuit rating for the facility.
@@ -203,15 +203,15 @@ async def asyncio_detailed(
 
     Args:
         facility_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion]):
-            Default: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
+        x_region (CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion | Unset):  Default:
+            CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]
+        Response[Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
@@ -227,11 +227,10 @@ async def asyncio_detailed(
 async def asyncio(
     facility_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    x_region: Union[
-        Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
-    ] = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
-) -> Optional[Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    x_region: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion
+    | Unset = CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU,
+) -> Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails | None:
     """Get latest circuit rating
 
      This endpoint returns the most recent circuit rating for the facility.
@@ -252,15 +251,15 @@ async def asyncio(
 
     Args:
         facility_id (UUID):
-        x_region (Union[Unset, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion]):
-            Default: CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
+        x_region (CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion | Unset):  Default:
+            CapacityMonitoringV1FacilitiesGetLatestCircuitRatingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200, ProblemDetails]
+        Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails
     """
 
     return (

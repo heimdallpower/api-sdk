@@ -1,12 +1,12 @@
+from __future__ import annotations
+
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-
 from dateutil.parser import isoparse
-import datetime
 
 if TYPE_CHECKING:
     from ..models.probabilistic_circuit_rating_ampacity import ProbabilisticCircuitRatingAmpacity
@@ -19,7 +19,7 @@ T = TypeVar("T", bound="PredictedCircuitRatingForecast")
 class PredictedCircuitRatingForecast:
     """
     Attributes:
-        timestamp (datetime.datetime): Timestamp for the predicted forecast. Example: 2024-07-01T12:00:00.001Z.
+        timestamp (datetime.datetime): Timestamp for the predicted forecast. Example: 2024-07-01 12:00:00.001000+00:00.
         prediction (ProbabilisticCircuitRatingAmpacity):
         p80 (ProbabilisticCircuitRatingAmpacity):
         p90 (ProbabilisticCircuitRatingAmpacity):
@@ -28,11 +28,11 @@ class PredictedCircuitRatingForecast:
     """
 
     timestamp: datetime.datetime
-    prediction: "ProbabilisticCircuitRatingAmpacity"
-    p80: "ProbabilisticCircuitRatingAmpacity"
-    p90: "ProbabilisticCircuitRatingAmpacity"
-    p95: "ProbabilisticCircuitRatingAmpacity"
-    p99: "ProbabilisticCircuitRatingAmpacity"
+    prediction: ProbabilisticCircuitRatingAmpacity
+    p80: ProbabilisticCircuitRatingAmpacity
+    p90: ProbabilisticCircuitRatingAmpacity
+    p95: ProbabilisticCircuitRatingAmpacity
+    p99: ProbabilisticCircuitRatingAmpacity
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
