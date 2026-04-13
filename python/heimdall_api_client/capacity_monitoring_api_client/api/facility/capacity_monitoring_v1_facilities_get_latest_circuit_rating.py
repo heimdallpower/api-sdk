@@ -90,7 +90,8 @@ def sync_detailed(
 ) -> Response[Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails]:
     """Get latest circuit rating
 
-     This endpoint returns the most recent circuit rating for the facility.
+     This endpoint returns the most recent circuit rating for the facility, including the limiting
+    facility component.
 
     The circuit rating is defined as the lowest of:
       - Heimdall DLR
@@ -105,6 +106,9 @@ def sync_detailed(
     rating.
       It reflects the facility's constraints and does not represent the capacity of the line itself. Use
     a line rating method to obtain that.
+      If the limiting factor is not a specific facility component—such as when the circuit rating is
+    constrained by the line/Heimdall DLR or by the facility upper limit—the limiting component id will
+    be null.
 
     Args:
         facility_id (UUID):
@@ -140,7 +144,8 @@ def sync(
 ) -> Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails | None:
     """Get latest circuit rating
 
-     This endpoint returns the most recent circuit rating for the facility.
+     This endpoint returns the most recent circuit rating for the facility, including the limiting
+    facility component.
 
     The circuit rating is defined as the lowest of:
       - Heimdall DLR
@@ -155,6 +160,9 @@ def sync(
     rating.
       It reflects the facility's constraints and does not represent the capacity of the line itself. Use
     a line rating method to obtain that.
+      If the limiting factor is not a specific facility component—such as when the circuit rating is
+    constrained by the line/Heimdall DLR or by the facility upper limit—the limiting component id will
+    be null.
 
     Args:
         facility_id (UUID):
@@ -185,7 +193,8 @@ async def asyncio_detailed(
 ) -> Response[Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails]:
     """Get latest circuit rating
 
-     This endpoint returns the most recent circuit rating for the facility.
+     This endpoint returns the most recent circuit rating for the facility, including the limiting
+    facility component.
 
     The circuit rating is defined as the lowest of:
       - Heimdall DLR
@@ -200,6 +209,9 @@ async def asyncio_detailed(
     rating.
       It reflects the facility's constraints and does not represent the capacity of the line itself. Use
     a line rating method to obtain that.
+      If the limiting factor is not a specific facility component—such as when the circuit rating is
+    constrained by the line/Heimdall DLR or by the facility upper limit—the limiting component id will
+    be null.
 
     Args:
         facility_id (UUID):
@@ -233,7 +245,8 @@ async def asyncio(
 ) -> Any | CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200 | ProblemDetails | None:
     """Get latest circuit rating
 
-     This endpoint returns the most recent circuit rating for the facility.
+     This endpoint returns the most recent circuit rating for the facility, including the limiting
+    facility component.
 
     The circuit rating is defined as the lowest of:
       - Heimdall DLR
@@ -248,6 +261,9 @@ async def asyncio(
     rating.
       It reflects the facility's constraints and does not represent the capacity of the line itself. Use
     a line rating method to obtain that.
+      If the limiting factor is not a specific facility component—such as when the circuit rating is
+    constrained by the line/Heimdall DLR or by the facility upper limit—the limiting component id will
+    be null.
 
     Args:
         facility_id (UUID):
