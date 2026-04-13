@@ -21,4 +21,10 @@
       <PackageReference Include="Microsoft.Identity.Web" Version="4.6.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+        <_Parameter1>HeimdallPower.Api.Client.UnitTests</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
+
 </Project>
