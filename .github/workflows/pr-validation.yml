@@ -1,20 +1,21 @@
-name: Pull Request Validation
+name: "Conventional Commits PR title check"
 
 on:
   pull_request:
-    branches: [ main ]
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  pull-requests: read
 
 jobs:
   validate-pr-title:
-    name: Validate PR Title
+    name: Validate
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check PR title
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const title = context.payload.pull_request.title;
-            if (!title || title.trim().length < 5) {
-              core.setFailed("PR title is too short or missing.");
-            }
+      - uses: amannn/action-semantic-pull-request@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

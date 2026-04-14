@@ -13,6 +13,8 @@ updates:
     labels:
       - "dependencies"
       - "dotnet"
+    commit-message:
+      prefix: "deps(nuget)"
     groups:
       nuget-dependencies:
         patterns:
@@ -30,6 +32,8 @@ updates:
       - "dependencies"
       - "python"
     versioning-strategy: auto
+    commit-message:
+      prefix: "deps(pip)"
     groups:
       pip-dependencies:
         patterns:

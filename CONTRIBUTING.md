@@ -6,13 +6,44 @@ This repository contains SDKs and example clients for accessing the [Heimdall Po
 
 ---
 
+## Conventional Commits
+
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification for commit messages and PR titles.
+
+**PR titles are validated by CI** — a PR with a non-conforming title will fail the status check.
+
+### Format
+
+```
+type(scope): description
+```
+
+**Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `build`, `style`, `perf`
+
+**Scope** (optional): use when the change is clearly module-specific, e.g. `python`, `dotnet`.
+
+**Description:** imperative, lowercase, no trailing period. Include the Jira ticket if applicable.
+
+### Examples
+
+```
+feat: add new endpoint for circuit ratings
+feat(dotnet): POWER-4075 add proxy configuration for API client
+fix(python): handle missing auth token gracefully
+docs: update contributing guidelines
+ci: add conventional commits PR title validation
+```
+
+---
+
 ## Pull Requests
 
-- All pull requests must have a **clear title** (min. 5 characters).
+- PR titles **must** follow the [Conventional Commits](#conventional-commits) format.
 - Include a short description of what the PR does and why.
 - Pull requests targeting `main` must be reviewed by a **code owner**.
 
 > Heimdall Power's backend team (`@heimdallpower/backend`) is configured as the code owner. Reviews will be automatically requested when a PR is opened.
+
 ---
 
 ## Branching & Releases
