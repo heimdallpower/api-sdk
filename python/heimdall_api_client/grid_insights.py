@@ -73,3 +73,32 @@ def get_latest_icing(
     if response.status_code != 200:
         raise Exception(f"Error fetching latest icing: {response.status_code} {response.text}")
     return response.parsed
+
+
+def get_latest_sag_and_clearance(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    unit_system: UnitSystem | str | None = None,
+    since: datetime.datetime | None = None,
+):
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_latest_sag_and_clearance as get_latest_sag_and_clearance,
+    )
+
+    unit_system_value = UNSET
+    if unit_system is not None:
+        unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
+
+    since_value = UNSET if since is None else since
+
+    response = get_latest_sag_and_clearance.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        unit_system=unit_system_value,
+        since=since_value,
+    )
+    if response.status_code != 200:
+        raise Exception(f"Error fetching latest sag and clearance: {response.status_code} {response.text}")
+    return response.parsed

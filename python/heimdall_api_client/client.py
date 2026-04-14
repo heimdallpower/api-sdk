@@ -198,3 +198,22 @@ class HeimdallApiClient:
             unit_system=unit_system,
             since=since,
         )
+
+    def get_latest_sag_and_clearance(
+        self,
+        line_id: UUID,
+        unit_system: UnitSystem | str | None = None,
+        since: datetime.datetime | None = None,
+    ):
+        """
+        Returns the latest sag and clearance measurements for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_latest_sag_and_clearance
+
+        return get_latest_sag_and_clearance(
+            client=self._get_authenticated_client(),
+            line_id=line_id,
+            region=self._get_region(),
+            unit_system=unit_system,
+            since=since,
+        )
