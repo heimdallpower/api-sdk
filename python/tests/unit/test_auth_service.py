@@ -2,7 +2,6 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import jwt
-import pytest
 
 from heimdall_api_client.auth import AuthService
 
