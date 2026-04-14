@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from heimdall_api_client.client import HeimdallApiClient
 
@@ -24,7 +24,7 @@ for facility in grid_owner.facilities:
     line_id = line.id
     print(f"Line: {line.name} (ID: {line_id})")
 
-    since = datetime.now(timezone.utc) - timedelta(minutes=30)
+    since = datetime.now(UTC) - timedelta(minutes=30)
     latest_sag_and_clearance_response = client.get_latest_sag_and_clearance(line_id=line_id, since=since)
     sag_and_clearance = latest_sag_and_clearance_response.data.sag_and_clearance
 
@@ -33,9 +33,7 @@ for facility in grid_owner.facilities:
         for phase in span.span_phases:
             sag = phase.sag
             clearance = phase.clearance
-            clearance_str = (
-                f"{clearance.value} {clearance.unit}" if clearance is not None else "N/A"
-            )
+            clearance_str = f"{clearance.value} {clearance.unit}" if clearance is not None else "N/A"
             print(f"    Phase {phase.span_phase_id} ({phase.timestamp})")
             print(f"      Sag:       {sag.value} {sag.unit}")
             print(f"      Clearance: {clearance_str}")
