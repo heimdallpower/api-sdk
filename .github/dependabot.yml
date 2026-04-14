@@ -14,7 +14,7 @@ updates:
       - "dependencies"
       - "dotnet"
     commit-message:
-      prefix: "deps(nuget)"
+      prefix: "chore(nuget)"
     groups:
       nuget-dependencies:
         patterns:
@@ -33,7 +33,7 @@ updates:
       - "python"
     versioning-strategy: auto
     commit-message:
-      prefix: "deps(pip)"
+      prefix: "chore(pip)"
     groups:
       pip-dependencies:
         patterns:
