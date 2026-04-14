@@ -1,11 +1,28 @@
-from uuid import UUID
+from __future__ import annotations
+
 import datetime
+from typing import TYPE_CHECKING
+from uuid import UUID
+
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
 from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
 from heimdall_api_client.grid_insights_api_client.types import UNSET
 
+if TYPE_CHECKING:
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_conductor_temperature_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetLatestConductorTemperatureResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_current_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetLatestCurrentResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_icing_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetLatestIcingResponse200,
+    )
 
-def get_latest_conductor_temperature(client: AuthenticatedClient, line_id: UUID, region: str):
+
+def get_latest_conductor_temperature(
+    client: AuthenticatedClient, line_id: UUID, region: str
+) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_conductor_temperature as get_latest_conductor_temperature,
     )
@@ -16,7 +33,9 @@ def get_latest_conductor_temperature(client: AuthenticatedClient, line_id: UUID,
     return response.parsed
 
 
-def get_latest_current(client: AuthenticatedClient, line_id: UUID, region: str):
+def get_latest_current(
+    client: AuthenticatedClient, line_id: UUID, region: str
+) -> GridInsightsV1LinesGetLatestCurrentResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_current as get_latest_current,
     )
@@ -33,7 +52,7 @@ def get_latest_icing(
     region: str,
     unit_system: UnitSystem | str | None = None,
     since: datetime.datetime | None = None,
-):
+) -> GridInsightsV1LinesGetLatestIcingResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_icing as get_latest_icing,
     )

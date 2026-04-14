@@ -1,6 +1,7 @@
-from heimdall_api_client.client import HeimdallApiClient
 import logging
 import pprint
+
+from heimdall_api_client.client import HeimdallApiClient
 
 logging.basicConfig(level=logging.WARN)
 

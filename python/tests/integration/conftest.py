@@ -1,5 +1,7 @@
 import os
+
 import pytest
+
 from heimdall_api_client import HeimdallApiClient
 
 

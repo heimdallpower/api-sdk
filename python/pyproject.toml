@@ -26,7 +26,18 @@ exclude = ["examples"]
 [tool.ruff]
 line-length = 120
 target-version = "py311"
-# extend-exclude = ["heimdall_api_client/*_api_client"]
+extend-exclude = ["heimdall_api_client/*_api_client"]
+
+[tool.ruff.lint]
+select = [
+  "E",    # pycodestyle errors
+  "F",    # pyflakes
+  "I",    # isort (import sorting)
+  "UP",   # pyupgrade (modernize syntax for py311+)
+]
+
+[tool.ruff.format]
+# Inherits line-length and target-version from [tool.ruff]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -36,4 +47,4 @@ build-backend = "poetry.core.masonry.api"
 markers = [
   "integration: marks tests as integration (use with '-m integration')"
 ]
-testpaths = ["tests/integration"]
+testpaths = ["tests"]
