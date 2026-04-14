@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 from datetime import datetime, timedelta, timezone
 
 from heimdall_api_client.client import HeimdallApiClient
