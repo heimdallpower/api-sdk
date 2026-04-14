@@ -1,4 +1,5 @@
 import logging
+
 from heimdall_api_client.auth import AuthService
 
 logging.basicConfig(level=logging.WARN)

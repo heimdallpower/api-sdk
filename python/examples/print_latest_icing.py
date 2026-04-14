@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from heimdall_api_client.client import HeimdallApiClient
 
@@ -24,19 +24,14 @@ for facility in grid_owner.facilities:
     line_id = line.id
     print(f"Line: {line.name} (ID: {line_id})")
 
-    since = datetime.now(timezone.utc) - timedelta(minutes=30)
+    since = datetime.now(UTC) - timedelta(minutes=30)
     latest_icing_response = client.get_latest_icing(line_id=line_id, since=since)
     latest_icing = latest_icing_response.data.icing
 
     max_icing = latest_icing.max_
-    print(
-        f"  Max Ice Weight: {max_icing.ice_weight.value} {max_icing.ice_weight.unit} (span phase {max_icing.ice_weight.span_phase_id}, {max_icing.ice_weight.timestamp})"
-    )
-    print(
-        f"  Max Tension:    {max_icing.tension.value} {max_icing.tension.unit} (span phase {max_icing.tension.span_phase_id}, {max_icing.tension.timestamp})"
-    )
-    print(
-        "  Max Tension %:  "
-        f"{max_icing.tension_percentage_of_break_strength.value} {max_icing.tension_percentage_of_break_strength.unit} "
-        f"(span phase {max_icing.tension_percentage_of_break_strength.span_phase_id}, {max_icing.tension_percentage_of_break_strength.timestamp})"
-    )
+    iw = max_icing.ice_weight
+    tn = max_icing.tension
+    tp = max_icing.tension_percentage_of_break_strength
+    print(f"  Max Ice Weight: {iw.value} {iw.unit} (span phase {iw.span_phase_id}, {iw.timestamp})")
+    print(f"  Max Tension:    {tn.value} {tn.unit} (span phase {tn.span_phase_id}, {tn.timestamp})")
+    print(f"  Max Tension %:  {tp.value} {tp.unit} (span phase {tp.span_phase_id}, {tp.timestamp})")

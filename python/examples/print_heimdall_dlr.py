@@ -1,4 +1,5 @@
 import logging
+
 from heimdall_api_client.client import HeimdallApiClient
 
 logging.basicConfig(level=logging.WARN)

@@ -1,4 +1,5 @@
 import logging
+
 from heimdall_api_client.client import HeimdallApiClient
 
 logging.basicConfig(level=logging.WARN)
@@ -27,12 +28,8 @@ for facility in grid_owner.facilities:
     latest_current_response = client.get_latest_current(line_id=line_id)
     latest_current = latest_current_response.data.current
 
-    print(
-        f"  Max Conductor Temperature, {latest_conductor_temp.timestamp}: {latest_conductor_temp.max_} {latest_conductor_temperature_response.data.unit}"
-    )
-    print(
-        f"  Min Conductor Temperature, {latest_conductor_temp.timestamp}: {latest_conductor_temp.min_} {latest_conductor_temperature_response.data.unit}"
-    )
-    print(
-        f"  Current,                   {latest_current.timestamp}: {latest_current.value} {latest_current_response.data.unit}"
-    )
+    temp_unit = latest_conductor_temperature_response.data.unit
+    current_unit = latest_current_response.data.unit
+    print(f"  Max Conductor Temperature, {latest_conductor_temp.timestamp}: {latest_conductor_temp.max_} {temp_unit}")
+    print(f"  Min Conductor Temperature, {latest_conductor_temp.timestamp}: {latest_conductor_temp.min_} {temp_unit}")
+    print(f"  Current,                   {latest_current.timestamp}: {latest_current.value} {current_unit}")

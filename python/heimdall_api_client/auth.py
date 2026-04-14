@@ -1,8 +1,8 @@
 import logging
-import requests
-import jwt
 from datetime import datetime, timedelta
-from typing import List, Optional
+
+import jwt
+import requests
 
 
 class AuthService:
@@ -18,8 +18,8 @@ class AuthService:
         auth_policy: str = "b2c_1a_clientcredentialsflow",
         tenant: str = "hpadb2cprod",
         authority_domain: str = "hpadb2cprod.b2clogin.com",
-        scope: Optional[List[str]] = None,
-        logger: Optional[logging.Logger] = None,
+        scope: list[str] | None = None,
+        logger: logging.Logger | None = None,
     ):
         if not client_id or not client_secret:
             raise ValueError("client_id and client_secret must be provided")
@@ -33,8 +33,8 @@ class AuthService:
         self.token_url = (
             f"https://{self.authority_domain}/{self.tenant}.onmicrosoft.com/{self.auth_policy}/oauth2/v2.0/token"
         )
-        self._access_token: Optional[str] = None
-        self._expires_at: Optional[datetime] = None
+        self._access_token: str | None = None
+        self._expires_at: datetime | None = None
         self.logger = logger or logging.getLogger(__name__)
 
     def get_token(self) -> str:
@@ -109,6 +109,6 @@ class AuthService:
             return "eu"
 
     @property
-    def expires_at(self) -> Optional[datetime]:
+    def expires_at(self) -> datetime | None:
         """Public accessor for token expiration time."""
         return self._expires_at

@@ -12,7 +12,7 @@ This repository contains SDKs and example clients for accessing the [Heimdall Po
 - Include a short description of what the PR does and why.
 - Pull requests targeting `main` must be reviewed by a **code owner**.
 
-> Heimdall Power's software engineering team (`@heimdallpower/software-engineering`) is configured as the code owner. Reviews will be automatically requested when a PR is opened.
+> Heimdall Power's backend team (`@heimdallpower/backend`) is configured as the code owner. Reviews will be automatically requested when a PR is opened.
 ---
 
 ## Branching & Releases
@@ -29,6 +29,12 @@ This repository contains SDKs and example clients for accessing the [Heimdall Po
 
 The `python/` folder contains the Python SDK and related utilities.
 
+> **Note:** The `*_api_client` subdirectories under `python/heimdall_api_client/`
+> (e.g., `assets_api_client`, `capacity_monitoring_api_client`, `grid_insights_api_client`)
+> are **auto-generated** from OpenAPI specs. Do not edit these directly — regenerate
+> them using the generation script instead. These directories are excluded from ruff
+> linting and formatting.
+
 ### Requirements
 
 - Python 3.11+
@@ -38,28 +44,35 @@ Install dependencies:
 
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
-
-poetry --version 
-
-poetry install --with dev # Installs the dependecies
+poetry --version
+poetry install --with dev
 ```
 
 #### Update dependencies
 
 ```bash
-poetry update --dry-run # view avaiables dependency updates
-poetry update # updates all dependecies. Note, does not alter the pyproject.toml file
+poetry update --dry-run  # View available dependency updates
+poetry update            # Update all dependencies (does not alter pyproject.toml)
 ```
 
 ### Code Style & Linting
 
-We use Ruff for formatting and linting.
+We use [Ruff](https://docs.astral.sh/ruff/) for both linting and formatting.
 
 ```bash
-poetry run ruff check . --fix 
-
-poetry run ruff formate .
+poetry run ruff check . --fix     # Lint and auto-fix
+poetry run ruff format .          # Format code
+poetry run ruff format --check .  # Check formatting (used in CI)
 ```
+
+### Testing
+
+```bash
+poetry run pytest                     # Run all non-integration tests
+poetry run pytest -m integration      # Run integration tests (requires credentials)
+```
+
+Integration tests require `HEIMDALL_CLIENT_ID` and `HEIMDALL_CLIENT_SECRET` environment variables.
 
 ### Building the Package
 
@@ -72,7 +85,7 @@ poetry build
 ```
 
 This will produce .whl and .tar.gz files.
->Running poetry build locally is recommended to catch issues early, such as missing ```__init__.py``` files, bad version strings, or invalid metadata.
+> Running poetry build locally is recommended to catch issues early, such as missing `__init__.py` files, bad version strings, or invalid metadata.
 
 ### Generating Clients from OpenAPI
 
@@ -81,7 +94,7 @@ New modules are generated using openapi-python-client.
 To generate a module:
 
 ```bash
-# Nagivate to the script folder and run
+# Navigate to the script folder and run
 ./generate_module.ps1 -Module assets
 ```
 
@@ -90,3 +103,24 @@ This will:
 - Download the OpenAPI spec
 - Generate a python client for the module
 - Place the result under `python/heimdall_api_client/<module>`
+
+---
+
+## .NET
+
+The `dotnet/` folder contains the .NET SDK.
+
+### Project Structure
+
+- `HeimdallPower.Api.Client` — Core SDK library
+- `HeimdallPower.Api.Client.Extensions` — DI integration and resilience extensions
+- `tests/` — Unit and integration tests
+
+### Running Tests
+
+```bash
+dotnet test --filter Category=Unit          # Unit tests only
+dotnet test --filter Category=Integration   # Integration tests (requires credentials)
+```
+
+Integration tests require `HEIMDALL_CLIENT_ID` and `HEIMDALL_CLIENT_SECRET` environment variables.
