@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import requests
@@ -59,7 +59,7 @@ class AuthService:
 
             expires_in = token_json.get("expires_in")
             if expires_in:
-                self._expires_at = datetime.utcnow() + timedelta(seconds=int(expires_in))
+                self._expires_at = datetime.now(UTC) + timedelta(seconds=int(expires_in))
                 self.logger.debug(f"Token expires at {self._expires_at.isoformat()}")
 
             return self._access_token
@@ -81,7 +81,7 @@ class AuthService:
         """Returns True if the token is expired or missing."""
         if not self._expires_at:
             return True
-        return datetime.utcnow() >= self._expires_at
+        return datetime.now(UTC) >= self._expires_at
 
     def get_token_claims(self) -> dict:
         """Returns the decoded claims from the current access token."""

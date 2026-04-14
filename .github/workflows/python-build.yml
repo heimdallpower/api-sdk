@@ -51,5 +51,8 @@ jobs:
       - name: Check formatting
         run: poetry run ruff format --check .
 
+      - name: Run unit tests
+        run: poetry run pytest tests/unit -v
+
       - name: Build package
         run: poetry build
