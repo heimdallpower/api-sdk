@@ -1,12 +1,12 @@
+from __future__ import annotations
+
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-
 from dateutil.parser import isoparse
-import datetime
 
 if TYPE_CHECKING:
     from ..models.predicted_forecast import PredictedForecast
@@ -21,16 +21,16 @@ class HeimdallDlrForecasts:
     Attributes:
         metric (str): What kind of data does this response contain. Example: Heimdall DLR forecast.
         unit (str): The unit of the values in the response. Example: Ampere.
-        updated_timestamp (datetime.datetime): The timestamp when the forecasts were last updated. Example:
-            2024-07-01T12:00:00.001Z.
-        heimdall_dlr_forecasts (list['PredictedForecast']): The forecasts for a 1 hour interval starting from the
+        updated_timestamp (datetime.datetime): The timestamp when the forecasts were last updated. Example: 2024-07-01
+            12:00:00.001000+00:00.
+        heimdall_dlr_forecasts (list[PredictedForecast]): The forecasts for a 1 hour interval starting from the
             `updated_timestamp`. The predicted forecasts includes different percentages of confidence.
     """
 
     metric: str
     unit: str
     updated_timestamp: datetime.datetime
-    heimdall_dlr_forecasts: list["PredictedForecast"]
+    heimdall_dlr_forecasts: list[PredictedForecast]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

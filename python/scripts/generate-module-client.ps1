@@ -15,8 +15,8 @@ $ErrorActionPreference = "Stop"
 # Base URL to OpenAPI specs
 $baseSpecUrl = "https://external-api.heimdallcloud.com/openapi"
 $specFileName = "openapi.yaml" # Using the YAML format for OpenAPI spec
-$specUrl = "$baseSpecUrl/$Module/$version/$specFileName" 
-$specDir = "/specs/$Module"
+$specUrl = "$baseSpecUrl/$Module/$version/$specFileName"
+$specDir = "./specs/$Module"
 $specPath = "$specDir/$specFileName"
 
 # Generated output folder and target destination

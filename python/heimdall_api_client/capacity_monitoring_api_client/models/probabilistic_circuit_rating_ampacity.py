@@ -1,14 +1,13 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
-
-from typing import cast, Union
-from uuid import UUID
-
 
 T = TypeVar("T", bound="ProbabilisticCircuitRatingAmpacity")
 
@@ -18,20 +17,20 @@ class ProbabilisticCircuitRatingAmpacity:
     """
     Attributes:
         value (float): The ampacity value (in amperes) for the facility component id. Example: 375.4.
-        at_facility_component_id (Union[None, UUID, Unset]): Identifier of the facility component at which this ampacity
+        at_facility_component_id (None | Unset | UUID): Identifier of the facility component at which this ampacity
             forecast was calculated. The forecast is computed per facility component and timestamp, and the final
             dimensioning value is determined by selecting the facility component with the lowest ampacity. Example:
             00000000-0000-0000-0000-000000000000.
     """
 
     value: float
-    at_facility_component_id: Union[None, UUID, Unset] = UNSET
+    at_facility_component_id: None | Unset | UUID = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         value = self.value
 
-        at_facility_component_id: Union[None, Unset, str]
+        at_facility_component_id: None | str | Unset
         if isinstance(self.at_facility_component_id, Unset):
             at_facility_component_id = UNSET
         elif isinstance(self.at_facility_component_id, UUID):
@@ -56,7 +55,7 @@ class ProbabilisticCircuitRatingAmpacity:
         d = dict(src_dict)
         value = d.pop("value")
 
-        def _parse_at_facility_component_id(data: object) -> Union[None, UUID, Unset]:
+        def _parse_at_facility_component_id(data: object) -> None | Unset | UUID:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -67,9 +66,9 @@ class ProbabilisticCircuitRatingAmpacity:
                 at_facility_component_id_type_0 = UUID(data)
 
                 return at_facility_component_id_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union[None, UUID, Unset], data)
+            return cast(None | Unset | UUID, data)
 
         at_facility_component_id = _parse_at_facility_component_id(d.pop("at_facility_component_id", UNSET))
 

@@ -1,4 +1,4 @@
-﻿from collections.abc import Mapping
+from collections.abc import Mapping
 from typing import Any, TypeVar, TYPE_CHECKING
 
 from attrs import define as _attrs_define
@@ -72,7 +72,9 @@ class SpanPhaseIcing:
 
         tension = MeasurementResult.from_dict(d.pop("tension"))
 
-        tension_percentage_of_break_strength = MeasurementResult.from_dict(d.pop("tension_percentage_of_break_strength"))
+        tension_percentage_of_break_strength = MeasurementResult.from_dict(
+            d.pop("tension_percentage_of_break_strength")
+        )
 
         span_phase_icing = cls(
             span_phase_id=span_phase_id,

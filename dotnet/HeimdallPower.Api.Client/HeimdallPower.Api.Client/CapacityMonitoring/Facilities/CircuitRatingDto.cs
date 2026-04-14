@@ -17,4 +17,10 @@ public record CircuitRatingDto
     /// </summary>
     /// <example>375.4</example>
     public double Value { get; init; }
+
+    /// <summary>
+    /// Facility component ID of limiting component. Null if the line is limiting.
+    /// </summary>
+    /// <example>00000000-0000-0000-0000-000000000000</example>
+    public Guid? AtFacilityComponentId { get; init; }
 }
