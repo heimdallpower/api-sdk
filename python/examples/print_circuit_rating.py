@@ -18,11 +18,12 @@ for facility in grid_owner.facilities:
     try:
         circuit_rating_response = client.get_latest_circuit_rating(facility_id=facility_id)
         circuit_rating = circuit_rating_response.data.circuit_rating
+        limiting_component = circuit_rating.at_facility_component_id or "none"
         circuit_rating_forecast_response = client.get_latest_circuit_rating_forecasts(facility_id=facility_id)
         circuit_rating_forecast = circuit_rating_forecast_response.data.circuit_rating_forecasts
         print(f"Facility: {facility.name}")
         print(f"    {circuit_rating_response.data.metric}, timestamp {circuit_rating.timestamp}\n")
-        print(f"        {circuit_rating.value} {circuit_rating_response.data.unit}\n")
+        print(f"        {circuit_rating.value} {circuit_rating_response.data.unit}, limited by {limiting_component}\n")
         print(
             f"    {circuit_rating_forecast_response.data.metric}, updated at {circuit_rating_forecast_response.data.updated_timestamp}:"
         )
