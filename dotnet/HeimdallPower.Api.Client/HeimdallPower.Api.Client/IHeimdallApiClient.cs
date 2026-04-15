@@ -49,6 +49,14 @@ public interface IHeimdallApiClient
     Task<LatestIcingResponse> GetLatestIcingAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null);
 
     /// <summary>
+    /// Get the most recent sag and clearance data for the line.
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve the latest sag and clearance measurements.</param>
+    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
+    /// <param name="since">Optional cutoff time (UTC). Only measurements at or after this instant are considered. Older data for a span phase is excluded. If omitted, defaults to 30 min ago.</param>
+    Task<LatestLineSagAndClearanceResponse> GetLatestSagAndClearanceAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null);
+
+    /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
