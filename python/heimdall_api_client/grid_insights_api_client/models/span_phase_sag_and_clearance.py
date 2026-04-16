@@ -1,15 +1,19 @@
+from __future__ import annotations
+
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, TypeVar, cast
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
 from dateutil.parser import isoparse
-import datetime
-from uuid import UUID
+
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.measurement_result import MeasurementResult
+    from ..models.span_phase_sag_and_clearance_clearance_type_1 import SpanPhaseSagAndClearanceClearanceType1
+    from ..models.span_phase_sag_and_clearance_sag import SpanPhaseSagAndClearanceSag
 
 
 T = TypeVar("T", bound="SpanPhaseSagAndClearance")
@@ -19,28 +23,35 @@ T = TypeVar("T", bound="SpanPhaseSagAndClearance")
 class SpanPhaseSagAndClearance:
     """
     Attributes:
-        span_phase_id (UUID): The id of the span phase the measurement belongs to.
-        timestamp (datetime.datetime): Time (UTC) when the measurements were calculated for the span phase.
-        sag (MeasurementResult): The maximum vertical deflection of the conductor from the straight line between its two
-            support points.
-        clearance (Optional[MeasurementResult]): The vertical distance between the conductor and the ground or objects
-            below.
+        span_phase_id (UUID): The id of the span phase. Example: 00000000-0000-0000-0000-000000000000.
+        timestamp (datetime.datetime): Time (in UTC) when the sag and clearance measurements were calculated for this
+            specific span phase. Example: 2026-03-31 11:11:45.387000+00:00.
+        sag (SpanPhaseSagAndClearanceSag):
+        clearance (None | SpanPhaseSagAndClearanceClearanceType1 | Unset):
     """
 
     span_phase_id: UUID
     timestamp: datetime.datetime
-    sag: "MeasurementResult"
-    clearance: Optional["MeasurementResult"]
+    sag: SpanPhaseSagAndClearanceSag
+    clearance: None | SpanPhaseSagAndClearanceClearanceType1 | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.span_phase_sag_and_clearance_clearance_type_1 import SpanPhaseSagAndClearanceClearanceType1
+
         span_phase_id = str(self.span_phase_id)
 
         timestamp = self.timestamp.isoformat()
 
         sag = self.sag.to_dict()
 
-        clearance = self.clearance.to_dict() if self.clearance is not None else None
+        clearance: dict[str, Any] | None | Unset
+        if isinstance(self.clearance, Unset):
+            clearance = UNSET
+        elif isinstance(self.clearance, SpanPhaseSagAndClearanceClearanceType1):
+            clearance = self.clearance.to_dict()
+        else:
+            clearance = self.clearance
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -49,25 +60,41 @@ class SpanPhaseSagAndClearance:
                 "span_phase_id": span_phase_id,
                 "timestamp": timestamp,
                 "sag": sag,
-                "clearance": clearance,
             }
         )
+        if clearance is not UNSET:
+            field_dict["clearance"] = clearance
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.measurement_result import MeasurementResult
+        from ..models.span_phase_sag_and_clearance_clearance_type_1 import SpanPhaseSagAndClearanceClearanceType1
+        from ..models.span_phase_sag_and_clearance_sag import SpanPhaseSagAndClearanceSag
 
         d = dict(src_dict)
         span_phase_id = UUID(d.pop("span_phase_id"))
 
         timestamp = isoparse(d.pop("timestamp"))
 
-        sag = MeasurementResult.from_dict(d.pop("sag"))
+        sag = SpanPhaseSagAndClearanceSag.from_dict(d.pop("sag"))
 
-        _clearance = d.pop("clearance", None)
-        clearance = MeasurementResult.from_dict(_clearance) if _clearance is not None else None
+        def _parse_clearance(data: object) -> None | SpanPhaseSagAndClearanceClearanceType1 | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                clearance_type_1 = SpanPhaseSagAndClearanceClearanceType1.from_dict(data)
+
+                return clearance_type_1
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | SpanPhaseSagAndClearanceClearanceType1 | Unset, data)
+
+        clearance = _parse_clearance(d.pop("clearance", UNSET))
 
         span_phase_sag_and_clearance = cls(
             span_phase_id=span_phase_id,

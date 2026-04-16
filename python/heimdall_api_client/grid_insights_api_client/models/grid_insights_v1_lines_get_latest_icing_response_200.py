@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.latest_icing import LatestIcing
+    from ..models.latest_line_icing import LatestLineIcing
 
 
 T = TypeVar("T", bound="GridInsightsV1LinesGetLatestIcingResponse200")
@@ -15,10 +17,10 @@ T = TypeVar("T", bound="GridInsightsV1LinesGetLatestIcingResponse200")
 class GridInsightsV1LinesGetLatestIcingResponse200:
     """
     Attributes:
-        data (LatestIcing):
+        data (LatestLineIcing):
     """
 
-    data: "LatestIcing"
+    data: LatestLineIcing
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,10 +38,10 @@ class GridInsightsV1LinesGetLatestIcingResponse200:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.latest_icing import LatestIcing
+        from ..models.latest_line_icing import LatestLineIcing
 
         d = dict(src_dict)
-        data = LatestIcing.from_dict(d.pop("data"))
+        data = LatestLineIcing.from_dict(d.pop("data"))
 
         grid_insights_v1_lines_get_latest_icing_response_200 = cls(
             data=data,

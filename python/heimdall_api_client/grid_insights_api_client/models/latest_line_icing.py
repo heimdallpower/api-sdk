@@ -7,30 +7,40 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.latest_line_sag_and_clearance import LatestLineSagAndClearance
+    from ..models.latest_line_icing_icing import LatestLineIcingIcing
 
 
-T = TypeVar("T", bound="GridInsightsV1LinesGetLatestSagAndClearanceResponse200")
+T = TypeVar("T", bound="LatestLineIcing")
 
 
 @_attrs_define
-class GridInsightsV1LinesGetLatestSagAndClearanceResponse200:
+class LatestLineIcing:
     """
     Attributes:
-        data (LatestLineSagAndClearance):
+        metric (str): What kind of data does this response contain. Example: Icing.
+        unit (str): The unit of the values in the response. Example: Multiple (see measurements).
+        icing (LatestLineIcingIcing): Icing measurements for the line organized by spans and span phases.
     """
 
-    data: LatestLineSagAndClearance
+    metric: str
+    unit: str
+    icing: LatestLineIcingIcing
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        data = self.data.to_dict()
+        metric = self.metric
+
+        unit = self.unit
+
+        icing = self.icing.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "data": data,
+                "metric": metric,
+                "unit": unit,
+                "icing": icing,
             }
         )
 
@@ -38,17 +48,23 @@ class GridInsightsV1LinesGetLatestSagAndClearanceResponse200:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.latest_line_sag_and_clearance import LatestLineSagAndClearance
+        from ..models.latest_line_icing_icing import LatestLineIcingIcing
 
         d = dict(src_dict)
-        data = LatestLineSagAndClearance.from_dict(d.pop("data"))
+        metric = d.pop("metric")
 
-        grid_insights_v1_lines_get_latest_sag_and_clearance_response_200 = cls(
-            data=data,
+        unit = d.pop("unit")
+
+        icing = LatestLineIcingIcing.from_dict(d.pop("icing"))
+
+        latest_line_icing = cls(
+            metric=metric,
+            unit=unit,
+            icing=icing,
         )
 
-        grid_insights_v1_lines_get_latest_sag_and_clearance_response_200.additional_properties = d
-        return grid_insights_v1_lines_get_latest_sag_and_clearance_response_200
+        latest_line_icing.additional_properties = d
+        return latest_line_icing
 
     @property
     def additional_keys(self) -> list[str]:

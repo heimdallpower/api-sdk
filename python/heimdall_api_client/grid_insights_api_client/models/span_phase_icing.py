@@ -1,15 +1,20 @@
+from __future__ import annotations
+
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
 from dateutil.parser import isoparse
-import datetime
-from uuid import UUID
 
 if TYPE_CHECKING:
-    from ..models.measurement_result import MeasurementResult
+    from ..models.span_phase_icing_ice_weight import SpanPhaseIcingIceWeight
+    from ..models.span_phase_icing_tension import SpanPhaseIcingTension
+    from ..models.span_phase_icing_tension_percentage_of_break_strength import (
+        SpanPhaseIcingTensionPercentageOfBreakStrength,
+    )
 
 
 T = TypeVar("T", bound="SpanPhaseIcing")
@@ -19,19 +24,19 @@ T = TypeVar("T", bound="SpanPhaseIcing")
 class SpanPhaseIcing:
     """
     Attributes:
-        span_phase_id (UUID): The id of the span phase the measurement belongs to.
-        timestamp (datetime.datetime): Time (UTC) when the icing measurements were calculated for the span phase.
-        ice_weight (MeasurementResult): The mass of ice accumulated on the conductor.
-        tension (MeasurementResult): The mechanical tension force in the conductor.
-        tension_percentage_of_break_strength (MeasurementResult): Safety-critical metric showing how close the conductor
-            is to its breaking point.
+        span_phase_id (UUID): The id of the span phase. Example: 00000000-0000-0000-0000-000000000000.
+        timestamp (datetime.datetime): Time (in UTC) when the icing measurements were calculated for this specific span
+            phase. Example: 2024-01-15 08:30:00+00:00.
+        ice_weight (SpanPhaseIcingIceWeight):
+        tension (SpanPhaseIcingTension):
+        tension_percentage_of_break_strength (SpanPhaseIcingTensionPercentageOfBreakStrength):
     """
 
     span_phase_id: UUID
     timestamp: datetime.datetime
-    ice_weight: "MeasurementResult"
-    tension: "MeasurementResult"
-    tension_percentage_of_break_strength: "MeasurementResult"
+    ice_weight: SpanPhaseIcingIceWeight
+    tension: SpanPhaseIcingTension
+    tension_percentage_of_break_strength: SpanPhaseIcingTensionPercentageOfBreakStrength
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -61,18 +66,22 @@ class SpanPhaseIcing:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.measurement_result import MeasurementResult
+        from ..models.span_phase_icing_ice_weight import SpanPhaseIcingIceWeight
+        from ..models.span_phase_icing_tension import SpanPhaseIcingTension
+        from ..models.span_phase_icing_tension_percentage_of_break_strength import (
+            SpanPhaseIcingTensionPercentageOfBreakStrength,
+        )
 
         d = dict(src_dict)
         span_phase_id = UUID(d.pop("span_phase_id"))
 
         timestamp = isoparse(d.pop("timestamp"))
 
-        ice_weight = MeasurementResult.from_dict(d.pop("ice_weight"))
+        ice_weight = SpanPhaseIcingIceWeight.from_dict(d.pop("ice_weight"))
 
-        tension = MeasurementResult.from_dict(d.pop("tension"))
+        tension = SpanPhaseIcingTension.from_dict(d.pop("tension"))
 
-        tension_percentage_of_break_strength = MeasurementResult.from_dict(
+        tension_percentage_of_break_strength = SpanPhaseIcingTensionPercentageOfBreakStrength.from_dict(
             d.pop("tension_percentage_of_break_strength")
         )
 

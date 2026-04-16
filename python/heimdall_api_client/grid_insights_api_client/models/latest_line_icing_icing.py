@@ -1,45 +1,53 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.max_icing import MaxIcing
     from ..models.span_icing import SpanIcing
 
 
-T = TypeVar("T", bound="Icing")
+T = TypeVar("T", bound="LatestLineIcingIcing")
 
 
 @_attrs_define
-class Icing:
-    """
+class LatestLineIcingIcing:
+    """Icing measurements for the line organized by spans and span phases.
+
     Attributes:
-        max_ (MaxIcing): The maximum icing data across all span phases on the line.
         spans (list[SpanIcing]): List of spans on the line with their icing data.
+        max_ (MaxIcing | Unset):
     """
 
-    max_: "MaxIcing"
-    spans: list["SpanIcing"]
+    spans: list[SpanIcing]
+    max_: MaxIcing | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        max_ = self.max_.to_dict()
-
         spans = []
         for spans_item_data in self.spans:
             spans_item = spans_item_data.to_dict()
             spans.append(spans_item)
 
+        max_: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.max_, Unset):
+            max_ = self.max_.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "max": max_,
                 "spans": spans,
             }
         )
+        if max_ is not UNSET:
+            field_dict["max"] = max_
 
         return field_dict
 
@@ -49,21 +57,27 @@ class Icing:
         from ..models.span_icing import SpanIcing
 
         d = dict(src_dict)
-        max_ = MaxIcing.from_dict(d.pop("max"))
-
         spans = []
         _spans = d.pop("spans")
         for spans_item_data in _spans:
             spans_item = SpanIcing.from_dict(spans_item_data)
+
             spans.append(spans_item)
 
-        icing = cls(
-            max_=max_,
+        _max_ = d.pop("max", UNSET)
+        max_: MaxIcing | Unset
+        if isinstance(_max_, Unset):
+            max_ = UNSET
+        else:
+            max_ = MaxIcing.from_dict(_max_)
+
+        latest_line_icing_icing = cls(
             spans=spans,
+            max_=max_,
         )
 
-        icing.additional_properties = d
-        return icing
+        latest_line_icing_icing.additional_properties = d
+        return latest_line_icing_icing
 
     @property
     def additional_keys(self) -> list[str]:

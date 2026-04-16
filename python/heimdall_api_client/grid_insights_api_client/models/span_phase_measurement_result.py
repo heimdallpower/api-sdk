@@ -1,13 +1,13 @@
+from __future__ import annotations
+
+import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
 from dateutil.parser import isoparse
-import datetime
-from uuid import UUID
-
 
 T = TypeVar("T", bound="SpanPhaseMeasurementResult")
 
@@ -16,10 +16,10 @@ T = TypeVar("T", bound="SpanPhaseMeasurementResult")
 class SpanPhaseMeasurementResult:
     """
     Attributes:
-        timestamp (datetime.datetime): Time (UTC) when the icing measurements were calculated for the span phase.
-        span_phase_id (UUID): The id of the span phase the measurement belongs to.
+        timestamp (datetime.datetime): Time (in UTC) when the measurement was taken. Example: 2024-07-01 12:00:00+00:00.
+        span_phase_id (UUID): The id of the span phase. Example: 00000000-0000-0000-0000-000000000000.
         value (float): The numerical value of the measurement.
-        unit (str): The unit of the measurement value.
+        unit (str): The unit of measurement.
     """
 
     timestamp: datetime.datetime

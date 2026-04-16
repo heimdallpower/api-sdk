@@ -1,28 +1,38 @@
 from __future__ import annotations
 
+import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from dateutil.parser import isoparse
 
-T = TypeVar("T", bound="MeasurementResult")
+T = TypeVar("T", bound="MaxIcingTension")
 
 
 @_attrs_define
-class MeasurementResult:
-    """A measurement value with its corresponding unit.
-
+class MaxIcingTension:
+    """
     Attributes:
+        timestamp (datetime.datetime): Time (in UTC) when the measurement was taken. Example: 2024-07-01 12:00:00+00:00.
+        span_phase_id (UUID): The id of the span phase. Example: 00000000-0000-0000-0000-000000000000.
         value (float): The numerical value of the measurement.
         unit (str): The unit of measurement.
     """
 
+    timestamp: datetime.datetime
+    span_phase_id: UUID
     value: float
     unit: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        timestamp = self.timestamp.isoformat()
+
+        span_phase_id = str(self.span_phase_id)
+
         value = self.value
 
         unit = self.unit
@@ -31,6 +41,8 @@ class MeasurementResult:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "timestamp": timestamp,
+                "span_phase_id": span_phase_id,
                 "value": value,
                 "unit": unit,
             }
@@ -41,17 +53,23 @@ class MeasurementResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        timestamp = isoparse(d.pop("timestamp"))
+
+        span_phase_id = UUID(d.pop("span_phase_id"))
+
         value = d.pop("value")
 
         unit = d.pop("unit")
 
-        measurement_result = cls(
+        max_icing_tension = cls(
+            timestamp=timestamp,
+            span_phase_id=span_phase_id,
             value=value,
             unit=unit,
         )
 
-        measurement_result.additional_properties = d
-        return measurement_result
+        max_icing_tension.additional_properties = d
+        return max_icing_tension
 
     @property
     def additional_keys(self) -> list[str]:
