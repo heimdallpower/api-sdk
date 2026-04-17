@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from uuid import UUID
 
 if TYPE_CHECKING:
     from ..models.span_phase_icing import SpanPhaseIcing
@@ -17,12 +18,12 @@ T = TypeVar("T", bound="SpanIcing")
 class SpanIcing:
     """
     Attributes:
-        span_id (UUID): The id of the span.
+        span_id (UUID): The id of the span. Example: 00000000-0000-0000-0000-000000000000.
         span_phases (list[SpanPhaseIcing]): List of span phases (conductors) within this span.
     """
 
     span_id: UUID
-    span_phases: list["SpanPhaseIcing"]
+    span_phases: list[SpanPhaseIcing]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,6 +56,7 @@ class SpanIcing:
         _span_phases = d.pop("span_phases")
         for span_phases_item_data in _span_phases:
             span_phases_item = SpanPhaseIcing.from_dict(span_phases_item_data)
+
             span_phases.append(span_phases_item)
 
         span_icing = cls(

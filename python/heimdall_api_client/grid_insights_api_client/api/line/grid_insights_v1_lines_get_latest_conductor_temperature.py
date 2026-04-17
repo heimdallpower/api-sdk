@@ -1,12 +1,12 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
+from urllib.parse import quote
+from uuid import UUID
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.grid_insights_v1_lines_get_latest_conductor_temperature_response_200 import (
     GridInsightsV1LinesGetLatestConductorTemperatureResponse200,
 )
@@ -15,17 +15,15 @@ from ...models.grid_insights_v1_lines_get_latest_conductor_temperature_x_region 
 )
 from ...models.problem_details import ProblemDetails
 from ...models.unit_system import UnitSystem
-from ...types import Unset
-from uuid import UUID
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     line_id: UUID,
     *,
-    unit_system: Union[Unset, UnitSystem] = UNSET,
-    x_region: Union[
-        Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    ] = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
+    unit_system: UnitSystem | Unset = UNSET,
+    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
+    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
@@ -33,7 +31,7 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
-    json_unit_system: Union[Unset, str] = UNSET
+    json_unit_system: str | Unset = UNSET
     if not isinstance(unit_system, Unset):
         json_unit_system = unit_system.value
 
@@ -44,7 +42,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/grid_insights/v1/lines/{line_id}/conductor_temperatures/latest".format(
-            line_id=line_id,
+            line_id=quote(str(line_id), safe=""),
         ),
         "params": params,
     }
@@ -54,26 +52,31 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
     if response.status_code == 200:
         response_200 = GridInsightsV1LinesGetLatestConductorTemperatureResponse200.from_dict(response.json())
 
         return response_200
+
     if response.status_code == 401:
         response_401 = cast(Any, None)
         return response_401
+
     if response.status_code == 403:
         response_403 = ProblemDetails.from_dict(response.json())
 
         return response_403
+
     if response.status_code == 404:
         response_404 = cast(Any, None)
         return response_404
+
     if response.status_code == 500:
         response_500 = ProblemDetails.from_dict(response.json())
 
         return response_500
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -81,8 +84,8 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]:
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -94,12 +97,11 @@ def _build_response(
 def sync_detailed(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    unit_system: Union[Unset, UnitSystem] = UNSET,
-    x_region: Union[
-        Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    ] = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Response[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    unit_system: UnitSystem | Unset = UNSET,
+    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
+    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
     """Get latest conductor temperature
 
      This endpoint returns the most recent conductor temperature for the line.
@@ -112,16 +114,16 @@ def sync_detailed(
 
     Args:
         line_id (UUID):
-        unit_system (Union[Unset, UnitSystem]):
-        x_region (Union[Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion]):
-            Default: GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        unit_system (UnitSystem | Unset):
+        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
+            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]
+        Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
@@ -140,12 +142,11 @@ def sync_detailed(
 def sync(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    unit_system: Union[Unset, UnitSystem] = UNSET,
-    x_region: Union[
-        Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    ] = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Optional[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    unit_system: UnitSystem | Unset = UNSET,
+    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
+    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
+) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
     """Get latest conductor temperature
 
      This endpoint returns the most recent conductor temperature for the line.
@@ -158,16 +159,16 @@ def sync(
 
     Args:
         line_id (UUID):
-        unit_system (Union[Unset, UnitSystem]):
-        x_region (Union[Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion]):
-            Default: GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        unit_system (UnitSystem | Unset):
+        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
+            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]
+        Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails
     """
 
     return sync_detailed(
@@ -181,12 +182,11 @@ def sync(
 async def asyncio_detailed(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    unit_system: Union[Unset, UnitSystem] = UNSET,
-    x_region: Union[
-        Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    ] = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Response[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    unit_system: UnitSystem | Unset = UNSET,
+    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
+    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
     """Get latest conductor temperature
 
      This endpoint returns the most recent conductor temperature for the line.
@@ -199,16 +199,16 @@ async def asyncio_detailed(
 
     Args:
         line_id (UUID):
-        unit_system (Union[Unset, UnitSystem]):
-        x_region (Union[Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion]):
-            Default: GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        unit_system (UnitSystem | Unset):
+        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
+            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]
+        Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
@@ -225,12 +225,11 @@ async def asyncio_detailed(
 async def asyncio(
     line_id: UUID,
     *,
-    client: Union[AuthenticatedClient, Client],
-    unit_system: Union[Unset, UnitSystem] = UNSET,
-    x_region: Union[
-        Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    ] = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Optional[Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]]:
+    client: AuthenticatedClient | Client,
+    unit_system: UnitSystem | Unset = UNSET,
+    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
+    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
+) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
     """Get latest conductor temperature
 
      This endpoint returns the most recent conductor temperature for the line.
@@ -243,16 +242,16 @@ async def asyncio(
 
     Args:
         line_id (UUID):
-        unit_system (Union[Unset, UnitSystem]):
-        x_region (Union[Unset, GridInsightsV1LinesGetLatestConductorTemperatureXRegion]):
-            Default: GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        unit_system (UnitSystem | Unset):
+        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
+            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, GridInsightsV1LinesGetLatestConductorTemperatureResponse200, ProblemDetails]
+        Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails
     """
 
     return (

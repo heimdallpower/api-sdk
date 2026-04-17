@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
 
 if TYPE_CHECKING:
     from ..models.latest_line_current import LatestLineCurrent
@@ -19,7 +20,7 @@ class GridInsightsV1LinesGetLatestCurrentResponse200:
         data (LatestLineCurrent):
     """
 
-    data: "LatestLineCurrent"
+    data: LatestLineCurrent
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

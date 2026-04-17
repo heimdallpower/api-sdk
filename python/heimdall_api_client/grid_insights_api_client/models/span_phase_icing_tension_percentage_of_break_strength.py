@@ -1,44 +1,37 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-if TYPE_CHECKING:
-    from ..models.icing import Icing
-
-
-T = TypeVar("T", bound="LatestIcing")
+T = TypeVar("T", bound="SpanPhaseIcingTensionPercentageOfBreakStrength")
 
 
 @_attrs_define
-class LatestIcing:
+class SpanPhaseIcingTensionPercentageOfBreakStrength:
     """
     Attributes:
-        metric (str): What kind of data does this response contain. Example: Icing.
-        unit (str): The unit description for the response (multiple units across measurements).
-        icing (Icing): The icing measurements including max and per-span/phase values.
+        value (float): The numerical value of the measurement.
+        unit (str): The unit of measurement.
     """
 
-    metric: str
+    value: float
     unit: str
-    icing: "Icing"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        metric = self.metric
+        value = self.value
 
         unit = self.unit
-
-        icing = self.icing.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "metric": metric,
+                "value": value,
                 "unit": unit,
-                "icing": icing,
             }
         )
 
@@ -46,23 +39,18 @@ class LatestIcing:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.icing import Icing
-
         d = dict(src_dict)
-        metric = d.pop("metric")
+        value = d.pop("value")
 
         unit = d.pop("unit")
 
-        icing = Icing.from_dict(d.pop("icing"))
-
-        latest_icing = cls(
-            metric=metric,
+        span_phase_icing_tension_percentage_of_break_strength = cls(
+            value=value,
             unit=unit,
-            icing=icing,
         )
 
-        latest_icing.additional_properties = d
-        return latest_icing
+        span_phase_icing_tension_percentage_of_break_strength.additional_properties = d
+        return span_phase_icing_tension_percentage_of_break_strength
 
     @property
     def additional_keys(self) -> list[str]:

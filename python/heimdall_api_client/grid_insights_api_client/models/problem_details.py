@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -6,9 +8,6 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from typing import Union
-
-
 T = TypeVar("T", bound="ProblemDetails")
 
 
@@ -16,18 +15,18 @@ T = TypeVar("T", bound="ProblemDetails")
 class ProblemDetails:
     """
     Attributes:
-        type_ (Union[Unset, str]):
-        title (Union[Unset, str]):
-        status (Union[Unset, int]):
-        detail (Union[Unset, str]):
-        instance (Union[Unset, str]):
+        type_ (str | Unset):
+        title (str | Unset):
+        status (int | Unset):
+        detail (str | Unset):
+        instance (str | Unset):
     """
 
-    type_: Union[Unset, str] = UNSET
-    title: Union[Unset, str] = UNSET
-    status: Union[Unset, int] = UNSET
-    detail: Union[Unset, str] = UNSET
-    instance: Union[Unset, str] = UNSET
+    type_: str | Unset = UNSET
+    title: str | Unset = UNSET
+    status: int | Unset = UNSET
+    detail: str | Unset = UNSET
+    instance: str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

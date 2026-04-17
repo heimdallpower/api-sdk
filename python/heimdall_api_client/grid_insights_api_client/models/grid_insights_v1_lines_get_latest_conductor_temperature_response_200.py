@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
 
 if TYPE_CHECKING:
     from ..models.latest_conductor_temperature import LatestConductorTemperature
@@ -19,7 +20,7 @@ class GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
         data (LatestConductorTemperature):
     """
 
-    data: "LatestConductorTemperature"
+    data: LatestConductorTemperature
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
