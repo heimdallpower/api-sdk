@@ -29,8 +29,8 @@ class CircuitRating:
 
     timestamp: datetime.datetime
     value: float
-    at_facility_component_id: None | Unset | UUID = UNSET
     is_fallback: bool
+    at_facility_component_id: None | Unset | UUID = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
