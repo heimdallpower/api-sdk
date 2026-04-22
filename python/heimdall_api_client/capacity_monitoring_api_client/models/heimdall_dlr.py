@@ -18,10 +18,12 @@ class HeimdallDlr:
         timestamp (datetime.datetime): Time (in UTC) when the Heimdall DLR was calculated. Example: 2024-07-01
             12:00:00.001000+00:00.
         value (float): The minimum calculated ampacity (in amperes) at the given timestamp. Example: 375.4.
+        is_fallback (bool): Indicates whether the Heimdall DLR is a fallback value. Only applies to grid owners opting in for this feature. Example: false.
     """
 
     timestamp: datetime.datetime
     value: float
+    is_fallback: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,12 +31,15 @@ class HeimdallDlr:
 
         value = self.value
 
+        is_fallback = self.is_fallback
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "timestamp": timestamp,
                 "value": value,
+                "is_fallback": is_fallback,
             }
         )
 
@@ -47,9 +52,12 @@ class HeimdallDlr:
 
         value = d.pop("value")
 
+        is_fallback = d.pop("is_fallback")
+
         heimdall_dlr = cls(
             timestamp=timestamp,
             value=value,
+            is_fallback=is_fallback,
         )
 
         heimdall_dlr.additional_properties = d

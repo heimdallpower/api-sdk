@@ -1,5 +1,4 @@
 import logging
-
 from heimdall_api_client.client import HeimdallApiClient
 
 logging.basicConfig(level=logging.WARN)
@@ -24,7 +23,7 @@ for facility in grid_owner.facilities:
         circuit_rating_forecast = circuit_rating_forecast_response.data.circuit_rating_forecasts
         print(f"Facility: {facility.name}")
         print(f"    {circuit_rating_response.data.metric}, timestamp {circuit_rating.timestamp}\n")
-        print(f"        {circuit_rating.value} {circuit_rating_response.data.unit}, limited by {limiting_component}\n")
+        print(f"        {circuit_rating.value} {circuit_rating_response.data.unit}, limited by {limiting_component}, isFallback = {circuit_rating.is_fallback}\n")
         forecast_data = circuit_rating_forecast_response.data
         print(f"    {forecast_data.metric}, updated at {forecast_data.updated_timestamp}:")
         for forecast in circuit_rating_forecast:

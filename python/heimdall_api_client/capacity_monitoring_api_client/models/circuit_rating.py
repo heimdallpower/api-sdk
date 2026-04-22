@@ -24,11 +24,13 @@ class CircuitRating:
         at_facility_component_id (None | Unset | UUID): Identifier of the facility component that determines the circuit
             rating at this timestamp. When null, the circuit rating is not limited by a facility component. Example:
             00000000-0000-0000-0000-000000000000.
+        is_fallback (bool): Indicates whether the Heimdall DLR is a fallback value. Only applies to grid owners opting in for this feature. Example: false.
     """
 
     timestamp: datetime.datetime
     value: float
     at_facility_component_id: None | Unset | UUID = UNSET
+    is_fallback: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,12 +46,15 @@ class CircuitRating:
         else:
             at_facility_component_id = self.at_facility_component_id
 
+        is_fallback = self.is_fallback
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "timestamp": timestamp,
                 "value": value,
+                "is_fallback": is_fallback,
             }
         )
         if at_facility_component_id is not UNSET:
@@ -81,10 +86,13 @@ class CircuitRating:
 
         at_facility_component_id = _parse_at_facility_component_id(d.pop("at_facility_component_id", UNSET))
 
+        is_fallback = d.pop("is_fallback")
+
         circuit_rating = cls(
             timestamp=timestamp,
             value=value,
             at_facility_component_id=at_facility_component_id,
+            is_fallback=is_fallback,
         )
 
         circuit_rating.additional_properties = d

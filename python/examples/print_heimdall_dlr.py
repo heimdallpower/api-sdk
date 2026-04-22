@@ -27,7 +27,7 @@ for facility in grid_owner.facilities:
         print(f"Facility: {facility.name}")
         print(f"  Line: {line.name} (ID: {line.id})\n")
         print(f"    {dlr_response.data.metric}, timestamp {dlr.timestamp}\n")
-        print(f"        {dlr.value} {dlr_response.data.unit}\n")
+        print(f"        {dlr.value} {dlr_response.data.unit}, isFallback = {dlr.is_fallback}\n")
         print(f"    {dlr_forecast_response.data.metric}, updated at {dlr_forecast_response.data.updated_timestamp}:")
         for forecast in dlr_forecast:
             print(f"      {forecast.timestamp}: {forecast.prediction.value} {dlr_forecast_response.data.unit}")

@@ -17,4 +17,10 @@ public record HeimdallDlrDto
     /// </summary>
     /// <example>375.4</example>
     public double Value { get; init; }
+
+    /// <summary>
+    /// Indicates whether the Heimdall DLR is a fallback value. Only applies to grid owners opting in for this feature.
+    /// </summary>
+    /// <example>false</example>
+    public bool IsFallback { get; init; }
 }
