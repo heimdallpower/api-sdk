@@ -1,31 +1,39 @@
 from __future__ import annotations
 
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
 from dateutil.parser import isoparse
+from typing import cast
+import datetime
 
 if TYPE_CHECKING:
-    from ..models.predicted_forecast import PredictedForecast
+  from ..models.predicted_forecast import PredictedForecast
+
+
+
 
 
 T = TypeVar("T", bound="HeimdallDlrForecasts")
 
 
+
 @_attrs_define
 class HeimdallDlrForecasts:
-    """
-    Attributes:
-        metric (str): What kind of data does this response contain. Example: Heimdall DLR forecast.
-        unit (str): The unit of the values in the response. Example: Ampere.
-        updated_timestamp (datetime.datetime): The timestamp when the forecasts were last updated. Example: 2024-07-01
-            12:00:00.001000+00:00.
-        heimdall_dlr_forecasts (list[PredictedForecast]): The forecasts for a 1 hour interval starting from the
-            `updated_timestamp`. The predicted forecasts includes different percentages of confidence.
-    """
+    """ 
+        Attributes:
+            metric (str): What kind of data does this response contain. Example: Heimdall DLR forecast.
+            unit (str): The unit of the values in the response. Example: Ampere.
+            updated_timestamp (datetime.datetime): The timestamp when the forecasts were last updated. Example: 2024-07-01
+                12:00:00.001000+00:00.
+            heimdall_dlr_forecasts (list[PredictedForecast]): The forecasts for a 1 hour interval starting from the
+                `updated_timestamp`. The predicted forecasts includes different percentages of confidence.
+     """
 
     metric: str
     unit: str
@@ -33,7 +41,12 @@ class HeimdallDlrForecasts:
     heimdall_dlr_forecasts: list[PredictedForecast]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
+
+
+
+
     def to_dict(self) -> dict[str, Any]:
+        from ..models.predicted_forecast import PredictedForecast
         metric = self.metric
 
         unit = self.unit
@@ -45,23 +58,25 @@ class HeimdallDlrForecasts:
             heimdall_dlr_forecasts_item = heimdall_dlr_forecasts_item_data.to_dict()
             heimdall_dlr_forecasts.append(heimdall_dlr_forecasts_item)
 
+
+
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "metric": metric,
-                "unit": unit,
-                "updated_timestamp": updated_timestamp,
-                "heimdall_dlr_forecasts": heimdall_dlr_forecasts,
-            }
-        )
+        field_dict.update({
+            "metric": metric,
+            "unit": unit,
+            "updated_timestamp": updated_timestamp,
+            "heimdall_dlr_forecasts": heimdall_dlr_forecasts,
+        })
 
         return field_dict
+
+
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.predicted_forecast import PredictedForecast
-
         d = dict(src_dict)
         metric = d.pop("metric")
 
@@ -69,12 +84,18 @@ class HeimdallDlrForecasts:
 
         updated_timestamp = isoparse(d.pop("updated_timestamp"))
 
+
+
+
         heimdall_dlr_forecasts = []
         _heimdall_dlr_forecasts = d.pop("heimdall_dlr_forecasts")
-        for heimdall_dlr_forecasts_item_data in _heimdall_dlr_forecasts:
+        for heimdall_dlr_forecasts_item_data in (_heimdall_dlr_forecasts):
             heimdall_dlr_forecasts_item = PredictedForecast.from_dict(heimdall_dlr_forecasts_item_data)
 
+
+
             heimdall_dlr_forecasts.append(heimdall_dlr_forecasts_item)
+
 
         heimdall_dlr_forecasts = cls(
             metric=metric,
@@ -82,6 +103,7 @@ class HeimdallDlrForecasts:
             updated_timestamp=updated_timestamp,
             heimdall_dlr_forecasts=heimdall_dlr_forecasts,
         )
+
 
         heimdall_dlr_forecasts.additional_properties = d
         return heimdall_dlr_forecasts
