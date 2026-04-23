@@ -1,26 +1,34 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+
+
+
+
+
+
 T = TypeVar("T", bound="ProblemDetails")
+
 
 
 @_attrs_define
 class ProblemDetails:
-    """
-    Attributes:
-        type_ (str | Unset):
-        title (str | Unset):
-        status (int | Unset):
-        detail (str | Unset):
-        instance (str | Unset):
-    """
+    """ 
+        Attributes:
+            type_ (str | Unset):
+            title (str | Unset):
+            status (int | Unset):
+            detail (str | Unset):
+            instance (str | Unset):
+     """
 
     type_: str | Unset = UNSET
     title: str | Unset = UNSET
@@ -28,6 +36,10 @@ class ProblemDetails:
     detail: str | Unset = UNSET
     instance: str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+
+
+
 
     def to_dict(self) -> dict[str, Any]:
         type_ = self.type_
@@ -40,9 +52,11 @@ class ProblemDetails:
 
         instance = self.instance
 
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
+        field_dict.update({
+        })
         if type_ is not UNSET:
             field_dict["type"] = type_
         if title is not UNSET:
@@ -55,6 +69,8 @@ class ProblemDetails:
             field_dict["instance"] = instance
 
         return field_dict
+
+
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
@@ -76,6 +92,7 @@ class ProblemDetails:
             detail=detail,
             instance=instance,
         )
+
 
         problem_details.additional_properties = d
         return problem_details

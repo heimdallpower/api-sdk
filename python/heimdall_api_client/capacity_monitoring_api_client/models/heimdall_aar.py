@@ -1,49 +1,67 @@
 from __future__ import annotations
 
-import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
 from dateutil.parser import isoparse
+from typing import cast
+import datetime
+
+
+
+
+
 
 T = TypeVar("T", bound="HeimdallAar")
 
 
+
 @_attrs_define
 class HeimdallAar:
-    """
-    Attributes:
-        timestamp (datetime.datetime): Time (in UTC) when the Heimdall AAR was calculated. Example: 2024-07-01
-            12:00:00.001000+00:00.
-        value (float): The minimum calculated ampacity (in amperes) at the given timestamp. Example: 375.4.
-    """
+    """ 
+        Attributes:
+            timestamp (datetime.datetime): Time (in UTC) when the Heimdall AAR was calculated. Example: 2024-07-01
+                12:00:00.001000+00:00.
+            value (float): The minimum calculated ampacity (in amperes) at the given timestamp. Example: 375.4.
+     """
 
     timestamp: datetime.datetime
     value: float
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+
+
+
 
     def to_dict(self) -> dict[str, Any]:
         timestamp = self.timestamp.isoformat()
 
         value = self.value
 
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "timestamp": timestamp,
-                "value": value,
-            }
-        )
+        field_dict.update({
+            "timestamp": timestamp,
+            "value": value,
+        })
 
         return field_dict
+
+
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         timestamp = isoparse(d.pop("timestamp"))
+
+
+
 
         value = d.pop("value")
 
@@ -51,6 +69,7 @@ class HeimdallAar:
             timestamp=timestamp,
             value=value,
         )
+
 
         heimdall_aar.additional_properties = d
         return heimdall_aar

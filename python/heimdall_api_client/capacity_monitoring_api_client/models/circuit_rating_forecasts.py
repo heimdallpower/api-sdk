@@ -1,31 +1,39 @@
 from __future__ import annotations
 
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
 from dateutil.parser import isoparse
+from typing import cast
+import datetime
 
 if TYPE_CHECKING:
-    from ..models.predicted_circuit_rating_forecast import PredictedCircuitRatingForecast
+  from ..models.predicted_circuit_rating_forecast import PredictedCircuitRatingForecast
+
+
+
 
 
 T = TypeVar("T", bound="CircuitRatingForecasts")
 
 
+
 @_attrs_define
 class CircuitRatingForecasts:
-    """
-    Attributes:
-        metric (str): What kind of data does this response contain. Example: Circuit rating forecast.
-        unit (str): The unit of the values in the response. Example: Ampere.
-        updated_timestamp (datetime.datetime): The timestamp when the forecasts were last updated. Example: 2024-07-01
-            12:00:00.001000+00:00.
-        circuit_rating_forecasts (list[PredictedCircuitRatingForecast]): The forecasts for a 1 hour interval starting
-            from the `updated_timestamp`. The predicted forecasts includes different percentages of confidence.
-    """
+    """ 
+        Attributes:
+            metric (str): What kind of data does this response contain. Example: Circuit rating forecast.
+            unit (str): The unit of the values in the response. Example: Ampere.
+            updated_timestamp (datetime.datetime): The timestamp when the forecasts were last updated. Example: 2024-07-01
+                12:00:00.001000+00:00.
+            circuit_rating_forecasts (list[PredictedCircuitRatingForecast]): The forecasts for a 1 hour interval starting
+                from the `updated_timestamp`. The predicted forecasts includes different percentages of confidence.
+     """
 
     metric: str
     unit: str
@@ -33,7 +41,12 @@ class CircuitRatingForecasts:
     circuit_rating_forecasts: list[PredictedCircuitRatingForecast]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
+
+
+
+
     def to_dict(self) -> dict[str, Any]:
+        from ..models.predicted_circuit_rating_forecast import PredictedCircuitRatingForecast
         metric = self.metric
 
         unit = self.unit
@@ -45,23 +58,25 @@ class CircuitRatingForecasts:
             circuit_rating_forecasts_item = circuit_rating_forecasts_item_data.to_dict()
             circuit_rating_forecasts.append(circuit_rating_forecasts_item)
 
+
+
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "metric": metric,
-                "unit": unit,
-                "updated_timestamp": updated_timestamp,
-                "circuit_rating_forecasts": circuit_rating_forecasts,
-            }
-        )
+        field_dict.update({
+            "metric": metric,
+            "unit": unit,
+            "updated_timestamp": updated_timestamp,
+            "circuit_rating_forecasts": circuit_rating_forecasts,
+        })
 
         return field_dict
+
+
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.predicted_circuit_rating_forecast import PredictedCircuitRatingForecast
-
         d = dict(src_dict)
         metric = d.pop("metric")
 
@@ -69,12 +84,18 @@ class CircuitRatingForecasts:
 
         updated_timestamp = isoparse(d.pop("updated_timestamp"))
 
+
+
+
         circuit_rating_forecasts = []
         _circuit_rating_forecasts = d.pop("circuit_rating_forecasts")
-        for circuit_rating_forecasts_item_data in _circuit_rating_forecasts:
+        for circuit_rating_forecasts_item_data in (_circuit_rating_forecasts):
             circuit_rating_forecasts_item = PredictedCircuitRatingForecast.from_dict(circuit_rating_forecasts_item_data)
 
+
+
             circuit_rating_forecasts.append(circuit_rating_forecasts_item)
+
 
         circuit_rating_forecasts = cls(
             metric=metric,
@@ -82,6 +103,7 @@ class CircuitRatingForecasts:
             updated_timestamp=updated_timestamp,
             circuit_rating_forecasts=circuit_rating_forecasts,
         )
+
 
         circuit_rating_forecasts.additional_properties = d
         return circuit_rating_forecasts

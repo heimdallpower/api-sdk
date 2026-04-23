@@ -38,7 +38,7 @@ var latestAar = await api.GetLatestHeimdallAarAsync(line.Id);
 var forecastDlr = await api.GetHeimdallDlrForecastsAsync(line.Id);
 var forecastAar = await api.GetHeimdallAarForecastsAsync(line.Id);
 
-Console.WriteLine($"- Heimdall DLR: {latestDlr.HeimdallDlr.Value} {latestDlr.Unit} at {latestDlr.HeimdallDlr.Timestamp}");
+Console.WriteLine($"- Heimdall DLR: {latestDlr.HeimdallDlr.Value} {latestDlr.Unit} at {latestDlr.HeimdallDlr.Timestamp} with IsFallback={latestDlr.HeimdallDlr.IsFallback}");
 Console.WriteLine($"- Heimdall AAR: {latestAar.HeimdallAar.Value} {latestAar.Unit} at {latestAar.HeimdallAar.Timestamp}");
 
 // Fetch Circuit Rating data
@@ -49,4 +49,4 @@ var circuitRating = await api.GetLatestCircuitRatingAsync(facility.Id);
 var circuitRatingForecast = await api.GetCircuitRatingForecastsAsync(facility.Id);
 
 var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId?.ToString() ?? "none";
-Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}");
+Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");

@@ -1,48 +1,55 @@
 from http import HTTPStatus
 from typing import Any, cast
 from urllib.parse import quote
-from uuid import UUID
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import (
-    CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200,
-)
-from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_x_region import (
-    CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion,
-)
+from ...types import Response, UNSET
+from ... import errors
+
+from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200
+from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_x_region import CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
 from ...models.problem_details import ProblemDetails
-from ...types import Response, Unset
+from ...types import UNSET, Unset
+from typing import cast
+from uuid import UUID
+
 
 
 def _get_kwargs(
     line_id: UUID,
     *,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
         headers["x-region"] = str(x_region)
 
+
+
+
+    
+
+    
+
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/capacity_monitoring/v1/lines/{line_id}/heimdall_dlrs/latest".format(
-            line_id=quote(str(line_id), safe=""),
-        ),
+        "url": "/capacity_monitoring/v1/lines/{line_id}/heimdall_dlrs/latest".format(line_id=quote(str(line_id), safe=""),),
     }
+
 
     _kwargs["headers"] = headers
     return _kwargs
 
 
-def _parse_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
+
+def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
     if response.status_code == 200:
         response_200 = CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200.from_dict(response.json())
+
+
 
         return response_200
 
@@ -53,6 +60,8 @@ def _parse_response(
     if response.status_code == 403:
         response_403 = ProblemDetails.from_dict(response.json())
 
+
+
         return response_403
 
     if response.status_code == 404:
@@ -62,6 +71,8 @@ def _parse_response(
     if response.status_code == 500:
         response_500 = ProblemDetails.from_dict(response.json())
 
+
+
         return response_500
 
     if client.raise_on_unexpected_status:
@@ -70,9 +81,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
+def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,10 +94,10 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
-    """Get latest Heimdall DLR
+    """ Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -111,11 +120,13 @@ def sync_detailed(
 
     Returns:
         Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]
-    """
+     """
+
 
     kwargs = _get_kwargs(
         line_id=line_id,
-        x_region=x_region,
+x_region=x_region,
+
     )
 
     response = client.get_httpx_client().request(
@@ -124,15 +135,14 @@ def sync_detailed(
 
     return _build_response(client=client, response=response)
 
-
 def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
-    """Get latest Heimdall DLR
+    """ Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -155,23 +165,24 @@ def sync(
 
     Returns:
         Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails
-    """
+     """
+
 
     return sync_detailed(
         line_id=line_id,
-        client=client,
-        x_region=x_region,
-    ).parsed
+client=client,
+x_region=x_region,
 
+    ).parsed
 
 async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
-    """Get latest Heimdall DLR
+    """ Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -194,26 +205,29 @@ async def asyncio_detailed(
 
     Returns:
         Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]
-    """
+     """
+
 
     kwargs = _get_kwargs(
         line_id=line_id,
-        x_region=x_region,
+x_region=x_region,
+
     )
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.get_async_httpx_client().request(
+        **kwargs
+    )
 
     return _build_response(client=client, response=response)
-
 
 async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
+
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
-    """Get latest Heimdall DLR
+    """ Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -236,12 +250,12 @@ async def asyncio(
 
     Returns:
         Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails
-    """
+     """
 
-    return (
-        await asyncio_detailed(
-            line_id=line_id,
-            client=client,
-            x_region=x_region,
-        )
-    ).parsed
+
+    return (await asyncio_detailed(
+        line_id=line_id,
+client=client,
+x_region=x_region,
+
+    )).parsed
