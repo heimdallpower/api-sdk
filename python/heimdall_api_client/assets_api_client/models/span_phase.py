@@ -1,14 +1,13 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
-
-from typing import cast, Union
-from uuid import UUID
-
 
 T = TypeVar("T", bound="SpanPhase")
 
@@ -18,17 +17,17 @@ class SpanPhase:
     """
     Attributes:
         id (UUID): Unique identifier of the span phase. Example: 00000000-0000-0000-0000-000000000000.
-        name (Union[None, Unset, str]): Name of the span phase, defined by the grid owner. Example: Phase A.
+        name (None | str | Unset): Name of the span phase, defined by the grid owner. Example: Phase A.
     """
 
     id: UUID
-    name: Union[None, Unset, str] = UNSET
+    name: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         id = str(self.id)
 
-        name: Union[None, Unset, str]
+        name: None | str | Unset
         if isinstance(self.name, Unset):
             name = UNSET
         else:
@@ -51,12 +50,12 @@ class SpanPhase:
         d = dict(src_dict)
         id = UUID(d.pop("id"))
 
-        def _parse_name(data: object) -> Union[None, Unset, str]:
+        def _parse_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         name = _parse_name(d.pop("name", UNSET))
 

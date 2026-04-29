@@ -1,16 +1,16 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar, cast
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from typing import cast
-from typing import Union
-from uuid import UUID
-
 if TYPE_CHECKING:
+    from ..models.facility_component import FacilityComponent
     from ..models.line_type_0 import LineType0
 
 
@@ -23,12 +23,14 @@ class Facility:
     Attributes:
         id (UUID): Unique identifier of the facility. Example: 00000000-0000-0000-0000-000000000000.
         name (str): Name of the facility. Example: Facility A.
-        line (Union['LineType0', None, Unset]):
+        components (list[FacilityComponent]): List of facility components belonging to the facility.
+        line (LineType0 | None | Unset):
     """
 
     id: UUID
     name: str
-    line: Union["LineType0", None, Unset] = UNSET
+    components: list[FacilityComponent]
+    line: LineType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,7 +40,12 @@ class Facility:
 
         name = self.name
 
-        line: Union[None, Unset, dict[str, Any]]
+        components = []
+        for components_item_data in self.components:
+            components_item = components_item_data.to_dict()
+            components.append(components_item)
+
+        line: dict[str, Any] | None | Unset
         if isinstance(self.line, Unset):
             line = UNSET
         elif isinstance(self.line, LineType0):
@@ -52,6 +59,7 @@ class Facility:
             {
                 "id": id,
                 "name": name,
+                "components": components,
             }
         )
         if line is not UNSET:
@@ -61,6 +69,7 @@ class Facility:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.facility_component import FacilityComponent
         from ..models.line_type_0 import LineType0
 
         d = dict(src_dict)
@@ -68,7 +77,14 @@ class Facility:
 
         name = d.pop("name")
 
-        def _parse_line(data: object) -> Union["LineType0", None, Unset]:
+        components = []
+        _components = d.pop("components")
+        for components_item_data in _components:
+            components_item = FacilityComponent.from_dict(components_item_data)
+
+            components.append(components_item)
+
+        def _parse_line(data: object) -> LineType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -79,15 +95,16 @@ class Facility:
                 componentsschemas_line_type_0 = LineType0.from_dict(data)
 
                 return componentsschemas_line_type_0
-            except:  # noqa: E722
+            except (TypeError, ValueError, AttributeError, KeyError):
                 pass
-            return cast(Union["LineType0", None, Unset], data)
+            return cast(LineType0 | None | Unset, data)
 
         line = _parse_line(d.pop("line", UNSET))
 
         facility = cls(
             id=id,
             name=name,
+            components=components,
             line=line,
         )
 

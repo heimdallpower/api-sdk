@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
 
 if TYPE_CHECKING:
     from ..models.facility import Facility
@@ -17,11 +18,11 @@ class GridOwner:
     """
     Attributes:
         name (str): Name of the grid owner. Example: Grid owner A.
-        facilities (list['Facility']): List of facilities associated with the grid owner.
+        facilities (list[Facility]): List of facilities associated with the grid owner.
     """
 
     name: str
-    facilities: list["Facility"]
+    facilities: list[Facility]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

@@ -1,36 +1,38 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-if TYPE_CHECKING:
-    from ..models.assets import Assets
-
-
-T = TypeVar("T", bound="AssetsV1GetAssetsResponse200")
+T = TypeVar("T", bound="FacilityComponent")
 
 
 @_attrs_define
-class AssetsV1GetAssetsResponse200:
+class FacilityComponent:
     """
     Attributes:
-        data (Assets):
+        id (UUID): Unique identifier of the facility component. Example: 00000000-0000-0000-0000-000000000000.
+        name (str): Name of the facility component. Example: Circuit Breaker A.
     """
 
-    data: Assets
+    id: UUID
+    name: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        data = self.data.to_dict()
+        id = str(self.id)
+
+        name = self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "data": data,
+                "id": id,
+                "name": name,
             }
         )
 
@@ -38,17 +40,18 @@ class AssetsV1GetAssetsResponse200:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.assets import Assets
-
         d = dict(src_dict)
-        data = Assets.from_dict(d.pop("data"))
+        id = UUID(d.pop("id"))
 
-        assets_v1_get_assets_response_200 = cls(
-            data=data,
+        name = d.pop("name")
+
+        facility_component = cls(
+            id=id,
+            name=name,
         )
 
-        assets_v1_get_assets_response_200.additional_properties = d
-        return assets_v1_get_assets_response_200
+        facility_component.additional_properties = d
+        return facility_component
 
     @property
     def additional_keys(self) -> list[str]:
