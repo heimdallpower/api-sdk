@@ -24,13 +24,26 @@ $generatedFolder = "${Module}_client"
 $targetPath = "../heimdall_api_client"
 
 # Check if openapi-python-client is installed
-python -m openapi_python_client --version 2>$null
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Installing 'openapi-python-client'..."
-    python -m pip install openapi-python-client
+$requiredVersion = "0.28.3"  # Pin the version here
+
+# Ensure correct version of openapi-python-client is installed
+$installedVersion = python -m openapi_python_client --version 2>$null
+if ($LASTEXITCODE -ne 0 -or $installedVersion -notmatch [regex]::Escape($requiredVersion)) {
+    Write-Host "Installing 'openapi-python-client' version $requiredVersion..."
+    python -m pip install "openapi-python-client==$requiredVersion" --quiet
+} else {
+    Write-Host "'openapi-python-client' $requiredVersion is already installed."
 }
-else {
-    Write-Host "'openapi-python-client' is already installed."
+
+# Warn if a newer version is available on PyPI
+try {
+    $pypiInfo = Invoke-RestMethod -Uri "https://pypi.org/pypi/openapi-python-client/json" -ErrorAction Stop
+    $latestVersion = $pypiInfo.info.version
+    if ($latestVersion -ne $requiredVersion) {
+        Write-Host "WARNING: A newer version of 'openapi-python-client' is available ($latestVersion). Currently pinned to $requiredVersion. Edit in 'generate-module-client.ps1'" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "Could not check PyPI for latest 'openapi-python-client' version." -ForegroundColor DarkYellow
 }
 
 # Check if ruff is installed for linting

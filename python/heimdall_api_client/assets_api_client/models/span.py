@@ -1,14 +1,13 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar, cast
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
-
-from typing import cast
-from typing import Union
-from uuid import UUID
 
 if TYPE_CHECKING:
     from ..models.span_phase import SpanPhase
@@ -22,15 +21,15 @@ class Span:
     """
     Attributes:
         id (UUID): Unique identifier of the span. Example: 00000000-0000-0000-0000-000000000000.
-        span_phases (list['SpanPhase']): List of span phases associated with the span.
-        mast_name_a (Union[None, Unset, str]): Name of the first mast in the span. Example: Mast A.
-        mast_name_b (Union[None, Unset, str]): Name of the second mast in the span. Example: Mast B.
+        span_phases (list[SpanPhase]): List of span phases associated with the span.
+        mast_name_a (None | str | Unset): Name of the first mast in the span. Example: Mast A.
+        mast_name_b (None | str | Unset): Name of the second mast in the span. Example: Mast B.
     """
 
     id: UUID
-    span_phases: list["SpanPhase"]
-    mast_name_a: Union[None, Unset, str] = UNSET
-    mast_name_b: Union[None, Unset, str] = UNSET
+    span_phases: list[SpanPhase]
+    mast_name_a: None | str | Unset = UNSET
+    mast_name_b: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,13 +40,13 @@ class Span:
             span_phases_item = span_phases_item_data.to_dict()
             span_phases.append(span_phases_item)
 
-        mast_name_a: Union[None, Unset, str]
+        mast_name_a: None | str | Unset
         if isinstance(self.mast_name_a, Unset):
             mast_name_a = UNSET
         else:
             mast_name_a = self.mast_name_a
 
-        mast_name_b: Union[None, Unset, str]
+        mast_name_b: None | str | Unset
         if isinstance(self.mast_name_b, Unset):
             mast_name_b = UNSET
         else:
@@ -82,21 +81,21 @@ class Span:
 
             span_phases.append(span_phases_item)
 
-        def _parse_mast_name_a(data: object) -> Union[None, Unset, str]:
+        def _parse_mast_name_a(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         mast_name_a = _parse_mast_name_a(d.pop("mast_name_a", UNSET))
 
-        def _parse_mast_name_b(data: object) -> Union[None, Unset, str]:
+        def _parse_mast_name_b(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         mast_name_b = _parse_mast_name_b(d.pop("mast_name_b", UNSET))
 

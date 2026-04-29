@@ -23,4 +23,9 @@ public record FacilityDto
     /// Line associated with the facility, if available.
     /// </summary>
     public LineDto? Line { get; init; }
+
+    /// <summary>
+    /// List of components associated with the facility
+    /// </summary>
+    public required IReadOnlyList<FacilityComponentDto> Components { get; init; }
 }

@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-
-from uuid import UUID
 
 if TYPE_CHECKING:
     from ..models.span import Span
@@ -22,13 +22,13 @@ class LineType0:
         name (str): Name of the line. Example: Line A.
         available_forecast_hours (int): The available forecast length in hours, used as a query parameter for DLR
             forecasts. The maximum is 240 hours. Example: 72.
-        spans (list['Span']): List of spans belonging to the line.
+        spans (list[Span]): List of spans belonging to the line.
     """
 
     id: UUID
     name: str
     available_forecast_hours: int
-    spans: list["Span"]
+    spans: list[Span]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

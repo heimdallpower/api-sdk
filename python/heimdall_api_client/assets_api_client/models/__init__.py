@@ -5,6 +5,7 @@ from .assets import Assets
 from .assets_v1_get_assets_response_200 import AssetsV1GetAssetsResponse200
 from .assets_v1_get_assets_x_region import AssetsV1GetAssetsXRegion
 from .facility import Facility
+from .facility_component import FacilityComponent
 from .grid_owner import GridOwner
 from .line_type_0 import LineType0
 from .problem_details import ProblemDetails
@@ -17,6 +18,7 @@ __all__ = (
     "AssetsV1GetAssetsResponse200",
     "AssetsV1GetAssetsXRegion",
     "Facility",
+    "FacilityComponent",
     "GridOwner",
     "LineType0",
     "ProblemDetails",

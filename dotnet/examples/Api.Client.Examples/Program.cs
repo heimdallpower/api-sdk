@@ -48,5 +48,7 @@ var facility = facilities.First(f => f.Line != null && f.Line.Name.Equals(line.N
 var circuitRating = await api.GetLatestCircuitRatingAsync(facility.Id);
 var circuitRatingForecast = await api.GetCircuitRatingForecastsAsync(facility.Id);
 
-var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId?.ToString() ?? "none";
+var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId.HasValue
+    ? facility.Components.FirstOrDefault(c => c.Id == circuitRating.CircuitRating.AtFacilityComponentId.Value)?.Name ?? "unknown"
+    : "none";
 Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");
