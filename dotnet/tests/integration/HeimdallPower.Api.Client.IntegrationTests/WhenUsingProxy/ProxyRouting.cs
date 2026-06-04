@@ -14,7 +14,7 @@ public class ProxyRouting : IAsyncLifetime, IDisposable
         .WithResourceMapping(
             "http_port 3128\nacl all src all\nhttp_access allow all\ncache deny all\n"u8.ToArray(),
             "/etc/squid/squid.conf")
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(3128))
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilExternalTcpPortIsAvailable(3128))
         .Build();
 
     private readonly List<string> _envVarsToClean = [];
