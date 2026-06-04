@@ -8,8 +8,7 @@ namespace HeimdallPower.Api.Client.IntegrationTests.WhenUsingProxy;
 [Trait("Category", "ProxyIntegration")]
 public class ProxyRouting : IAsyncLifetime, IDisposable
 {
-    private readonly IContainer _proxy = new ContainerBuilder()
-        .WithImage("ubuntu/squid:latest")
+    private readonly IContainer _proxy = new ContainerBuilder("ubuntu/squid:latest")
         .WithPortBinding(3128, true)
         .WithResourceMapping(
             "http_port 3128\nacl all src all\nhttp_access allow all\ncache deny all\n"u8.ToArray(),
