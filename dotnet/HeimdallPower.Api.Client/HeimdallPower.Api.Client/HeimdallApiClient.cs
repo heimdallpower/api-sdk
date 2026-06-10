@@ -123,9 +123,10 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum ampacity is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
-    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId)
+    /// <param name="metric">The DLR metric to return. Defaults to <see cref="Metric.Current"/>.</param>
+    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Metric metric = Metric.Current)
     {
-        var url = UrlBuilder.BuildHeimdallDlrUrl(lineId);
+        var url = UrlBuilder.BuildHeimdallDlrUrl(lineId, metric);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallDlrResponse>>(url);
 
         return response.Data;

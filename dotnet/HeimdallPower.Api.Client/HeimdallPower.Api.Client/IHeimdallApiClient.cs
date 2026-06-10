@@ -60,7 +60,8 @@ public interface IHeimdallApiClient
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
-    Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId);
+    /// <param name="metric">The circuit rating metric to return. Defaults to <see cref="Metric.Current"/>.</param>
+    Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Metric metric = Metric.Current);
 
     /// <summary>
     /// Get the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.

@@ -3,9 +3,9 @@ namespace HeimdallPower.Api.Client.CapacityMonitoring.Lines;
 public record LatestHeimdallDlrResponse
 {
     /// <summary>
-    /// The kind of data this response contains.
+    /// The measured quantity, mirroring the metric query parameter.
     /// </summary>
-    /// <example>Heimdall DLR</example>
+    /// <example>Current</example>
     public required string Metric { get; init; }
 
     /// <summary>

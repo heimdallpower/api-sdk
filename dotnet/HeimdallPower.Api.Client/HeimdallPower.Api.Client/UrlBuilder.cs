@@ -40,8 +40,13 @@ internal static class UrlBuilder
     public static string BuildLatestCurrentsUrl(Guid lineId)
         => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: Currents);
 
-    public static string BuildHeimdallDlrUrl(Guid lineId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlr);
+    public static string BuildHeimdallDlrUrl(Guid lineId, Metric metric)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("metric", metric.ToString().ToLower());
+
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlr, queryParams);
+    }
 
     public static string BuildHeimdallAarUrl(Guid lineId)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAar);
