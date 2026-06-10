@@ -1,3 +1,5 @@
+using HeimdallPower.Api.Client.CapacityMonitoring.Facilities.Dtos;
+
 namespace HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
 
 public record CircuitRatingForecastResponse

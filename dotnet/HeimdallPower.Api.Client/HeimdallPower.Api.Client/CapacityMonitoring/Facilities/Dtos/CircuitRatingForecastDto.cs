@@ -1,4 +1,4 @@
-namespace HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
+namespace HeimdallPower.Api.Client.CapacityMonitoring.Facilities.Dtos;
 
 public record CircuitRatingForecastDto
 {
