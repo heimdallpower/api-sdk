@@ -5,7 +5,7 @@ namespace HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
 public record CircuitRatingResponse
 {
     /// <summary>
-    /// The measured quantity
+    /// The measured quantity, mirroring the metric query parameter.
     /// </summary>
     /// <example>Current</example>
     public required string Metric { get; init; }
