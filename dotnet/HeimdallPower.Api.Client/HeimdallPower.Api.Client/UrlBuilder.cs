@@ -19,6 +19,7 @@ internal static class UrlBuilder
     // Endpoints
     private const string CircuitRatingForecasts = "circuit_ratings/forecasts";
     private const string CircuitRatingLatest = "circuit_ratings/latest";
+    private const string CircuitRatings = "circuit_ratings";
     private const string ConductorTemperatures = "conductor_temperatures/latest";
     private const string Currents = "currents/latest";
     private const string HeimdallDlr = "heimdall_dlrs/latest";
@@ -57,13 +58,20 @@ internal static class UrlBuilder
     public static string BuildCircuitRatingForecastUrl(Guid facilityId)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingForecasts);
 
-    public static string BuildCircuitRatingUrl(Guid facilityId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest);
     public static string BuildLatestCircuitRatingUrl(Guid facilityId, Metric metric)
     {
         var queryParams = new NameValueCollection()
             .AddQueryParam("metric", metric.ToString().ToLower());
         return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest, queryParams: queryParams);
+    }
+
+    public static string BuildCircuitRatingsUrl(Guid facilityId, DateTimeOffset fromTimestamp, DateTimeOffset toTimestamp, Metric metric)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("from_timestamp", fromTimestamp.ToUniversalTime().ToString("o"))
+            .AddQueryParam("to_timestamp", toTimestamp.ToUniversalTime().ToString("o"))
+            .AddQueryParam("metric", metric.ToString().ToLower());
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatings, queryParams: queryParams);
     }
 
     public static string BuildLatestIcingUrl(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null)

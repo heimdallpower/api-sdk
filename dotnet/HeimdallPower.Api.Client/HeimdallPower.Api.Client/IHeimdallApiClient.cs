@@ -90,8 +90,15 @@ public interface IHeimdallApiClient
     /// Get the most recent circuit rating for a specified facility.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit rating.</param>
-    Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId);
     /// <param name="metric">The circuit rating metric to return. Defaults to <see cref="Metric.Current"/>.</param>
     Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Metric metric = Metric.Current);
 
+    /// <summary>
+    /// Get historical circuit ratings for a specified facility within a given time range.
+    /// </summary>
+    /// <param name="facilityId">Id of the facility for which to retrieve circuit ratings.</param>
+    /// <param name="fromTimestamp">Start of time range.</param>
+    /// <param name="toTimestamp">End of time range.</param>
+    /// <param name="metric">The circuit rating metric to return. Defaults to <see cref="Metric.Current"/>.</param>
+    Task<CircuitRatingResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset fromTimestamp, DateTimeOffset toTimestamp, Metric metric = Metric.Current);
 }

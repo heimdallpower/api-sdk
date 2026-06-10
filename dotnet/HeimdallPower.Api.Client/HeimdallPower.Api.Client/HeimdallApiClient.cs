@@ -203,4 +203,13 @@ public class HeimdallApiClient : IHeimdallApiClient
 
         return response.Data;
     }
+
+    public async Task<CircuitRatingResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset fromTimestamp, DateTimeOffset toTimestamp,
+        Metric metric = Metric.Current)
+    {
+        var url = UrlBuilder.BuildCircuitRatingsUrl(facilityId, fromTimestamp, toTimestamp, metric);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingResponse>>(url);
+
+        return response.Data;
+    }
 }
