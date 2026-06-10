@@ -84,7 +84,8 @@ public interface IHeimdallApiClient
     /// Get the most recent circuit rating forecasts for a specified facility.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId);
+    /// <param name="metric">The circuit rating metric to return. Defaults to <see cref="Metric.Current"/>.</param>
+    Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId, Metric metric = Metric.Current);
 
     /// <summary>
     /// Get the most recent circuit rating for a specified facility.
