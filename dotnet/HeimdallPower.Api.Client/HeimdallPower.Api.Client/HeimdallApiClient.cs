@@ -196,6 +196,7 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// and are provided in 1-hour intervals.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
+    /// <param name="metric">The circuit rating metric to return. Defaults to <see cref="Metric.Current"/></param>
     public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Metric metric = Metric.Current)
     {
         var url = UrlBuilder.BuildLatestCircuitRatingUrl(facilityId, metric);
@@ -204,6 +205,13 @@ public class HeimdallApiClient : IHeimdallApiClient
         return response.Data;
     }
 
+    /// <summary>
+    /// Get historical circuit ratings for a specified facility within a given time range.
+    /// </summary>
+    /// <param name="facilityId">Id of the facility for which to retrieve circuit ratings.</param>
+    /// <param name="fromTimestamp">Start of time range.</param>
+    /// <param name="toTimestamp">End of time range.</param>
+    /// <param name="metric">The circuit rating metric to return. Defaults to <see cref="Metric.Current"/>.</param>
     public async Task<CircuitRatingResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset fromTimestamp, DateTimeOffset toTimestamp,
         Metric metric = Metric.Current)
     {
