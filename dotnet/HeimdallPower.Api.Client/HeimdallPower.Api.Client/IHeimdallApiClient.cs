@@ -91,4 +91,7 @@ public interface IHeimdallApiClient
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit rating.</param>
     Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId);
+    /// <param name="metric">The circuit rating metric to return. Defaults to <see cref="Metric.Current"/>.</param>
+    Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Metric metric = Metric.Current);
+
 }

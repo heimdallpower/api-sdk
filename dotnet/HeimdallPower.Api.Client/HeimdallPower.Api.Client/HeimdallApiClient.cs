@@ -196,9 +196,9 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// and are provided in 1-hour intervals.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId)
+    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Metric metric = Metric.Current)
     {
-        var url = UrlBuilder.BuildCircuitRatingUrl(facilityId);
+        var url = UrlBuilder.BuildLatestCircuitRatingUrl(facilityId, metric);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCircuitRatingResponse>>(url);
 
         return response.Data;

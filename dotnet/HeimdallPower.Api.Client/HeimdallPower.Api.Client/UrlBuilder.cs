@@ -59,6 +59,12 @@ internal static class UrlBuilder
 
     public static string BuildCircuitRatingUrl(Guid facilityId)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest);
+    public static string BuildLatestCircuitRatingUrl(Guid facilityId, Metric metric)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("metric", metric.ToString().ToLower());
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest, queryParams: queryParams);
+    }
 
     public static string BuildLatestIcingUrl(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null)
     {
