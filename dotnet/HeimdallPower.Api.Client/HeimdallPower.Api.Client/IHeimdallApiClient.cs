@@ -1,4 +1,5 @@
 using HeimdallPower.Api.Client.Assets;
+using HeimdallPower.Api.Client.CapacityMonitoring;
 using HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
 using HeimdallPower.Api.Client.CapacityMonitoring.Lines;
 using HeimdallPower.Api.Client.CapacityMonitoring.Lines.Forecasts;
@@ -60,35 +61,71 @@ public interface IHeimdallApiClient
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
-    Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId);
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Quantity quantity = Quantity.Current);
 
     /// <summary>
     /// Get the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall AAR.</param>
-    Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId);
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, Quantity quantity = Quantity.Current);
 
     /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) forecasts for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall DLR forecasts.</param>
-    Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId);
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current);
 
     /// <summary>
     /// Get the most recent Heimdall Ambient-Adjusted Rating (AAR) forecasts for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall AAR forecasts.</param>
-    Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId);
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current);
+
+    /// <summary>
+    /// Get Heimdall Dynamic Line Rating (DLR) values for the line within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<HeimdallDlrsResponse> GetHeimdallDlrsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current);
+
+    /// <summary>
+    /// Get Heimdall Ambient-Adjusted Rating (AAR) values for the line within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<HeimdallAarsResponse> GetHeimdallAarsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current);
 
     /// <summary>
     /// Get the most recent circuit rating forecasts for a specified facility.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId);
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId, Quantity quantity = Quantity.Current);
 
     /// <summary>
     /// Get the most recent circuit rating for a specified facility.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit rating.</param>
-    Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId);
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current);
+
+    /// <summary>
+    /// Get circuit ratings for a specified facility within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="facilityId">Id of the facility.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    Task<CircuitRatingsResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current);
 }

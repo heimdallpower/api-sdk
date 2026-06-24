@@ -1,4 +1,5 @@
 using HeimdallPower.Api.Client.Assets;
+using HeimdallPower.Api.Client.CapacityMonitoring;
 using HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
 using HeimdallPower.Api.Client.CapacityMonitoring.Lines;
 using HeimdallPower.Api.Client.CapacityMonitoring.Lines.Forecasts;
@@ -123,9 +124,10 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum ampacity is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
-    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId)
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildHeimdallDlrUrl(lineId);
+        var url = UrlBuilder.BuildHeimdallDlrUrl(lineId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallDlrResponse>>(url);
 
         return response.Data;
@@ -138,9 +140,10 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Heimdall AAR is aggregated over the entire line. Using a 5-minute sliding window, the minimum ampacity is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall AAR.</param>
-    public async Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId)
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildHeimdallAarUrl(lineId);
+        var url = UrlBuilder.BuildHeimdallAarUrl(lineId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallAarResponse>>(url);
 
         return response.Data;
@@ -153,9 +156,10 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall DLR forecasts.</param>
-    public async Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId)
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildDlrForecastUrl(lineId);
+        var url = UrlBuilder.BuildDlrForecastUrl(lineId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallDlrForecastResponse>>(url);
 
         return response.Data;
@@ -168,24 +172,43 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall AAR forecasts.</param>
-    public async Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId)
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildAarForecastUrl(lineId);
+        var url = UrlBuilder.BuildAarForecastUrl(lineId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallAarForecastResponse>>(url);
 
         return response.Data;
     }
 
     /// <summary>
-    /// Get the most recent circuit rating forecasts for a specified facility.
-    /// The forecasted hours returned by the endpoint are set to 72 hours
-    /// and are provided in 1-hour intervals.
+    /// Get Heimdall Dynamic Line Rating (DLR) values for the line within a time range.
+    /// The period between from and to must not exceed 30 days.
     /// </summary>
-    /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    public async Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId)
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<HeimdallDlrsResponse> GetHeimdallDlrsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildCircuitRatingForecastUrl(facilityId);
-        var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingForecastResponse>>(url);
+        var url = UrlBuilder.BuildHeimdallDlrsUrl(lineId, from, to, quantity);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallDlrsResponse>>(url);
+
+        return response.Data;
+    }
+
+    /// <summary>
+    /// Get Heimdall Ambient-Adjusted Rating (AAR) values for the line within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<HeimdallAarsResponse> GetHeimdallAarsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
+    {
+        var url = UrlBuilder.BuildHeimdallAarsUrl(lineId, from, to, quantity);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallAarsResponse>>(url);
 
         return response.Data;
     }
@@ -196,10 +219,40 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// and are provided in 1-hour intervals.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId)
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildCircuitRatingUrl(facilityId);
+        var url = UrlBuilder.BuildCircuitRatingForecastUrl(facilityId, quantity);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingForecastResponse>>(url);
+
+        return response.Data;
+    }
+
+    /// <summary>
+    /// Get the most recent circuit rating for a specified facility.
+    /// </summary>
+    /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit rating.</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current)
+    {
+        var url = UrlBuilder.BuildCircuitRatingUrl(facilityId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCircuitRatingResponse>>(url);
+
+        return response.Data;
+    }
+
+    /// <summary>
+    /// Get circuit ratings for a specified facility within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="facilityId">Id of the facility.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    public async Task<CircuitRatingsResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
+    {
+        var url = UrlBuilder.BuildCircuitRatingsUrl(facilityId, from, to, quantity);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingsResponse>>(url);
 
         return response.Data;
     }
