@@ -4,8 +4,14 @@ using System.Text.Json;
 
 namespace HeimdallPower.Api.Client;
 
-internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, HttpClient httpClient, Dictionary<string, string>? clientMetadata = null)
+internal class HeimdallApiHttpClient(
+    IAccessTokenProvider accessTokenProvider,
+    HttpClient httpClient,
+    Dictionary<string, string>? clientMetadata = null,
+    Func<TimeSpan, Task>? delayFunc = null)
 {
+    /// <summary>Delay implementation — injectable for unit tests to avoid real sleeps.</summary>
+    private readonly Func<TimeSpan, Task> _delay = delayFunc ?? Task.Delay;
     private HttpClient HttpClient { get; } = httpClient;
 
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
@@ -20,20 +26,38 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
     private DateTimeOffset _tokenExpiresOn;
     private static readonly TimeSpan TokenExpirationBuffer = TimeSpan.FromMinutes(2);
 
+    private static readonly JsonSerializerOptions ProblemDetailsOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    private static readonly HashSet<HttpStatusCode> TransientStatusCodes =
+    [
+        HttpStatusCode.InternalServerError,
+        HttpStatusCode.BadGateway,
+        HttpStatusCode.ServiceUnavailable,
+        HttpStatusCode.GatewayTimeout,
+    ];
+
+    private const int MaxRetryAttempts = 3;
+
     public async Task<T> GetAsync<T>(string url)
     {
         return await ExecuteWithAuthRetry(async () =>
-        {
-            var response = await HttpClient.GetAsync(url);
-            var jsonString = await HandleResponse(response);
-            return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
-                   ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
-        });
+            await ExecuteWithRetryAsync(async () =>
+            {
+                var response = await HttpClient.GetAsync(url);
+                var jsonString = await HandleResponse(response);
+                return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
+                       ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
+            }, _delay)
+        );
     }
 
     private static async Task<string> HandleResponse(HttpResponseMessage response)
     {
         var content = await response.Content.ReadAsStringAsync();
+        var requestUrl = response.RequestMessage?.RequestUri?.ToString() ?? string.Empty;
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -44,18 +68,54 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
         {
             return content;
         }
-        if (response.StatusCode == HttpStatusCode.BadRequest ||
-            response.StatusCode == HttpStatusCode.InternalServerError ||
-            response.StatusCode == HttpStatusCode.ServiceUnavailable)
+
+        if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.InternalServerError or HttpStatusCode.ServiceUnavailable)
         {
-            var problem = JsonSerializer.Deserialize<ProblemDetails>(content)
-                ?? new ProblemDetails { Detail = "An error occurred while processing the request." };
-            throw new HeimdallApiException(problem, response.StatusCode, response.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
+            // Application Gateway may return HTML instead of JSON on 5xx errors.
+            // Attempt to parse as ProblemDetails, but fall back gracefully if body is not valid JSON.
+            ProblemDetails? problem = null;
+            try
+            {
+                problem = JsonSerializer.Deserialize<ProblemDetails>(content, ProblemDetailsOptions);
+            }
+            catch (JsonException)
+            {
+                // Body is not valid JSON (e.g. HTML error page from Application Gateway)
+            }
+
+            var details = problem ?? new ProblemDetails { Detail = $"Request failed with status code {response.StatusCode}. The server may be temporarily unavailable." };
+            throw new HeimdallApiException(details, response.StatusCode, requestUrl);
         }
-        throw new HeimdallApiException($"Request failed with status code {response.StatusCode}: {content}", response.StatusCode, response.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
+
+        // Handles 502 Bad Gateway, 504 Gateway Timeout, and any other non-success codes
+        throw new HeimdallApiException(
+            $"Request failed with status code {response.StatusCode}. The server may be temporarily unavailable.",
+            response.StatusCode,
+            requestUrl);
     }
 
-
+    private static async Task<T> ExecuteWithRetryAsync<T>(Func<Task<T>> operationFunc, Func<TimeSpan, Task> delay)
+    {
+        var attempt = 0;
+        while (true)
+        {
+            try
+            {
+                return await operationFunc();
+            }
+            catch (HeimdallApiException ex) when (TransientStatusCodes.Contains(ex.StatusCode) && attempt < MaxRetryAttempts)
+            {
+                attempt++;
+                    await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1))); // 1s, 2s, 4s
+            }
+            catch (HttpRequestException) when (attempt < MaxRetryAttempts)
+            {
+                // Network-level failures (connection refused, timeout, DNS, etc.)
+                attempt++;
+                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)));
+            }
+        }
+    }
 
     private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc)
     {
