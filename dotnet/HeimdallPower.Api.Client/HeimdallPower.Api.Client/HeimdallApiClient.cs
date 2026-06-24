@@ -155,6 +155,39 @@ public class HeimdallApiClient : IHeimdallApiClient
     }
 
     /// <summary>
+    /// Get currents for the line within a time range.
+    /// Current is defined as the maximum current, in amperes, measured on the line at a given timestamp.
+    /// The current is aggregated across the entire line using a 5-minute sliding window, where the maximum value is calculated for each window.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    public async Task<CurrentsResponse> GetCurrentsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to)
+    {
+        var url = UrlBuilder.BuildCurrentsUrl(lineId, from, to);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<CurrentsResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
+    /// Get conductor temperatures for the line within a time range.
+    /// Conductor temperature is defined as the maximum and minimum temperature measured on the line at a given timestamp.
+    /// The conductor temperature is aggregated across the entire line using a 5-minute sliding window, where the maximum and minimum values are calculated for each window.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
+    public async Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
+    {
+        var url = UrlBuilder.BuildConductorTemperaturesUrl(lineId, from, to, unitSystem);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<ConductorTemperaturesResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// Heimdall DLR is calculated according to our own proprietary method, based on the CIGRE TB-601 standard for thermal calculation for OHLs.
     /// This method also takes the conductor temperature and current into account and uses these to adjust the weather parameters during calculations.
@@ -164,7 +197,7 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
     public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildHeimdallDlrUrl(lineId, quantity);
+        var url = UrlBuilder.BuildLatestHeimdallDlrUrl(lineId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallDlrResponse>>(url);
 
         return response.Data;
@@ -180,7 +213,7 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
     public async Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildHeimdallAarUrl(lineId, quantity);
+        var url = UrlBuilder.BuildLatestHeimdallAarUrl(lineId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallAarResponse>>(url);
 
         return response.Data;
@@ -272,7 +305,7 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
     public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current)
     {
-        var url = UrlBuilder.BuildCircuitRatingUrl(facilityId, quantity);
+        var url = UrlBuilder.BuildLatestCircuitRatingUrl(facilityId, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCircuitRatingResponse>>(url);
 
         return response.Data;

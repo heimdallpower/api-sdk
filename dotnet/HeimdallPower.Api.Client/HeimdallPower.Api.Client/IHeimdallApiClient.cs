@@ -80,6 +80,29 @@ public interface IHeimdallApiClient
     Task<ApparentPowersResponse> GetApparentPowersAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to);
 
     /// <summary>
+    /// Get currents for the line within a time range.
+    /// Current is defined as the maximum current, in amperes, measured on the line at a given timestamp.
+    /// The current is aggregated across the entire line using a 5-minute sliding window, where the maximum value is calculated for each window.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    Task<CurrentsResponse> GetCurrentsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to);
+
+    /// <summary>
+    /// Get conductor temperatures for the line within a time range.
+    /// Conductor temperature is defined as the maximum and minimum temperature measured on the line at a given timestamp.
+    /// The conductor temperature is aggregated across the entire line using a 5-minute sliding window, where the maximum and minimum values are calculated for each window.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
+    Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric");
+
+    /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
