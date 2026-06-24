@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion(str, Enum):
+class CapacityMonitoringV1LinesGetHeimdallAarsXRegion(str, Enum):
     EU = "eu"
     US = "us"
 

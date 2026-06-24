@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsXRegion(str, Enum):
     EU = "eu"
     US = "us"

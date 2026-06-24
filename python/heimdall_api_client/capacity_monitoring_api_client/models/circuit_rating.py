@@ -1,51 +1,42 @@
 from __future__ import annotations
 
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar, cast
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
-
-from ..types import UNSET, Unset
 from dateutil.parser import isoparse
-from typing import cast
-from uuid import UUID
-import datetime
 
-
-
-
-
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="CircuitRating")
 
 
-
 @_attrs_define
 class CircuitRating:
-    """ 
-        Attributes:
-            timestamp (datetime.datetime): Time (in UTC) when the circuit rating was calculated. Example: 2024-07-01
-                12:00:00.001000+00:00.
-            value (float): The minimum calculated ampacity (in amperes) at the given timestamp. Example: 375.4.
-            is_fallback (bool): Indicates whether the circuit rating is a fallback value. Only applies to grid owners opting
-                in for this feature.
-            at_facility_component_id (None | Unset | UUID): Identifier of the facility component that determines the circuit
-                rating at this timestamp. When null, the circuit rating is not limited by a facility component. Example:
-                00000000-0000-0000-0000-000000000000.
-     """
+    """
+    Attributes:
+        timestamp (datetime.datetime): Time (in UTC) when the circuit rating was calculated. Example: 2024-07-01
+            12:00:00.001000+00:00.
+        value (float): The latest circuit rating value at the given timestamp. The unit of this value is given by the
+            sibling `unit` field on the response:
+              - When `quantity=current` (default) → amperes.
+              - When `quantity=apparent_power` → MVA.
+             Example: 375.4.
+        is_fallback (bool): Indicates whether the circuit rating is a fallback value. Only applies to grid owners opting
+            in for this feature.
+        at_facility_component_id (None | Unset | UUID): Identifier of the facility component that determines the circuit
+            rating at this timestamp. When null, the circuit rating is not limited by a facility component. Example:
+            00000000-0000-0000-0000-000000000000.
+    """
 
     timestamp: datetime.datetime
     value: float
     is_fallback: bool
     at_facility_component_id: None | Unset | UUID = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
-
-
-
-
 
     def to_dict(self) -> dict[str, Any]:
         timestamp = self.timestamp.isoformat()
@@ -62,28 +53,24 @@ class CircuitRating:
         else:
             at_facility_component_id = self.at_facility_component_id
 
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({
-            "timestamp": timestamp,
-            "value": value,
-            "is_fallback": is_fallback,
-        })
+        field_dict.update(
+            {
+                "timestamp": timestamp,
+                "value": value,
+                "is_fallback": is_fallback,
+            }
+        )
         if at_facility_component_id is not UNSET:
             field_dict["at_facility_component_id"] = at_facility_component_id
 
         return field_dict
 
-
-
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         timestamp = isoparse(d.pop("timestamp"))
-
-
-
 
         value = d.pop("value")
 
@@ -99,8 +86,6 @@ class CircuitRating:
                     raise TypeError()
                 at_facility_component_id_type_0 = UUID(data)
 
-
-
                 return at_facility_component_id_type_0
             except (TypeError, ValueError, AttributeError, KeyError):
                 pass
@@ -108,14 +93,12 @@ class CircuitRating:
 
         at_facility_component_id = _parse_at_facility_component_id(d.pop("at_facility_component_id", UNSET))
 
-
         circuit_rating = cls(
             timestamp=timestamp,
             value=value,
             is_fallback=is_fallback,
             at_facility_component_id=at_facility_component_id,
         )
-
 
         circuit_rating.additional_properties = d
         return circuit_rating

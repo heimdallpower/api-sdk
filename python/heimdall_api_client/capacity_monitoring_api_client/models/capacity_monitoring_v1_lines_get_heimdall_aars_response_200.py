@@ -7,20 +7,20 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.heimdall_dlr_forecasts import HeimdallDlrForecasts
+    from ..models.heimdall_aars import HeimdallAars
 
 
-T = TypeVar("T", bound="CapacityMonitoringV1LinesGetLatestHeimdallDlrForecastsResponse200")
+T = TypeVar("T", bound="CapacityMonitoringV1LinesGetHeimdallAarsResponse200")
 
 
 @_attrs_define
-class CapacityMonitoringV1LinesGetLatestHeimdallDlrForecastsResponse200:
+class CapacityMonitoringV1LinesGetHeimdallAarsResponse200:
     """
     Attributes:
-        data (HeimdallDlrForecasts):
+        data (HeimdallAars):
     """
 
-    data: HeimdallDlrForecasts
+    data: HeimdallAars
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,17 +38,17 @@ class CapacityMonitoringV1LinesGetLatestHeimdallDlrForecastsResponse200:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.heimdall_dlr_forecasts import HeimdallDlrForecasts
+        from ..models.heimdall_aars import HeimdallAars
 
         d = dict(src_dict)
-        data = HeimdallDlrForecasts.from_dict(d.pop("data"))
+        data = HeimdallAars.from_dict(d.pop("data"))
 
-        capacity_monitoring_v1_lines_get_latest_heimdall_dlr_forecasts_response_200 = cls(
+        capacity_monitoring_v1_lines_get_heimdall_aars_response_200 = cls(
             data=data,
         )
 
-        capacity_monitoring_v1_lines_get_latest_heimdall_dlr_forecasts_response_200.additional_properties = d
-        return capacity_monitoring_v1_lines_get_latest_heimdall_dlr_forecasts_response_200
+        capacity_monitoring_v1_lines_get_heimdall_aars_response_200.additional_properties = d
+        return capacity_monitoring_v1_lines_get_heimdall_aars_response_200
 
     @property
     def additional_keys(self) -> list[str]:

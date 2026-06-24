@@ -1,57 +1,68 @@
 from http import HTTPStatus
 from typing import Any, cast
 from urllib.parse import quote
+from uuid import UUID
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
-from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200
-from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_x_region import CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
+from ...client import AuthenticatedClient, Client
+from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import (
+    CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200,
+)
+from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_x_region import (
+    CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion,
+)
 from ...models.problem_details import ProblemDetails
-from ...types import UNSET, Unset
-from typing import cast
-from uuid import UUID
-
+from ...models.quantity import Quantity
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     line_id: UUID,
     *,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
-
+    quantity: Quantity | Unset = UNSET,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
         headers["x-region"] = str(x_region)
 
+    params: dict[str, Any] = {}
 
+    json_quantity: str | Unset = UNSET
+    if not isinstance(quantity, Unset):
+        json_quantity = quantity.value
 
+    params["quantity"] = json_quantity
 
-    
-
-    
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/capacity_monitoring/v1/lines/{line_id}/heimdall_dlrs/latest".format(line_id=quote(str(line_id), safe=""),),
+        "url": "/capacity_monitoring/v1/lines/{line_id}/heimdall_dlrs/latest".format(
+            line_id=quote(str(line_id), safe=""),
+        ),
+        "params": params,
     }
-
 
     _kwargs["headers"] = headers
     return _kwargs
 
 
-
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
     if response.status_code == 200:
         response_200 = CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200.from_dict(response.json())
 
-
-
         return response_200
+
+    if response.status_code == 400:
+        response_400 = ProblemDetails.from_dict(response.json())
+
+        return response_400
 
     if response.status_code == 401:
         response_401 = cast(Any, None)
@@ -59,8 +70,6 @@ def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 
     if response.status_code == 403:
         response_403 = ProblemDetails.from_dict(response.json())
-
-
 
         return response_403
 
@@ -71,8 +80,6 @@ def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Res
     if response.status_code == 500:
         response_500 = ProblemDetails.from_dict(response.json())
 
-
-
         return response_500
 
     if client.raise_on_unexpected_status:
@@ -81,7 +88,9 @@ def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Res
         return None
 
 
-def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -94,10 +103,11 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
-
+    quantity: Quantity | Unset = UNSET,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
-    """ Get latest Heimdall DLR
+    r"""Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -109,8 +119,24 @@ def sync_detailed(
     Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
 
+    ### Quantity
+    Use the optional `quantity` query parameter to choose the quantity returned:
+      - `current` (default) — Heimdall DLR in amperes (`unit: \"Ampere\"`).
+      - `apparent_power` — Heimdall DLR converted to three-phase apparent power in MVA (`unit: \"MVA\"`)
+    using `S = sqrt(3) * V * I / 1,000,000`.
+
+    ### Voltage selection for `apparent_power`
+    The line's **operational voltage** is used when it is set and positive; otherwise the **nominal
+    voltage** is used.
+    Both voltages are exposed on the facility in the `GET /assets/v1/assets` response so clients can
+    verify which value the calculation would use.
+    If neither voltage is usable, the response is `404`.
+
     Args:
         line_id (UUID):
+        quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
+              - `current` — value in amperes.
+              - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -120,13 +146,12 @@ def sync_detailed(
 
     Returns:
         Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]
-     """
-
+    """
 
     kwargs = _get_kwargs(
         line_id=line_id,
-x_region=x_region,
-
+        quantity=quantity,
+        x_region=x_region,
     )
 
     response = client.get_httpx_client().request(
@@ -135,14 +160,16 @@ x_region=x_region,
 
     return _build_response(client=client, response=response)
 
+
 def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
-
+    quantity: Quantity | Unset = UNSET,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
-    """ Get latest Heimdall DLR
+    r"""Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -154,8 +181,24 @@ def sync(
     Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
 
+    ### Quantity
+    Use the optional `quantity` query parameter to choose the quantity returned:
+      - `current` (default) — Heimdall DLR in amperes (`unit: \"Ampere\"`).
+      - `apparent_power` — Heimdall DLR converted to three-phase apparent power in MVA (`unit: \"MVA\"`)
+    using `S = sqrt(3) * V * I / 1,000,000`.
+
+    ### Voltage selection for `apparent_power`
+    The line's **operational voltage** is used when it is set and positive; otherwise the **nominal
+    voltage** is used.
+    Both voltages are exposed on the facility in the `GET /assets/v1/assets` response so clients can
+    verify which value the calculation would use.
+    If neither voltage is usable, the response is `404`.
+
     Args:
         line_id (UUID):
+        quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
+              - `current` — value in amperes.
+              - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -165,24 +208,25 @@ def sync(
 
     Returns:
         Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails
-     """
-
+    """
 
     return sync_detailed(
         line_id=line_id,
-client=client,
-x_region=x_region,
-
+        client=client,
+        quantity=quantity,
+        x_region=x_region,
     ).parsed
+
 
 async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
-
+    quantity: Quantity | Unset = UNSET,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
-    """ Get latest Heimdall DLR
+    r"""Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -194,8 +238,24 @@ async def asyncio_detailed(
     Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
 
+    ### Quantity
+    Use the optional `quantity` query parameter to choose the quantity returned:
+      - `current` (default) — Heimdall DLR in amperes (`unit: \"Ampere\"`).
+      - `apparent_power` — Heimdall DLR converted to three-phase apparent power in MVA (`unit: \"MVA\"`)
+    using `S = sqrt(3) * V * I / 1,000,000`.
+
+    ### Voltage selection for `apparent_power`
+    The line's **operational voltage** is used when it is set and positive; otherwise the **nominal
+    voltage** is used.
+    Both voltages are exposed on the facility in the `GET /assets/v1/assets` response so clients can
+    verify which value the calculation would use.
+    If neither voltage is usable, the response is `404`.
+
     Args:
         line_id (UUID):
+        quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
+              - `current` — value in amperes.
+              - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -205,29 +265,28 @@ async def asyncio_detailed(
 
     Returns:
         Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]
-     """
-
+    """
 
     kwargs = _get_kwargs(
         line_id=line_id,
-x_region=x_region,
-
+        quantity=quantity,
+        x_region=x_region,
     )
 
-    response = await client.get_async_httpx_client().request(
-        **kwargs
-    )
+    response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
+
 
 async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
-
+    quantity: Quantity | Unset = UNSET,
+    x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
+    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
-    """ Get latest Heimdall DLR
+    r"""Get latest Heimdall DLR
 
      This endpoint returns the most recent Heimdall Dynamic Line Rating (DLR) for the line.
 
@@ -239,8 +298,24 @@ async def asyncio(
     Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
 
+    ### Quantity
+    Use the optional `quantity` query parameter to choose the quantity returned:
+      - `current` (default) — Heimdall DLR in amperes (`unit: \"Ampere\"`).
+      - `apparent_power` — Heimdall DLR converted to three-phase apparent power in MVA (`unit: \"MVA\"`)
+    using `S = sqrt(3) * V * I / 1,000,000`.
+
+    ### Voltage selection for `apparent_power`
+    The line's **operational voltage** is used when it is set and positive; otherwise the **nominal
+    voltage** is used.
+    Both voltages are exposed on the facility in the `GET /assets/v1/assets` response so clients can
+    verify which value the calculation would use.
+    If neither voltage is usable, the response is `404`.
+
     Args:
         line_id (UUID):
+        quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
+              - `current` — value in amperes.
+              - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -250,12 +325,13 @@ async def asyncio(
 
     Returns:
         Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails
-     """
+    """
 
-
-    return (await asyncio_detailed(
-        line_id=line_id,
-client=client,
-x_region=x_region,
-
-    )).parsed
+    return (
+        await asyncio_detailed(
+            line_id=line_id,
+            client=client,
+            quantity=quantity,
+            x_region=x_region,
+        )
+    ).parsed

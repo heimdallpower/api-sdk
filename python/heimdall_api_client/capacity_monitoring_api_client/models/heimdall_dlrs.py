@@ -7,28 +7,29 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.circuit_rating import CircuitRating
+    from ..models.heimdall_dlr import HeimdallDlr
 
 
-T = TypeVar("T", bound="LatestCircuitRating")
+T = TypeVar("T", bound="HeimdallDlrs")
 
 
 @_attrs_define
-class LatestCircuitRating:
+class HeimdallDlrs:
     """
     Attributes:
         metric (str): A human-readable label identifying the rating returned by this endpoint, independent of the
-            `quantity` query parameter. Example: Circuit rating.
-        unit (str): The unit of the value in the response. Depends on the requested `quantity` query parameter:
+            `quantity` query parameter. Example: Heimdall DLR.
+        unit (str): The unit of the values in the response. Depends on the requested `quantity` query parameter:
               - `current` (default) → `"Ampere"`
               - `apparent_power` → `"MVA"`
              Example: Ampere.
-        circuit_rating (CircuitRating):
+        heimdall_dlrs (list[HeimdallDlr]): List of Heimdall DLR values within the requested time range. May be empty if
+            no data exists for the period.
     """
 
     metric: str
     unit: str
-    circuit_rating: CircuitRating
+    heimdall_dlrs: list[HeimdallDlr]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +37,10 @@ class LatestCircuitRating:
 
         unit = self.unit
 
-        circuit_rating = self.circuit_rating.to_dict()
+        heimdall_dlrs = []
+        for heimdall_dlrs_item_data in self.heimdall_dlrs:
+            heimdall_dlrs_item = heimdall_dlrs_item_data.to_dict()
+            heimdall_dlrs.append(heimdall_dlrs_item)
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -44,7 +48,7 @@ class LatestCircuitRating:
             {
                 "metric": metric,
                 "unit": unit,
-                "circuit_rating": circuit_rating,
+                "heimdall_dlrs": heimdall_dlrs,
             }
         )
 
@@ -52,23 +56,28 @@ class LatestCircuitRating:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.circuit_rating import CircuitRating
+        from ..models.heimdall_dlr import HeimdallDlr
 
         d = dict(src_dict)
         metric = d.pop("metric")
 
         unit = d.pop("unit")
 
-        circuit_rating = CircuitRating.from_dict(d.pop("circuit_rating"))
+        heimdall_dlrs = []
+        _heimdall_dlrs = d.pop("heimdall_dlrs")
+        for heimdall_dlrs_item_data in _heimdall_dlrs:
+            heimdall_dlrs_item = HeimdallDlr.from_dict(heimdall_dlrs_item_data)
 
-        latest_circuit_rating = cls(
+            heimdall_dlrs.append(heimdall_dlrs_item)
+
+        heimdall_dlrs = cls(
             metric=metric,
             unit=unit,
-            circuit_rating=circuit_rating,
+            heimdall_dlrs=heimdall_dlrs,
         )
 
-        latest_circuit_rating.additional_properties = d
-        return latest_circuit_rating
+        heimdall_dlrs.additional_properties = d
+        return heimdall_dlrs
 
     @property
     def additional_keys(self) -> list[str]:

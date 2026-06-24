@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 from typing import Any, cast
 from urllib.parse import quote
@@ -7,11 +8,11 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_response_200 import (
-    CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200,
+from ...models.capacity_monitoring_v1_lines_get_heimdall_aars_response_200 import (
+    CapacityMonitoringV1LinesGetHeimdallAarsResponse200,
 )
-from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_x_region import (
-    CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion,
+from ...models.capacity_monitoring_v1_lines_get_heimdall_aars_x_region import (
+    CapacityMonitoringV1LinesGetHeimdallAarsXRegion,
 )
 from ...models.problem_details import ProblemDetails
 from ...models.quantity import Quantity
@@ -21,15 +22,23 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     line_id: UUID,
     *,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     quantity: Quantity | Unset = UNSET,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
+    x_region: CapacityMonitoringV1LinesGetHeimdallAarsXRegion
+    | Unset = CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
         headers["x-region"] = str(x_region)
 
     params: dict[str, Any] = {}
+
+    json_from_timestamp = from_timestamp.isoformat()
+    params["from_timestamp"] = json_from_timestamp
+
+    json_to_timestamp = to_timestamp.isoformat()
+    params["to_timestamp"] = json_to_timestamp
 
     json_quantity: str | Unset = UNSET
     if not isinstance(quantity, Unset):
@@ -41,7 +50,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/capacity_monitoring/v1/lines/{line_id}/heimdall_aars/latest".format(
+        "url": "/capacity_monitoring/v1/lines/{line_id}/heimdall_aars".format(
             line_id=quote(str(line_id), safe=""),
         ),
         "params": params,
@@ -53,9 +62,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
+) -> Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails | None:
     if response.status_code == 200:
-        response_200 = CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200.from_dict(response.json())
+        response_200 = CapacityMonitoringV1LinesGetHeimdallAarsResponse200.from_dict(response.json())
 
         return response_200
 
@@ -90,7 +99,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
+) -> Response[Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -103,13 +112,16 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     quantity: Quantity | Unset = UNSET,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
-    r"""Get latest Heimdall AAR
+    x_region: CapacityMonitoringV1LinesGetHeimdallAarsXRegion
+    | Unset = CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU,
+) -> Response[Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails]:
+    r"""Get Heimdall AARs
 
-     This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
+     This endpoint returns Heimdall Ambient-Adjusted Rating (AAR) for the line within a specified time
+    range.
 
     Heimdall AAR is calculated according to the CIGRE TB-601 standard for thermal calculation for OHLs.
     It is purely based on weather data from weather service providers.
@@ -119,6 +131,8 @@ def sync_detailed(
 
     Heimdall AAR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
+
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
     ### Quantity
     Use the optional `quantity` query parameter to choose the quantity returned:
@@ -135,22 +149,26 @@ def sync_detailed(
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
-        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
-            CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
+        x_region (CapacityMonitoringV1LinesGetHeimdallAarsXRegion | Unset):  Default:
+            CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]
+        Response[Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         quantity=quantity,
         x_region=x_region,
     )
@@ -166,13 +184,16 @@ def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     quantity: Quantity | Unset = UNSET,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
-    r"""Get latest Heimdall AAR
+    x_region: CapacityMonitoringV1LinesGetHeimdallAarsXRegion
+    | Unset = CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU,
+) -> Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails | None:
+    r"""Get Heimdall AARs
 
-     This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
+     This endpoint returns Heimdall Ambient-Adjusted Rating (AAR) for the line within a specified time
+    range.
 
     Heimdall AAR is calculated according to the CIGRE TB-601 standard for thermal calculation for OHLs.
     It is purely based on weather data from weather service providers.
@@ -182,6 +203,8 @@ def sync(
 
     Heimdall AAR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
+
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
     ### Quantity
     Use the optional `quantity` query parameter to choose the quantity returned:
@@ -198,23 +221,27 @@ def sync(
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
-        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
-            CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
+        x_region (CapacityMonitoringV1LinesGetHeimdallAarsXRegion | Unset):  Default:
+            CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails
+        Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails
     """
 
     return sync_detailed(
         line_id=line_id,
         client=client,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         quantity=quantity,
         x_region=x_region,
     ).parsed
@@ -224,13 +251,16 @@ async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     quantity: Quantity | Unset = UNSET,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
-    r"""Get latest Heimdall AAR
+    x_region: CapacityMonitoringV1LinesGetHeimdallAarsXRegion
+    | Unset = CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU,
+) -> Response[Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails]:
+    r"""Get Heimdall AARs
 
-     This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
+     This endpoint returns Heimdall Ambient-Adjusted Rating (AAR) for the line within a specified time
+    range.
 
     Heimdall AAR is calculated according to the CIGRE TB-601 standard for thermal calculation for OHLs.
     It is purely based on weather data from weather service providers.
@@ -240,6 +270,8 @@ async def asyncio_detailed(
 
     Heimdall AAR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
+
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
     ### Quantity
     Use the optional `quantity` query parameter to choose the quantity returned:
@@ -256,22 +288,26 @@ async def asyncio_detailed(
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
-        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
-            CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
+        x_region (CapacityMonitoringV1LinesGetHeimdallAarsXRegion | Unset):  Default:
+            CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]
+        Response[Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         quantity=quantity,
         x_region=x_region,
     )
@@ -285,13 +321,16 @@ async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     quantity: Quantity | Unset = UNSET,
-    x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
-    | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
-) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
-    r"""Get latest Heimdall AAR
+    x_region: CapacityMonitoringV1LinesGetHeimdallAarsXRegion
+    | Unset = CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU,
+) -> Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails | None:
+    r"""Get Heimdall AARs
 
-     This endpoint returns the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
+     This endpoint returns Heimdall Ambient-Adjusted Rating (AAR) for the line within a specified time
+    range.
 
     Heimdall AAR is calculated according to the CIGRE TB-601 standard for thermal calculation for OHLs.
     It is purely based on weather data from weather service providers.
@@ -301,6 +340,8 @@ async def asyncio(
 
     Heimdall AAR is aggregated over the entire line. Using a 5-minute sliding window, the minimum
     ampacity are calculated for each window.
+
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
     ### Quantity
     Use the optional `quantity` query parameter to choose the quantity returned:
@@ -317,24 +358,28 @@ async def asyncio(
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
-        x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
-            CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
+        x_region (CapacityMonitoringV1LinesGetHeimdallAarsXRegion | Unset):  Default:
+            CapacityMonitoringV1LinesGetHeimdallAarsXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails
+        Any | CapacityMonitoringV1LinesGetHeimdallAarsResponse200 | ProblemDetails
     """
 
     return (
         await asyncio_detailed(
             line_id=line_id,
             client=client,
+            from_timestamp=from_timestamp,
+            to_timestamp=to_timestamp,
             quantity=quantity,
             x_region=x_region,
         )
