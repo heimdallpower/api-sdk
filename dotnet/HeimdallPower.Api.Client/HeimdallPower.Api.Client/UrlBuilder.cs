@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using HeimdallPower.Api.Client.CapacityMonitoring;
 
 namespace HeimdallPower.Api.Client;
 
@@ -17,15 +18,21 @@ internal static class UrlBuilder
     private const string AssetsResource = "assets";
 
     // Endpoints
+    private const string CircuitRatings = "circuit_ratings";
     private const string CircuitRatingForecasts = "circuit_ratings/forecasts";
     private const string CircuitRatingLatest = "circuit_ratings/latest";
     private const string ConductorTemperatures = "conductor_temperatures/latest";
     private const string Currents = "currents/latest";
+    private const string HeimdallDlrs = "heimdall_dlrs";
     private const string HeimdallDlr = "heimdall_dlrs/latest";
+    private const string HeimdallAars = "heimdall_aars";
     private const string HeimdallAar = "heimdall_aars/latest";
     private const string HeimdallDlrForecast = "heimdall_dlrs/forecasts";
     private const string HeimdallAarForecast = "heimdall_aars/forecasts";
     private const string IcingLatest = "icing/latest";
+    private const string IcingForecast = "icing/forecast";
+    private const string ApparentPowerLatest = "apparent_power/latest";
+    private const string ApparentPower = "apparent_power";
     private const string SagAndClearanceLatest = "sag_and_clearance/latest";
 
     public static string BuildLatestConductorTemperatureUrl(Guid lineId, string unitSystem)
@@ -39,26 +46,59 @@ internal static class UrlBuilder
     public static string BuildLatestCurrentsUrl(Guid lineId)
         => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: Currents);
 
-    public static string BuildHeimdallDlrUrl(Guid lineId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlr);
+    public static string BuildHeimdallDlrUrl(Guid lineId, Quantity quantity = Quantity.Current)
+        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlr,
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
 
-    public static string BuildHeimdallAarUrl(Guid lineId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAar);
+    public static string BuildHeimdallAarUrl(Guid lineId, Quantity quantity = Quantity.Current)
+        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAar,
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
 
-    public static string BuildDlrForecastUrl(Guid lineId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlrForecast);
+    public static string BuildDlrForecastUrl(Guid lineId, Quantity quantity = Quantity.Current)
+        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlrForecast,
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
 
-    public static string BuildAarForecastUrl(Guid lineId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAarForecast);
+    public static string BuildAarForecastUrl(Guid lineId, Quantity quantity = Quantity.Current)
+        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAarForecast,
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
+
+    public static string BuildHeimdallDlrsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
+            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"))
+            .AddQueryParam("quantity", quantity.ToQueryValue());
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlrs, queryParams: queryParams);
+    }
+
+    public static string BuildHeimdallAarsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
+            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"))
+            .AddQueryParam("quantity", quantity.ToQueryValue());
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAars, queryParams: queryParams);
+    }
 
     public static string BuildAssetsUrl()
         => GetResourceUrl(module: Assets, apiVersion: V1, resource: AssetsResource);
 
-    public static string BuildCircuitRatingForecastUrl(Guid facilityId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingForecasts);
+    public static string BuildCircuitRatingForecastUrl(Guid facilityId, Quantity quantity = Quantity.Current)
+        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingForecasts,
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
 
-    public static string BuildCircuitRatingUrl(Guid facilityId)
-        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest);
+    public static string BuildCircuitRatingUrl(Guid facilityId, Quantity quantity = Quantity.Current)
+        => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest,
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
+
+    public static string BuildCircuitRatingsUrl(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
+            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"))
+            .AddQueryParam("quantity", quantity.ToQueryValue());
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatings, queryParams: queryParams);
+    }
 
     public static string BuildLatestIcingUrl(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null)
     {
@@ -69,6 +109,24 @@ internal static class UrlBuilder
             queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString("o"));
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingLatest, queryParams: queryParams);
+    }
+
+    public static string BuildIcingForecastUrl(Guid lineId, string unitSystem = "metric")
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("unit_system", unitSystem);
+        return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingForecast, queryParams: queryParams);
+    }
+
+    public static string BuildLatestApparentPowerUrl(Guid lineId)
+        => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPowerLatest);
+
+    public static string BuildApparentPowersUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
+            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"));
+        return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPower, queryParams: queryParams);
     }
 
     public static string BuildLatestSagAndClearanceUrl(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null)

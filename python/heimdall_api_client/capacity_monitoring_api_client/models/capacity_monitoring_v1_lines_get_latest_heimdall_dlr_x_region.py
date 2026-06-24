@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion(str, Enum):
     EU = "eu"
     US = "us"

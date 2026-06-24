@@ -9,17 +9,16 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.grid_insights_v1_lines_get_latest_icing_response_200 import GridInsightsV1LinesGetLatestIcingResponse200
-from ...models.grid_insights_v1_lines_get_latest_icing_unit_system import GridInsightsV1LinesGetLatestIcingUnitSystem
 from ...models.grid_insights_v1_lines_get_latest_icing_x_region import GridInsightsV1LinesGetLatestIcingXRegion
 from ...models.problem_details import ProblemDetails
+from ...models.unit_system import UnitSystem
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     line_id: UUID,
     *,
-    unit_system: GridInsightsV1LinesGetLatestIcingUnitSystem
-    | Unset = GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC,
+    unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
 ) -> dict[str, Any]:
@@ -62,6 +61,11 @@ def _parse_response(
 
         return response_200
 
+    if response.status_code == 400:
+        response_400 = ProblemDetails.from_dict(response.json())
+
+        return response_400
+
     if response.status_code == 401:
         response_401 = cast(Any, None)
         return response_401
@@ -101,8 +105,7 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    unit_system: GridInsightsV1LinesGetLatestIcingUnitSystem
-    | Unset = GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC,
+    unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails]:
@@ -134,8 +137,7 @@ def sync_detailed(
 
     Args:
         line_id (UUID):
-        unit_system (GridInsightsV1LinesGetLatestIcingUnitSystem | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC.
+        unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestIcingXRegion.EU.
@@ -166,8 +168,7 @@ def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    unit_system: GridInsightsV1LinesGetLatestIcingUnitSystem
-    | Unset = GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC,
+    unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails | None:
@@ -199,8 +200,7 @@ def sync(
 
     Args:
         line_id (UUID):
-        unit_system (GridInsightsV1LinesGetLatestIcingUnitSystem | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC.
+        unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestIcingXRegion.EU.
@@ -226,8 +226,7 @@ async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    unit_system: GridInsightsV1LinesGetLatestIcingUnitSystem
-    | Unset = GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC,
+    unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails]:
@@ -259,8 +258,7 @@ async def asyncio_detailed(
 
     Args:
         line_id (UUID):
-        unit_system (GridInsightsV1LinesGetLatestIcingUnitSystem | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC.
+        unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestIcingXRegion.EU.
@@ -289,8 +287,7 @@ async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    unit_system: GridInsightsV1LinesGetLatestIcingUnitSystem
-    | Unset = GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC,
+    unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails | None:
@@ -322,8 +319,7 @@ async def asyncio(
 
     Args:
         line_id (UUID):
-        unit_system (GridInsightsV1LinesGetLatestIcingUnitSystem | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingUnitSystem.METRIC.
+        unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestIcingXRegion.EU.

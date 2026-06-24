@@ -18,4 +18,5 @@ internal static class NameValueCollectionExtensions
         nameValueCollection[key] = value;
         return nameValueCollection;
     }
+
 }
