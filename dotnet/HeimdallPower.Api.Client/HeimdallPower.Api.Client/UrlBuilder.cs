@@ -30,6 +30,9 @@ internal static class UrlBuilder
     private const string HeimdallDlrForecast = "heimdall_dlrs/forecasts";
     private const string HeimdallAarForecast = "heimdall_aars/forecasts";
     private const string IcingLatest = "icing/latest";
+    private const string IcingForecast = "icing/forecast";
+    private const string ApparentPowerLatest = "apparent_power/latest";
+    private const string ApparentPower = "apparent_power";
     private const string SagAndClearanceLatest = "sag_and_clearance/latest";
 
     public static string BuildLatestConductorTemperatureUrl(Guid lineId, string unitSystem)
@@ -106,6 +109,24 @@ internal static class UrlBuilder
             queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString("o"));
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingLatest, queryParams: queryParams);
+    }
+
+    public static string BuildIcingForecastUrl(Guid lineId, string unitSystem = "metric")
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("unit_system", unitSystem);
+        return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingForecast, queryParams: queryParams);
+    }
+
+    public static string BuildLatestApparentPowerUrl(Guid lineId)
+        => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPowerLatest);
+
+    public static string BuildApparentPowersUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
+            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"));
+        return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPower, queryParams: queryParams);
     }
 
     public static string BuildLatestSagAndClearanceUrl(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null)

@@ -118,6 +118,43 @@ public class HeimdallApiClient : IHeimdallApiClient
     }
 
     /// <summary>
+    /// Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve icing forecasts.</param>
+    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, "imperial" uses lb/ft. Defaults to metric.</param>
+    public async Task<IcingForecastResponse> GetIcingForecastAsync(Guid lineId, string unitSystem = "metric")
+    {
+        var url = UrlBuilder.BuildIcingForecastUrl(lineId, unitSystem);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<IcingForecastResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
+    /// Get the most recent apparent power measurement for the line.
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve the latest apparent power.</param>
+    public async Task<LatestApparentPowerResponse> GetLatestApparentPowerAsync(Guid lineId)
+    {
+        var url = UrlBuilder.BuildLatestApparentPowerUrl(lineId);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestApparentPowerResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
+    /// Get apparent power values for the line within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    public async Task<ApparentPowersResponse> GetApparentPowersAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to)
+    {
+        var url = UrlBuilder.BuildApparentPowersUrl(lineId, from, to);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<ApparentPowersResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// Heimdall DLR is calculated according to our own proprietary method, based on the CIGRE TB-601 standard for thermal calculation for OHLs.
     /// This method also takes the conductor temperature and current into account and uses these to adjust the weather parameters during calculations.

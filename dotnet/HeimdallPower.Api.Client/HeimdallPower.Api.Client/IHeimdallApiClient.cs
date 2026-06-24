@@ -58,6 +58,28 @@ public interface IHeimdallApiClient
     Task<LatestLineSagAndClearanceResponse> GetLatestSagAndClearanceAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null);
 
     /// <summary>
+    /// Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve icing forecasts.</param>
+    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, "imperial" uses lb/ft. Defaults to metric.</param>
+    Task<IcingForecastResponse> GetIcingForecastAsync(Guid lineId, string unitSystem = "metric");
+
+    /// <summary>
+    /// Get the most recent apparent power measurement for the line.
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve the latest apparent power.</param>
+    Task<LatestApparentPowerResponse> GetLatestApparentPowerAsync(Guid lineId);
+
+    /// <summary>
+    /// Get apparent power values for the line within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    Task<ApparentPowersResponse> GetApparentPowersAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to);
+
+    /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
