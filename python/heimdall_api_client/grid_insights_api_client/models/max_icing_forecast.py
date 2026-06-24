@@ -7,40 +7,31 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.max_icing import MaxIcing
-    from ..models.span_icing import SpanIcing
+    from ..models.max_icing_forecast_ice_weight import MaxIcingForecastIceWeight
 
 
-T = TypeVar("T", bound="LatestLineIcingIcing")
+T = TypeVar("T", bound="MaxIcingForecast")
 
 
 @_attrs_define
-class LatestLineIcingIcing:
-    """Icing measurements for the line organized by spans and span phases.
+class MaxIcingForecast:
+    """The peak ice weight across all span phases and all forecast time points.
 
     Attributes:
-        max_ (MaxIcing):
-        spans (list[SpanIcing]): List of spans on the line with their icing data.
+        ice_weight (MaxIcingForecastIceWeight):
     """
 
-    max_: MaxIcing
-    spans: list[SpanIcing]
+    ice_weight: MaxIcingForecastIceWeight
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        max_ = self.max_.to_dict()
-
-        spans = []
-        for spans_item_data in self.spans:
-            spans_item = spans_item_data.to_dict()
-            spans.append(spans_item)
+        ice_weight = self.ice_weight.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "max": max_,
-                "spans": spans,
+                "ice_weight": ice_weight,
             }
         )
 
@@ -48,26 +39,17 @@ class LatestLineIcingIcing:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.max_icing import MaxIcing
-        from ..models.span_icing import SpanIcing
+        from ..models.max_icing_forecast_ice_weight import MaxIcingForecastIceWeight
 
         d = dict(src_dict)
-        max_ = MaxIcing.from_dict(d.pop("max"))
+        ice_weight = MaxIcingForecastIceWeight.from_dict(d.pop("ice_weight"))
 
-        spans = []
-        _spans = d.pop("spans")
-        for spans_item_data in _spans:
-            spans_item = SpanIcing.from_dict(spans_item_data)
-
-            spans.append(spans_item)
-
-        latest_line_icing_icing = cls(
-            max_=max_,
-            spans=spans,
+        max_icing_forecast = cls(
+            ice_weight=ice_weight,
         )
 
-        latest_line_icing_icing.additional_properties = d
-        return latest_line_icing_icing
+        max_icing_forecast.additional_properties = d
+        return max_icing_forecast
 
     @property
     def additional_keys(self) -> list[str]:

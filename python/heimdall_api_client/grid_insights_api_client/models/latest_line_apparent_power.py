@@ -7,40 +7,40 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.max_icing import MaxIcing
-    from ..models.span_icing import SpanIcing
+    from ..models.line_apparent_power import LineApparentPower
 
 
-T = TypeVar("T", bound="LatestLineIcingIcing")
+T = TypeVar("T", bound="LatestLineApparentPower")
 
 
 @_attrs_define
-class LatestLineIcingIcing:
-    """Icing measurements for the line organized by spans and span phases.
-
+class LatestLineApparentPower:
+    """
     Attributes:
-        max_ (MaxIcing):
-        spans (list[SpanIcing]): List of spans on the line with their icing data.
+        metric (str): What kind of data does this response contain. Example: Apparent power.
+        unit (str): The unit of the value in the response. Example: MVA.
+        apparent_power (LineApparentPower):
     """
 
-    max_: MaxIcing
-    spans: list[SpanIcing]
+    metric: str
+    unit: str
+    apparent_power: LineApparentPower
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        max_ = self.max_.to_dict()
+        metric = self.metric
 
-        spans = []
-        for spans_item_data in self.spans:
-            spans_item = spans_item_data.to_dict()
-            spans.append(spans_item)
+        unit = self.unit
+
+        apparent_power = self.apparent_power.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "max": max_,
-                "spans": spans,
+                "metric": metric,
+                "unit": unit,
+                "apparent_power": apparent_power,
             }
         )
 
@@ -48,26 +48,23 @@ class LatestLineIcingIcing:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.max_icing import MaxIcing
-        from ..models.span_icing import SpanIcing
+        from ..models.line_apparent_power import LineApparentPower
 
         d = dict(src_dict)
-        max_ = MaxIcing.from_dict(d.pop("max"))
+        metric = d.pop("metric")
 
-        spans = []
-        _spans = d.pop("spans")
-        for spans_item_data in _spans:
-            spans_item = SpanIcing.from_dict(spans_item_data)
+        unit = d.pop("unit")
 
-            spans.append(spans_item)
+        apparent_power = LineApparentPower.from_dict(d.pop("apparent_power"))
 
-        latest_line_icing_icing = cls(
-            max_=max_,
-            spans=spans,
+        latest_line_apparent_power = cls(
+            metric=metric,
+            unit=unit,
+            apparent_power=apparent_power,
         )
 
-        latest_line_icing_icing.additional_properties = d
-        return latest_line_icing_icing
+        latest_line_apparent_power.additional_properties = d
+        return latest_line_apparent_power
 
     @property
     def additional_keys(self) -> list[str]:

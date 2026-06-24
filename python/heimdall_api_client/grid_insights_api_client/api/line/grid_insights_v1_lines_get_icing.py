@@ -8,8 +8,8 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.grid_insights_v1_lines_get_latest_icing_response_200 import GridInsightsV1LinesGetLatestIcingResponse200
-from ...models.grid_insights_v1_lines_get_latest_icing_x_region import GridInsightsV1LinesGetLatestIcingXRegion
+from ...models.grid_insights_v1_lines_get_icing_response_200 import GridInsightsV1LinesGetIcingResponse200
+from ...models.grid_insights_v1_lines_get_icing_x_region import GridInsightsV1LinesGetIcingXRegion
 from ...models.problem_details import ProblemDetails
 from ...models.unit_system import UnitSystem
 from ...types import UNSET, Response, Unset
@@ -18,9 +18,10 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     line_id: UUID,
     *,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
+    x_region: GridInsightsV1LinesGetIcingXRegion | Unset = GridInsightsV1LinesGetIcingXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
@@ -28,22 +29,23 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
+    json_from_timestamp = from_timestamp.isoformat()
+    params["from_timestamp"] = json_from_timestamp
+
+    json_to_timestamp = to_timestamp.isoformat()
+    params["to_timestamp"] = json_to_timestamp
+
     json_unit_system: str | Unset = UNSET
     if not isinstance(unit_system, Unset):
         json_unit_system = unit_system.value
 
     params["unit_system"] = json_unit_system
 
-    json_since: str | Unset = UNSET
-    if not isinstance(since, Unset):
-        json_since = since.isoformat()
-    params["since"] = json_since
-
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/grid_insights/v1/lines/{line_id}/icing/latest".format(
+        "url": "/grid_insights/v1/lines/{line_id}/icing".format(
             line_id=quote(str(line_id), safe=""),
         ),
         "params": params,
@@ -55,9 +57,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails | None:
+) -> Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails | None:
     if response.status_code == 200:
-        response_200 = GridInsightsV1LinesGetLatestIcingResponse200.from_dict(response.json())
+        response_200 = GridInsightsV1LinesGetIcingResponse200.from_dict(response.json())
 
         return response_200
 
@@ -92,7 +94,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails]:
+) -> Response[Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -105,22 +107,24 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
-) -> Response[Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails]:
-    """Get latest icing
+    x_region: GridInsightsV1LinesGetIcingXRegion | Unset = GridInsightsV1LinesGetIcingXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails]:
+    """Get icing
 
-     This endpoint returns the most recent icing data for the line.
+     This endpoint returns icing data for the line within a specified time range.
 
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
-    tension percentage of break strength, with its associated span phase on the line.
-    - **`spans`**:  Icing data grouped by span, with each span listing its span phases and their latest
-    ice measurements.
+    tension percentage of break strength over the requested period, with its associated span phase on
+    the line.
+    - **`spans`**: Icing data grouped by span, with each span listing its span phases and their icing
+    measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
@@ -128,32 +132,32 @@ def sync_detailed(
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest icing data for a span phase is older than `since`, that span phase is excluded.
-
-    If no icing data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no icing data is available for the entire line within the period, the endpoint returns `404 Not
+    Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingXRegion.EU.
+        x_region (GridInsightsV1LinesGetIcingXRegion | Unset):  Default:
+            GridInsightsV1LinesGetIcingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails]
+        Response[Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
-        since=since,
         x_region=x_region,
     )
 
@@ -168,22 +172,24 @@ def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
-) -> Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails | None:
-    """Get latest icing
+    x_region: GridInsightsV1LinesGetIcingXRegion | Unset = GridInsightsV1LinesGetIcingXRegion.EU,
+) -> Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails | None:
+    """Get icing
 
-     This endpoint returns the most recent icing data for the line.
+     This endpoint returns icing data for the line within a specified time range.
 
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
-    tension percentage of break strength, with its associated span phase on the line.
-    - **`spans`**:  Icing data grouped by span, with each span listing its span phases and their latest
-    ice measurements.
+    tension percentage of break strength over the requested period, with its associated span phase on
+    the line.
+    - **`spans`**: Icing data grouped by span, with each span listing its span phases and their icing
+    measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
@@ -191,33 +197,33 @@ def sync(
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest icing data for a span phase is older than `since`, that span phase is excluded.
-
-    If no icing data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no icing data is available for the entire line within the period, the endpoint returns `404 Not
+    Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingXRegion.EU.
+        x_region (GridInsightsV1LinesGetIcingXRegion | Unset):  Default:
+            GridInsightsV1LinesGetIcingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails
+        Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails
     """
 
     return sync_detailed(
         line_id=line_id,
         client=client,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
-        since=since,
         x_region=x_region,
     ).parsed
 
@@ -226,22 +232,24 @@ async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
-) -> Response[Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails]:
-    """Get latest icing
+    x_region: GridInsightsV1LinesGetIcingXRegion | Unset = GridInsightsV1LinesGetIcingXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails]:
+    """Get icing
 
-     This endpoint returns the most recent icing data for the line.
+     This endpoint returns icing data for the line within a specified time range.
 
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
-    tension percentage of break strength, with its associated span phase on the line.
-    - **`spans`**:  Icing data grouped by span, with each span listing its span phases and their latest
-    ice measurements.
+    tension percentage of break strength over the requested period, with its associated span phase on
+    the line.
+    - **`spans`**: Icing data grouped by span, with each span listing its span phases and their icing
+    measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
@@ -249,32 +257,32 @@ async def asyncio_detailed(
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest icing data for a span phase is older than `since`, that span phase is excluded.
-
-    If no icing data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no icing data is available for the entire line within the period, the endpoint returns `404 Not
+    Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingXRegion.EU.
+        x_region (GridInsightsV1LinesGetIcingXRegion | Unset):  Default:
+            GridInsightsV1LinesGetIcingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails]
+        Response[Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
-        since=since,
         x_region=x_region,
     )
 
@@ -287,22 +295,24 @@ async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestIcingXRegion | Unset = GridInsightsV1LinesGetLatestIcingXRegion.EU,
-) -> Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails | None:
-    """Get latest icing
+    x_region: GridInsightsV1LinesGetIcingXRegion | Unset = GridInsightsV1LinesGetIcingXRegion.EU,
+) -> Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails | None:
+    """Get icing
 
-     This endpoint returns the most recent icing data for the line.
+     This endpoint returns icing data for the line within a specified time range.
 
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
-    tension percentage of break strength, with its associated span phase on the line.
-    - **`spans`**:  Icing data grouped by span, with each span listing its span phases and their latest
-    ice measurements.
+    tension percentage of break strength over the requested period, with its associated span phase on
+    the line.
+    - **`spans`**: Icing data grouped by span, with each span listing its span phases and their icing
+    measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
@@ -310,34 +320,34 @@ async def asyncio(
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest icing data for a span phase is older than `since`, that span phase is excluded.
-
-    If no icing data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no icing data is available for the entire line within the period, the endpoint returns `404 Not
+    Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestIcingXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestIcingXRegion.EU.
+        x_region (GridInsightsV1LinesGetIcingXRegion | Unset):  Default:
+            GridInsightsV1LinesGetIcingXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | GridInsightsV1LinesGetLatestIcingResponse200 | ProblemDetails
+        Any | GridInsightsV1LinesGetIcingResponse200 | ProblemDetails
     """
 
     return (
         await asyncio_detailed(
             line_id=line_id,
             client=client,
+            from_timestamp=from_timestamp,
+            to_timestamp=to_timestamp,
             unit_system=unit_system,
-            since=since,
             x_region=x_region,
         )
     ).parsed

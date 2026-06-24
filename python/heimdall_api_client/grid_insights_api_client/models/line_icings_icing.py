@@ -11,16 +11,17 @@ if TYPE_CHECKING:
     from ..models.span_icing import SpanIcing
 
 
-T = TypeVar("T", bound="LatestLineIcingIcing")
+T = TypeVar("T", bound="LineIcingsIcing")
 
 
 @_attrs_define
-class LatestLineIcingIcing:
-    """Icing measurements for the line organized by spans and span phases.
+class LineIcingsIcing:
+    """Icing measurements for the line over the requested time range, organized by spans and span phases.
 
     Attributes:
         max_ (MaxIcing):
-        spans (list[SpanIcing]): List of spans on the line with their icing data.
+        spans (list[SpanIcing]): List of spans on the line with their icing data over time. Each span phase may contain
+            multiple entries, one per timestamp within the period.
     """
 
     max_: MaxIcing
@@ -61,13 +62,13 @@ class LatestLineIcingIcing:
 
             spans.append(spans_item)
 
-        latest_line_icing_icing = cls(
+        line_icings_icing = cls(
             max_=max_,
             spans=spans,
         )
 
-        latest_line_icing_icing.additional_properties = d
-        return latest_line_icing_icing
+        line_icings_icing.additional_properties = d
+        return line_icings_icing
 
     @property
     def additional_keys(self) -> list[str]:

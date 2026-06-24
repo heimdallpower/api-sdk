@@ -8,12 +8,10 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.grid_insights_v1_lines_get_latest_sag_and_clearance_response_200 import (
-    GridInsightsV1LinesGetLatestSagAndClearanceResponse200,
+from ...models.grid_insights_v1_lines_get_sag_and_clearance_response_200 import (
+    GridInsightsV1LinesGetSagAndClearanceResponse200,
 )
-from ...models.grid_insights_v1_lines_get_latest_sag_and_clearance_x_region import (
-    GridInsightsV1LinesGetLatestSagAndClearanceXRegion,
-)
+from ...models.grid_insights_v1_lines_get_sag_and_clearance_x_region import GridInsightsV1LinesGetSagAndClearanceXRegion
 from ...models.problem_details import ProblemDetails
 from ...models.unit_system import UnitSystem
 from ...types import UNSET, Response, Unset
@@ -22,10 +20,10 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     line_id: UUID,
     *,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestSagAndClearanceXRegion
-    | Unset = GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU,
+    x_region: GridInsightsV1LinesGetSagAndClearanceXRegion | Unset = GridInsightsV1LinesGetSagAndClearanceXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
@@ -33,22 +31,23 @@ def _get_kwargs(
 
     params: dict[str, Any] = {}
 
+    json_from_timestamp = from_timestamp.isoformat()
+    params["from_timestamp"] = json_from_timestamp
+
+    json_to_timestamp = to_timestamp.isoformat()
+    params["to_timestamp"] = json_to_timestamp
+
     json_unit_system: str | Unset = UNSET
     if not isinstance(unit_system, Unset):
         json_unit_system = unit_system.value
 
     params["unit_system"] = json_unit_system
 
-    json_since: str | Unset = UNSET
-    if not isinstance(since, Unset):
-        json_since = since.isoformat()
-    params["since"] = json_since
-
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/grid_insights/v1/lines/{line_id}/sag_and_clearance/latest".format(
+        "url": "/grid_insights/v1/lines/{line_id}/sag_and_clearance".format(
             line_id=quote(str(line_id), safe=""),
         ),
         "params": params,
@@ -60,9 +59,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails | None:
+) -> Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails | None:
     if response.status_code == 200:
-        response_200 = GridInsightsV1LinesGetLatestSagAndClearanceResponse200.from_dict(response.json())
+        response_200 = GridInsightsV1LinesGetSagAndClearanceResponse200.from_dict(response.json())
 
         return response_200
 
@@ -97,7 +96,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails]:
+) -> Response[Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -110,57 +109,57 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestSagAndClearanceXRegion
-    | Unset = GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU,
-) -> Response[Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails]:
-    """Get latest sag and clearance
+    x_region: GridInsightsV1LinesGetSagAndClearanceXRegion | Unset = GridInsightsV1LinesGetSagAndClearanceXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails]:
+    """Get sag and clearance
 
-     This endpoint returns the most recent sag and clearance data for the line.
+     This endpoint returns sag and clearance data for the line within a specified time range.
 
     The sag and clearance data is divided into three sections:
 
-    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
-    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line.
-    Null if no span phase has clearance data.
+    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line over the
+    requested period.
+    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line
+    over the requested period. Null if no span phase has clearance data.
     - **`spans`**: Sag and clearance data grouped by span, with each span listing its span phases and
-    their latest measurements.
+    their measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`sag`**: The maximum vertical deflection of the conductor from the straight line between its two
     support points.
     - **`clearance`**: The vertical distance between the conductor and the ground or objects below.
     - **`timestamp`**: Time (UTC) when the sag and clearance measurements were calculated for the span
     phase. Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest sag and clearance data for a span phase is older than `since`, that span phase is
-    excluded.
-
-    If no sag and clearance data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no sag and clearance data is available for the entire line within the period, the endpoint
+    returns `404 Not Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestSagAndClearanceXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU.
+        x_region (GridInsightsV1LinesGetSagAndClearanceXRegion | Unset):  Default:
+            GridInsightsV1LinesGetSagAndClearanceXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails]
+        Response[Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
-        since=since,
         x_region=x_region,
     )
 
@@ -175,58 +174,58 @@ def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestSagAndClearanceXRegion
-    | Unset = GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU,
-) -> Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails | None:
-    """Get latest sag and clearance
+    x_region: GridInsightsV1LinesGetSagAndClearanceXRegion | Unset = GridInsightsV1LinesGetSagAndClearanceXRegion.EU,
+) -> Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails | None:
+    """Get sag and clearance
 
-     This endpoint returns the most recent sag and clearance data for the line.
+     This endpoint returns sag and clearance data for the line within a specified time range.
 
     The sag and clearance data is divided into three sections:
 
-    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
-    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line.
-    Null if no span phase has clearance data.
+    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line over the
+    requested period.
+    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line
+    over the requested period. Null if no span phase has clearance data.
     - **`spans`**: Sag and clearance data grouped by span, with each span listing its span phases and
-    their latest measurements.
+    their measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`sag`**: The maximum vertical deflection of the conductor from the straight line between its two
     support points.
     - **`clearance`**: The vertical distance between the conductor and the ground or objects below.
     - **`timestamp`**: Time (UTC) when the sag and clearance measurements were calculated for the span
     phase. Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest sag and clearance data for a span phase is older than `since`, that span phase is
-    excluded.
-
-    If no sag and clearance data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no sag and clearance data is available for the entire line within the period, the endpoint
+    returns `404 Not Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestSagAndClearanceXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU.
+        x_region (GridInsightsV1LinesGetSagAndClearanceXRegion | Unset):  Default:
+            GridInsightsV1LinesGetSagAndClearanceXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails
+        Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails
     """
 
     return sync_detailed(
         line_id=line_id,
         client=client,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
-        since=since,
         x_region=x_region,
     ).parsed
 
@@ -235,57 +234,57 @@ async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestSagAndClearanceXRegion
-    | Unset = GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU,
-) -> Response[Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails]:
-    """Get latest sag and clearance
+    x_region: GridInsightsV1LinesGetSagAndClearanceXRegion | Unset = GridInsightsV1LinesGetSagAndClearanceXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails]:
+    """Get sag and clearance
 
-     This endpoint returns the most recent sag and clearance data for the line.
+     This endpoint returns sag and clearance data for the line within a specified time range.
 
     The sag and clearance data is divided into three sections:
 
-    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
-    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line.
-    Null if no span phase has clearance data.
+    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line over the
+    requested period.
+    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line
+    over the requested period. Null if no span phase has clearance data.
     - **`spans`**: Sag and clearance data grouped by span, with each span listing its span phases and
-    their latest measurements.
+    their measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`sag`**: The maximum vertical deflection of the conductor from the straight line between its two
     support points.
     - **`clearance`**: The vertical distance between the conductor and the ground or objects below.
     - **`timestamp`**: Time (UTC) when the sag and clearance measurements were calculated for the span
     phase. Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest sag and clearance data for a span phase is older than `since`, that span phase is
-    excluded.
-
-    If no sag and clearance data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no sag and clearance data is available for the entire line within the period, the endpoint
+    returns `404 Not Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestSagAndClearanceXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU.
+        x_region (GridInsightsV1LinesGetSagAndClearanceXRegion | Unset):  Default:
+            GridInsightsV1LinesGetSagAndClearanceXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails]
+        Response[Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
-        since=since,
         x_region=x_region,
     )
 
@@ -298,59 +297,59 @@ async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    since: datetime.datetime | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestSagAndClearanceXRegion
-    | Unset = GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU,
-) -> Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails | None:
-    """Get latest sag and clearance
+    x_region: GridInsightsV1LinesGetSagAndClearanceXRegion | Unset = GridInsightsV1LinesGetSagAndClearanceXRegion.EU,
+) -> Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails | None:
+    """Get sag and clearance
 
-     This endpoint returns the most recent sag and clearance data for the line.
+     This endpoint returns sag and clearance data for the line within a specified time range.
 
     The sag and clearance data is divided into three sections:
 
-    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
-    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line.
-    Null if no span phase has clearance data.
+    - **`max_sag`**: The span phase with the maximum sag across all span phases on the line over the
+    requested period.
+    - **`min_clearance`**: The span phase with the minimum clearance across all span phases on the line
+    over the requested period. Null if no span phase has clearance data.
     - **`spans`**: Sag and clearance data grouped by span, with each span listing its span phases and
-    their latest measurements.
+    their measurements over time.
 
-    Each span phase provides the following data:
+    Each span phase entry provides the following data:
     - **`sag`**: The maximum vertical deflection of the conductor from the straight line between its two
     support points.
     - **`clearance`**: The vertical distance between the conductor and the ground or objects below.
     - **`timestamp`**: Time (UTC) when the sag and clearance measurements were calculated for the span
     phase. Timestamps may differ per conductor due to data availability.
 
-    Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
 
-    If the latest sag and clearance data for a span phase is older than `since`, that span phase is
-    excluded.
-
-    If no sag and clearance data is available for the entire line, the endpoint returns `404 Not Found`.
+    If no sag and clearance data is available for the entire line within the period, the endpoint
+    returns `404 Not Found`.
 
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
-        x_region (GridInsightsV1LinesGetLatestSagAndClearanceXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestSagAndClearanceXRegion.EU.
+        x_region (GridInsightsV1LinesGetSagAndClearanceXRegion | Unset):  Default:
+            GridInsightsV1LinesGetSagAndClearanceXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | GridInsightsV1LinesGetLatestSagAndClearanceResponse200 | ProblemDetails
+        Any | GridInsightsV1LinesGetSagAndClearanceResponse200 | ProblemDetails
     """
 
     return (
         await asyncio_detailed(
             line_id=line_id,
             client=client,
+            from_timestamp=from_timestamp,
+            to_timestamp=to_timestamp,
             unit_system=unit_system,
-            since=since,
             x_region=x_region,
         )
     ).parsed

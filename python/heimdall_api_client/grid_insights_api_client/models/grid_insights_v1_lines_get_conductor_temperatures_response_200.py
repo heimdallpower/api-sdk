@@ -7,40 +7,30 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.max_icing import MaxIcing
-    from ..models.span_icing import SpanIcing
+    from ..models.line_conductor_temperatures import LineConductorTemperatures
 
 
-T = TypeVar("T", bound="LatestLineIcingIcing")
+T = TypeVar("T", bound="GridInsightsV1LinesGetConductorTemperaturesResponse200")
 
 
 @_attrs_define
-class LatestLineIcingIcing:
-    """Icing measurements for the line organized by spans and span phases.
-
+class GridInsightsV1LinesGetConductorTemperaturesResponse200:
+    """
     Attributes:
-        max_ (MaxIcing):
-        spans (list[SpanIcing]): List of spans on the line with their icing data.
+        data (LineConductorTemperatures):
     """
 
-    max_: MaxIcing
-    spans: list[SpanIcing]
+    data: LineConductorTemperatures
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        max_ = self.max_.to_dict()
-
-        spans = []
-        for spans_item_data in self.spans:
-            spans_item = spans_item_data.to_dict()
-            spans.append(spans_item)
+        data = self.data.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "max": max_,
-                "spans": spans,
+                "data": data,
             }
         )
 
@@ -48,26 +38,17 @@ class LatestLineIcingIcing:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.max_icing import MaxIcing
-        from ..models.span_icing import SpanIcing
+        from ..models.line_conductor_temperatures import LineConductorTemperatures
 
         d = dict(src_dict)
-        max_ = MaxIcing.from_dict(d.pop("max"))
+        data = LineConductorTemperatures.from_dict(d.pop("data"))
 
-        spans = []
-        _spans = d.pop("spans")
-        for spans_item_data in _spans:
-            spans_item = SpanIcing.from_dict(spans_item_data)
-
-            spans.append(spans_item)
-
-        latest_line_icing_icing = cls(
-            max_=max_,
-            spans=spans,
+        grid_insights_v1_lines_get_conductor_temperatures_response_200 = cls(
+            data=data,
         )
 
-        latest_line_icing_icing.additional_properties = d
-        return latest_line_icing_icing
+        grid_insights_v1_lines_get_conductor_temperatures_response_200.additional_properties = d
+        return grid_insights_v1_lines_get_conductor_temperatures_response_200
 
     @property
     def additional_keys(self) -> list[str]:

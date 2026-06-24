@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 from typing import Any, cast
 from urllib.parse import quote
@@ -7,11 +8,11 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.grid_insights_v1_lines_get_latest_conductor_temperature_response_200 import (
-    GridInsightsV1LinesGetLatestConductorTemperatureResponse200,
+from ...models.grid_insights_v1_lines_get_conductor_temperatures_response_200 import (
+    GridInsightsV1LinesGetConductorTemperaturesResponse200,
 )
-from ...models.grid_insights_v1_lines_get_latest_conductor_temperature_x_region import (
-    GridInsightsV1LinesGetLatestConductorTemperatureXRegion,
+from ...models.grid_insights_v1_lines_get_conductor_temperatures_x_region import (
+    GridInsightsV1LinesGetConductorTemperaturesXRegion,
 )
 from ...models.problem_details import ProblemDetails
 from ...models.unit_system import UnitSystem
@@ -21,15 +22,23 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     line_id: UUID,
     *,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
+    x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
+    | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
         headers["x-region"] = str(x_region)
 
     params: dict[str, Any] = {}
+
+    json_from_timestamp = from_timestamp.isoformat()
+    params["from_timestamp"] = json_from_timestamp
+
+    json_to_timestamp = to_timestamp.isoformat()
+    params["to_timestamp"] = json_to_timestamp
 
     json_unit_system: str | Unset = UNSET
     if not isinstance(unit_system, Unset):
@@ -41,7 +50,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/grid_insights/v1/lines/{line_id}/conductor_temperatures/latest".format(
+        "url": "/grid_insights/v1/lines/{line_id}/conductor_temperatures".format(
             line_id=quote(str(line_id), safe=""),
         ),
         "params": params,
@@ -53,9 +62,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
+) -> Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails | None:
     if response.status_code == 200:
-        response_200 = GridInsightsV1LinesGetLatestConductorTemperatureResponse200.from_dict(response.json())
+        response_200 = GridInsightsV1LinesGetConductorTemperaturesResponse200.from_dict(response.json())
 
         return response_200
 
@@ -90,7 +99,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
+) -> Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -103,13 +112,15 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
-    """Get latest conductor temperature
+    x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
+    | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]:
+    """Get conductor temperatures
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns conductor temperatures for the line within a specified time range.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -117,22 +128,28 @@ def sync_detailed(
     The conductor temperature is aggregated across the entire line using a 5-minute sliding window,
     where the maximum and minimum values are calculated for each window.
 
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
+
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
+            GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]
+        Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
         x_region=x_region,
     )
@@ -148,13 +165,15 @@ def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
-    """Get latest conductor temperature
+    x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
+    | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
+) -> Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails | None:
+    """Get conductor temperatures
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns conductor temperatures for the line within a specified time range.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -162,23 +181,29 @@ def sync(
     The conductor temperature is aggregated across the entire line using a 5-minute sliding window,
     where the maximum and minimum values are calculated for each window.
 
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
+
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
+            GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails
+        Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails
     """
 
     return sync_detailed(
         line_id=line_id,
         client=client,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
         x_region=x_region,
     ).parsed
@@ -188,13 +213,15 @@ async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
-    """Get latest conductor temperature
+    x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
+    | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
+) -> Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]:
+    """Get conductor temperatures
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns conductor temperatures for the line within a specified time range.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -202,22 +229,28 @@ async def asyncio_detailed(
     The conductor temperature is aggregated across the entire line using a 5-minute sliding window,
     where the maximum and minimum values are calculated for each window.
 
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
+
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
+            GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]
+        Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]
     """
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
         unit_system=unit_system,
         x_region=x_region,
     )
@@ -231,13 +264,15 @@ async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
-    x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
-    | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
-) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
-    """Get latest conductor temperature
+    x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
+    | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
+) -> Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails | None:
+    """Get conductor temperatures
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns conductor temperatures for the line within a specified time range.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -245,24 +280,30 @@ async def asyncio(
     The conductor temperature is aggregated across the entire line using a 5-minute sliding window,
     where the maximum and minimum values are calculated for each window.
 
+    The period between `from_timestamp` and `to_timestamp` must not exceed 30 days.
+
     Args:
         line_id (UUID):
+        from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
+        to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
-        x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
-            GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
+        x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
+            GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails
+        Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails
     """
 
     return (
         await asyncio_detailed(
             line_id=line_id,
             client=client,
+            from_timestamp=from_timestamp,
+            to_timestamp=to_timestamp,
             unit_system=unit_system,
             x_region=x_region,
         )

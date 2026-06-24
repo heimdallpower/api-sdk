@@ -1,46 +1,43 @@
 from __future__ import annotations
 
+import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from dateutil.parser import isoparse
 
 if TYPE_CHECKING:
-    from ..models.max_icing import MaxIcing
-    from ..models.span_icing import SpanIcing
+    from ..models.icing_forecast_data_point_ice_weight import IcingForecastDataPointIceWeight
 
 
-T = TypeVar("T", bound="LatestLineIcingIcing")
+T = TypeVar("T", bound="IcingForecastDataPoint")
 
 
 @_attrs_define
-class LatestLineIcingIcing:
-    """Icing measurements for the line organized by spans and span phases.
-
+class IcingForecastDataPoint:
+    """
     Attributes:
-        max_ (MaxIcing):
-        spans (list[SpanIcing]): List of spans on the line with their icing data.
+        timestamp (datetime.datetime): Time (UTC) for this forecast data point. Example: 2024-01-15 08:33:00+00:00.
+        ice_weight (IcingForecastDataPointIceWeight):
     """
 
-    max_: MaxIcing
-    spans: list[SpanIcing]
+    timestamp: datetime.datetime
+    ice_weight: IcingForecastDataPointIceWeight
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        max_ = self.max_.to_dict()
+        timestamp = self.timestamp.isoformat()
 
-        spans = []
-        for spans_item_data in self.spans:
-            spans_item = spans_item_data.to_dict()
-            spans.append(spans_item)
+        ice_weight = self.ice_weight.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "max": max_,
-                "spans": spans,
+                "timestamp": timestamp,
+                "ice_weight": ice_weight,
             }
         )
 
@@ -48,26 +45,20 @@ class LatestLineIcingIcing:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.max_icing import MaxIcing
-        from ..models.span_icing import SpanIcing
+        from ..models.icing_forecast_data_point_ice_weight import IcingForecastDataPointIceWeight
 
         d = dict(src_dict)
-        max_ = MaxIcing.from_dict(d.pop("max"))
+        timestamp = isoparse(d.pop("timestamp"))
 
-        spans = []
-        _spans = d.pop("spans")
-        for spans_item_data in _spans:
-            spans_item = SpanIcing.from_dict(spans_item_data)
+        ice_weight = IcingForecastDataPointIceWeight.from_dict(d.pop("ice_weight"))
 
-            spans.append(spans_item)
-
-        latest_line_icing_icing = cls(
-            max_=max_,
-            spans=spans,
+        icing_forecast_data_point = cls(
+            timestamp=timestamp,
+            ice_weight=ice_weight,
         )
 
-        latest_line_icing_icing.additional_properties = d
-        return latest_line_icing_icing
+        icing_forecast_data_point.additional_properties = d
+        return icing_forecast_data_point
 
     @property
     def additional_keys(self) -> list[str]:
