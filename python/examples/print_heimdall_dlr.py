@@ -1,13 +1,16 @@
 import logging
 
-from heimdall_api_client.client import HeimdallApiClient
+from heimdall_api_client import HeimdallApiClient, HeimdallApiError
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.INFO)  # INFO shows automatic retry warnings
 
 client = HeimdallApiClient(
     client_id="your_client_id",
     client_secret="your_client_secret",
 )
+
+# All calls below automatically retry up to 3 times (1 s → 2 s → 4 s backoff)
+# on transient gateway errors (502, 503, 504). No extra retry logic needed.
 
 assets = client.get_assets()
 grid_owner = assets.data.grid_owners[0]
@@ -31,5 +34,6 @@ for facility in grid_owner.facilities:
         print(f"    {dlr_forecast_response.data.metric}, updated at {dlr_forecast_response.data.updated_timestamp}:")
         for forecast in dlr_forecast:
             print(f"      {forecast.timestamp}: {forecast.prediction.value} {dlr_forecast_response.data.unit}")
-    except Exception as e:
-        print(f"  Failed to fetch DLR for line '{line.name}' (ID: {line.id}): {e}\n")
+    except HeimdallApiError as e:
+        # Retries already exhausted automatically before reaching here
+        print(f"  API error {e.status_code} for line '{line.name}' (ID: {line.id}): {e}\n")
