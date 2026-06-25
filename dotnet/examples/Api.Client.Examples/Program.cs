@@ -8,6 +8,8 @@ const string clientSecret = "insert-your-client-secret-here";
 Console.WriteLine("Initiating Heimdall API client");
 
 // Instantiate Cloud API Client
+// Note: direct instantiation does NOT include automatic retry.
+// Use HeimdallPower.Api.Client.Extensions (AddHeimdallPowerApiClient) for built-in resilience.
 var api = new HeimdallApiClient(clientId, clientSecret);
 
 // Fetch Lines data
@@ -71,3 +73,14 @@ var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId.HasVal
     ? facility.Components.FirstOrDefault(c => c.Id == circuitRating.CircuitRating.AtFacilityComponentId.Value)?.Name ?? "unknown"
     : "none";
 Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");
+
+// Example: wrapping a single call with error handling.
+try
+{
+    var dlr = await api.GetLatestHeimdallDlrAsync(line.Id);
+    Console.WriteLine($"DLR: {dlr.HeimdallDlr.Value} {dlr.Unit}");
+}
+catch (HeimdallApiException ex)
+{
+    Console.Error.WriteLine($"API error {(int)ex.StatusCode}: {ex.Message}");
+}
