@@ -40,7 +40,6 @@ def _make_client(max_retries: int = 3):
     Returns a minimal HeimdallApiClient with auth and HTTP completely stubbed out.
     max_retries is wired via _MAX_RETRY_ATTEMPTS patch so tests stay fast.
     """
-    import heimdall_api_client.client as client_module
     from heimdall_api_client.client import HeimdallApiClient
 
     client = HeimdallApiClient.__new__(HeimdallApiClient)
