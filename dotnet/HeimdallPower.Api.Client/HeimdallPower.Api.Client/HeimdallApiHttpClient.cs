@@ -33,7 +33,6 @@ internal class HeimdallApiHttpClient(
 
     private static readonly HashSet<HttpStatusCode> TransientStatusCodes =
     [
-        HttpStatusCode.InternalServerError,
         HttpStatusCode.BadGateway,
         HttpStatusCode.ServiceUnavailable,
         HttpStatusCode.GatewayTimeout,
@@ -106,7 +105,7 @@ internal class HeimdallApiHttpClient(
             catch (HeimdallApiException ex) when (TransientStatusCodes.Contains(ex.StatusCode) && attempt < MaxRetryAttempts)
             {
                 attempt++;
-                    await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1))); // 1s, 2s, 4s
+                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1))); // 1s, 2s, 4s
             }
             catch (HttpRequestException) when (attempt < MaxRetryAttempts)
             {

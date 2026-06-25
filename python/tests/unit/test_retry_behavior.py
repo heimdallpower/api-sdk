@@ -68,12 +68,16 @@ def _raises_then_returns(status_code: int, times: int, return_value):
 # ---------------------------------------------------------------------------
 
 class TestHeimdallApiError:
-    @pytest.mark.parametrize("status_code", [500, 502, 503, 504])
+    @pytest.mark.parametrize("status_code", [502, 503, 504])
     def test_is_transient_returns_true_for_transient_codes(self, status_code: int):
         err = HeimdallApiError("error", status_code=status_code)
         assert err.is_transient() is True
 
-    @pytest.mark.parametrize("status_code", [400, 401, 403, 404, 422, 200, 201])
+    def test_500_is_not_transient(self):
+        err = HeimdallApiError("error", status_code=500)
+        assert err.is_transient() is False
+
+    @pytest.mark.parametrize("status_code", [400, 401, 403, 404, 422, 500, 200, 201])
     def test_is_transient_returns_false_for_non_transient_codes(self, status_code: int):
         err = HeimdallApiError("error", status_code=status_code)
         assert err.is_transient() is False
@@ -97,7 +101,7 @@ class TestHeimdallApiError:
 
 class TestExecuteWithRetry:
 
-    @pytest.mark.parametrize("status_code", [500, 502, 503, 504])
+    @pytest.mark.parametrize("status_code", [502, 503, 504])
     @patch("heimdall_api_client.client.time.sleep")
     def test_retries_on_all_transient_codes(self, mock_sleep, status_code: int):
         """For each transient code the client retries up to 3 times."""
@@ -110,7 +114,7 @@ class TestExecuteWithRetry:
         assert exc_info.value.status_code == status_code
         assert func.call_count == 4  # 1 initial + 3 retries
 
-    @pytest.mark.parametrize("status_code", [500, 502, 503, 504])
+    @pytest.mark.parametrize("status_code", [502, 503, 504])
     @patch("heimdall_api_client.client.time.sleep")
     def test_returns_result_after_one_transient_failure(self, mock_sleep, status_code: int):
         """Succeeds when the first call fails transiently but the second succeeds."""
@@ -123,7 +127,7 @@ class TestExecuteWithRetry:
         assert result is expected
         assert func.call_count == 2
 
-    @pytest.mark.parametrize("status_code", [500, 502, 503, 504])
+    @pytest.mark.parametrize("status_code", [502, 503, 504])
     @patch("heimdall_api_client.client.time.sleep")
     def test_returns_result_after_two_transient_failures(self, mock_sleep, status_code: int):
         """Succeeds when the first two calls fail transiently but the third succeeds."""
@@ -159,21 +163,17 @@ class TestExecuteWithRetry:
         assert func.call_count == 4
 
     @patch("heimdall_api_client.client.time.sleep")
-    def test_500_with_html_body_does_not_crash_and_retries(self, mock_sleep):
-        """500 with HTML body (Application Gateway / reverse proxy error) must be retried."""
+    def test_500_with_html_body_does_not_crash_and_is_not_retried(self, mock_sleep):
+        """500 Internal Server Error is NOT retried — it should raise immediately."""
         client = _make_client()
-        func = MagicMock(side_effect=[
-            HeimdallApiError(_INTERNAL_SERVER_ERROR_HTML, status_code=500),
-            HeimdallApiError(_INTERNAL_SERVER_ERROR_HTML, status_code=500),
-            HeimdallApiError(_INTERNAL_SERVER_ERROR_HTML, status_code=500),
-            HeimdallApiError(_INTERNAL_SERVER_ERROR_HTML, status_code=500),
-        ])
+        func = MagicMock(side_effect=HeimdallApiError(_INTERNAL_SERVER_ERROR_HTML, status_code=500))
 
         with pytest.raises(HeimdallApiError) as exc_info:
             client._execute_with_retry(func)
 
         assert exc_info.value.status_code == 500
-        assert func.call_count == 4
+        assert func.call_count == 1   # no retry
+        mock_sleep.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
@@ -225,7 +225,7 @@ class TestExponentialBackoff:
 
 class TestNonTransientErrors:
 
-    @pytest.mark.parametrize("status_code", [400, 401, 403, 404, 422])
+    @pytest.mark.parametrize("status_code", [400, 401, 403, 404, 422, 500])
     @patch("heimdall_api_client.client.time.sleep")
     def test_non_transient_errors_are_not_retried(self, mock_sleep, status_code: int):
         """Client raises immediately on non-transient HTTP errors without any retry."""
@@ -239,7 +239,7 @@ class TestNonTransientErrors:
         assert func.call_count == 1   # only one attempt
         mock_sleep.assert_not_called()
 
-    @pytest.mark.parametrize("status_code", [400, 401, 403, 404])
+    @pytest.mark.parametrize("status_code", [400, 401, 403, 404, 500])
     @patch("heimdall_api_client.client.time.sleep")
     def test_non_transient_error_with_html_body_raises_immediately(self, mock_sleep, status_code: int):
         """Even if the body is HTML, non-transient codes must not be retried."""
