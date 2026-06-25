@@ -11,4 +11,3 @@ class HeimdallApiError(Exception):
     def is_transient(self) -> bool:
         """Returns True if the error is likely transient and safe to retry."""
         return self.status_code in {502, 503, 504}
-
