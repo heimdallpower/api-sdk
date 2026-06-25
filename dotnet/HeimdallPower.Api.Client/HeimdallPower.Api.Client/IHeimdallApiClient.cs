@@ -12,13 +12,24 @@ namespace HeimdallPower.Api.Client;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <b>Retry behavior:</b> All methods automatically retry up to 3 times with exponential
+/// <b>Retry behaviour:</b> All methods automatically retry up to 3 times with exponential
 /// backoff (1 s → 2 s → 4 s) when the server or Application Gateway returns a transient
 /// error: <c>502 Bad Gateway</c>, <c>503 Service Unavailable</c>, or
 /// <c>504 Gateway Timeout</c>. Network-level failures (<see cref="System.Net.Http.HttpRequestException"/>)
 /// are retried on the same schedule.
 /// If all 3 retry attempts are exhausted, a <see cref="HeimdallApiException"/> is thrown
 /// with the status code of the last failed response.
+/// </para>
+/// <para>
+/// <b>Cancellation:</b> All methods accept an optional <see cref="CancellationToken"/>.
+/// Cancellation is respected both during the HTTP request and during retry backoff delays.
+/// Passing a cancelled token causes an <see cref="OperationCanceledException"/> to be thrown immediately.
+/// </para>
+/// <para>
+/// <b>Timeouts:</b> Configure a per-request timeout by passing a pre-configured
+/// <see cref="System.Net.Http.HttpClient"/> with <c>HttpClient.Timeout</c> set, or by
+/// linking a <see cref="CancellationTokenSource"/> with a timeout to the
+/// <c>cancellationToken</c> argument on each call.
 /// </para>
 /// <para>
 /// <b>Exceptions:</b> All methods throw <see cref="HeimdallApiException"/> on non-transient
@@ -30,82 +41,71 @@ namespace HeimdallPower.Api.Client;
 /// </remarks>
 public interface IHeimdallApiClient
 {
-    /// <summary>
-    /// Get all assets.
-    /// </summary>
+    /// <summary>Get all assets.</summary>
     /// <returns>The full asset hierarchy including grid owners, facilities, and lines.</returns>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<AssetsResponse> GetAssetsAsync();
+    Task<AssetsResponse> GetAssetsAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get a list of all lines associated with the grid owner.
-    /// </summary>
+    /// <summary>Get a list of all lines associated with the grid owner.</summary>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<List<LineDto?>> GetLinesAsync();
+    Task<List<LineDto?>> GetLinesAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get a list of facilities associated with the grid owner.
-    /// </summary>
+    /// <summary>Get a list of facilities associated with the grid owner.</summary>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<List<FacilityDto>> GetFacilitiesAsync();
+    Task<List<FacilityDto>> GetFacilitiesAsync(CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent current for the line.
-    /// </summary>
+    /// <summary>Get the most recent current for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest current.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestCurrentResponse> GetLatestCurrentAsync(Guid lineId);
+    Task<LatestCurrentResponse> GetLatestCurrentAsync(Guid lineId, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent conductor temperature for the line.
-    /// </summary>
+    /// <summary>Get the most recent conductor temperature for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest conductor temperature.</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric");
+    Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric", CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent icing measurements for the line, including maximum values and per-span/phase metrics.
-    /// </summary>
+    /// <summary>Get the most recent icing measurements for the line, including maximum values and per-span/phase metrics.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest icing measurements.</param>
     /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
     /// <param name="since">Optional cutoff time (UTC). Only measurements at or after this instant are considered. Older data for a span phase is excluded. If omitted, defaults to 30 min ago.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestIcingResponse> GetLatestIcingAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null);
+    Task<LatestIcingResponse> GetLatestIcingAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent sag and clearance data for the line.
-    /// </summary>
+    /// <summary>Get the most recent sag and clearance data for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest sag and clearance measurements.</param>
     /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
     /// <param name="since">Optional cutoff time (UTC). Only measurements at or after this instant are considered. Older data for a span phase is excluded. If omitted, defaults to 30 min ago.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestLineSagAndClearanceResponse> GetLatestSagAndClearanceAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null);
+    Task<LatestLineSagAndClearanceResponse> GetLatestSagAndClearanceAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.
-    /// </summary>
+    /// <summary>Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.</summary>
     /// <param name="lineId">Id of the line for which to retrieve icing forecasts.</param>
     /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, "imperial" uses lb/ft. Defaults to metric.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<IcingForecastResponse> GetIcingForecastAsync(Guid lineId, string unitSystem = "metric");
+    Task<IcingForecastResponse> GetIcingForecastAsync(Guid lineId, string unitSystem = "metric", CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent apparent power measurement for the line.
-    /// </summary>
+    /// <summary>Get the most recent apparent power measurement for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest apparent power.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestApparentPowerResponse> GetLatestApparentPowerAsync(Guid lineId);
+    Task<LatestApparentPowerResponse> GetLatestApparentPowerAsync(Guid lineId, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get apparent power values for the line within a time range.
-    /// The period between from and to must not exceed 30 days.
-    /// </summary>
+    /// <summary>Get apparent power values for the line within a time range. The period between from and to must not exceed 30 days.</summary>
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<ApparentPowersResponse> GetApparentPowersAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to);
+    Task<ApparentPowersResponse> GetApparentPowersAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get currents for the line within a time range.
@@ -116,8 +116,9 @@ public interface IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<CurrentsResponse> GetCurrentsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to);
+    Task<CurrentsResponse> GetCurrentsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get conductor temperatures for the line within a time range.
@@ -129,87 +130,76 @@ public interface IHeimdallApiClient
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric");
+    Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.
-    /// </summary>
+    /// <summary>Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Quantity quantity = Quantity.Current);
+    Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.
-    /// </summary>
+    /// <summary>Get the most recent Heimdall Ambient-Adjusted Rating (AAR) for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall AAR.</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, Quantity quantity = Quantity.Current);
+    Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent Heimdall Dynamic Line Rating (DLR) forecasts for the line.
-    /// </summary>
+    /// <summary>Get the most recent Heimdall Dynamic Line Rating (DLR) forecasts for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall DLR forecasts.</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current);
+    Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent Heimdall Ambient-Adjusted Rating (AAR) forecasts for the line.
-    /// </summary>
+    /// <summary>Get the most recent Heimdall Ambient-Adjusted Rating (AAR) forecasts for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall AAR forecasts.</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current);
+    Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get Heimdall Dynamic Line Rating (DLR) values for the line within a time range.
-    /// The period between from and to must not exceed 30 days.
-    /// </summary>
+    /// <summary>Get Heimdall Dynamic Line Rating (DLR) values for the line within a time range. The period between from and to must not exceed 30 days.</summary>
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<HeimdallDlrsResponse> GetHeimdallDlrsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current);
+    Task<HeimdallDlrsResponse> GetHeimdallDlrsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get Heimdall Ambient-Adjusted Rating (AAR) values for the line within a time range.
-    /// The period between from and to must not exceed 30 days.
-    /// </summary>
+    /// <summary>Get Heimdall Ambient-Adjusted Rating (AAR) values for the line within a time range. The period between from and to must not exceed 30 days.</summary>
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<HeimdallAarsResponse> GetHeimdallAarsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current);
+    Task<HeimdallAarsResponse> GetHeimdallAarsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent circuit rating forecasts for a specified facility.
-    /// </summary>
+    /// <summary>Get the most recent circuit rating forecasts for a specified facility.</summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId, Quantity quantity = Quantity.Current);
+    Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get the most recent circuit rating for a specified facility.
-    /// </summary>
+    /// <summary>Get the most recent circuit rating for a specified facility.</summary>
     /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit rating.</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current);
+    Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
-    /// <summary>
-    /// Get circuit ratings for a specified facility within a time range.
-    /// The period between from and to must not exceed 30 days.
-    /// </summary>
+    /// <summary>Get circuit ratings for a specified facility within a time range. The period between from and to must not exceed 30 days.</summary>
     /// <param name="facilityId">Id of the facility.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<CircuitRatingsResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current);
+    Task<CircuitRatingsResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 }

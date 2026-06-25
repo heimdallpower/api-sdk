@@ -82,3 +82,27 @@ except HeimdallApiError as e:
     else:
         print(f"API error {e.status_code}: {e}")
 ```
+
+### Timeouts
+
+Pass a `timeout` (in seconds) to the constructor. It applies to every request, including each retry attempt.
+
+```python
+import httpx
+from heimdall_api_client import HeimdallApiClient
+
+# Simple: abort any request that takes longer than 10 s
+client = HeimdallApiClient(client_id="...", client_secret="...", timeout=10.0)
+
+# Fine-grained: separate connect and read timeouts
+client = HeimdallApiClient(
+    client_id="...",
+    client_secret="...",
+    timeout=httpx.Timeout(connect=5.0, read=30.0),
+)
+```
+
+> **Note:** Python synchronous code has no native cancellation equivalent to .NET's `CancellationToken`.
+> Use `timeout` to bound how long each request may take.
+> `httpx.TimeoutException` is raised if the timeout is exceeded.
+

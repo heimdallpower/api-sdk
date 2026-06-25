@@ -7,6 +7,8 @@ logging.basicConfig(level=logging.INFO)  # INFO shows automatic retry warnings
 client = HeimdallApiClient(
     client_id="your_client_id",
     client_secret="your_client_secret",
+    # Optional: abort any request (including each retry attempt) after 10 seconds.
+    # timeout=10.0,
 )
 
 # All calls below automatically retry up to 3 times (1 s → 2 s → 4 s backoff)
