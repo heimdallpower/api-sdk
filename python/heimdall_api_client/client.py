@@ -59,6 +59,27 @@ _MAX_RETRY_ATTEMPTS = 3
 class HeimdallApiClient:
     """
     SDK entrypoint for interacting with the Heimdall Power External API.
+
+    Retry behaviour
+    ---------------
+    All methods automatically retry up to 3 times with exponential backoff
+    (1 s → 2 s → 4 s) when the server or Application Gateway returns a
+    transient error:
+
+    * ``502 Bad Gateway``
+    * ``503 Service Unavailable``
+    * ``504 Gateway Timeout``
+
+    A warning is logged for each retry attempt.
+    If all 3 retry attempts are exhausted the last
+    :class:`~heimdall_api_client.errors.HeimdallApiError` is re-raised.
+
+    Exceptions
+    ----------
+    All methods raise :class:`~heimdall_api_client.errors.HeimdallApiError` on
+    non-transient HTTP errors (e.g. 400, 403, 404, 500) or after all retries
+    are exhausted on transient errors. The ``status_code`` attribute carries
+    the HTTP status code.
     """
 
     def __init__(

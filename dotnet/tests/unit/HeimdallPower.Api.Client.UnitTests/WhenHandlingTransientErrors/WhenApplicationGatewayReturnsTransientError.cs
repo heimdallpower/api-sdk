@@ -88,7 +88,7 @@ public class WhenApplicationGatewayReturnsTransientError
     }
 
     // -----------------------------------------------------------------------
-    // 500 Internal Server Error with HTML body
+    // 500 Internal Server Error — NOT retried, throws immediately
     // -----------------------------------------------------------------------
 
     [Fact(DisplayName = "500 with HTML body: does NOT throw JsonException (original customer crash)")]
@@ -105,13 +105,10 @@ public class WhenApplicationGatewayReturnsTransientError
         Assert.Equal(HttpStatusCode.InternalServerError, ((HeimdallApiException)exception!).StatusCode);
     }
 
-    [Fact(DisplayName = "500 with HTML body: retries 3 times before giving up")]
-    public async Task InternalServerError_WithHtmlBody_RetriesThreeTimes()
+    [Fact(DisplayName = "500 with HTML body: throws immediately without any retry")]
+    public async Task InternalServerError_WithHtmlBody_ThrowsImmediatelyWithoutRetry()
     {
         var handler = new FakeHttpMessageHandler(
-            FakeHttpMessageHandler.HtmlResponse(HttpStatusCode.InternalServerError),
-            FakeHttpMessageHandler.HtmlResponse(HttpStatusCode.InternalServerError),
-            FakeHttpMessageHandler.HtmlResponse(HttpStatusCode.InternalServerError),
             FakeHttpMessageHandler.HtmlResponse(HttpStatusCode.InternalServerError)
         );
         var client = HeimdallApiHttpClientFactory.Create(handler);
@@ -119,7 +116,7 @@ public class WhenApplicationGatewayReturnsTransientError
         await Assert.ThrowsAsync<HeimdallApiException>(() =>
             client.GetAsync<ApiResponse<SimpleData>>("/fake"));
 
-        Assert.Equal(4, handler.CallCount);
+        Assert.Equal(1, handler.CallCount); // no retry
     }
 
     [Fact(DisplayName = "500 with JSON ProblemDetails body: exception message comes from ProblemDetails")]
@@ -144,7 +141,6 @@ public class WhenApplicationGatewayReturnsTransientError
     // -----------------------------------------------------------------------
 
     [Theory(DisplayName = "Transient status code: retries 3 times and throws HeimdallApiException")]
-    [InlineData(HttpStatusCode.InternalServerError)]
     [InlineData(HttpStatusCode.BadGateway)]
     [InlineData(HttpStatusCode.ServiceUnavailable)]
     [InlineData(HttpStatusCode.GatewayTimeout)]
@@ -166,7 +162,6 @@ public class WhenApplicationGatewayReturnsTransientError
     }
 
     [Theory(DisplayName = "Transient status code: recovers after first failure")]
-    [InlineData(HttpStatusCode.InternalServerError)]
     [InlineData(HttpStatusCode.BadGateway)]
     [InlineData(HttpStatusCode.ServiceUnavailable)]
     [InlineData(HttpStatusCode.GatewayTimeout)]
@@ -190,10 +185,12 @@ public class WhenApplicationGatewayReturnsTransientError
 
     // 401 throws UnauthorizedAccessException (not HeimdallApiException) — it's intentionally excluded here
     // and covered by the dedicated test below.
+    // 500 Internal Server Error is also excluded — it is not retried (see dedicated tests above).
     [Theory(DisplayName = "Non-transient status code: throws immediately without any retry")]
     [InlineData(HttpStatusCode.BadRequest)]
     [InlineData(HttpStatusCode.Forbidden)]
     [InlineData(HttpStatusCode.NotFound)]
+    [InlineData(HttpStatusCode.InternalServerError)]
     public async Task NonTransientStatusCode_ThrowsImmediatelyWithoutRetry(HttpStatusCode statusCode)
     {
         var handler = new FakeHttpMessageHandler(
@@ -212,6 +209,7 @@ public class WhenApplicationGatewayReturnsTransientError
     [InlineData(HttpStatusCode.BadRequest)]
     [InlineData(HttpStatusCode.Forbidden)]
     [InlineData(HttpStatusCode.NotFound)]
+    [InlineData(HttpStatusCode.InternalServerError)]
     public async Task NonTransientStatusCode_ExceptionHasCorrectStatusCode(HttpStatusCode statusCode)
     {
         var client = HeimdallApiHttpClientFactory.CreateWithFixedResponse(
