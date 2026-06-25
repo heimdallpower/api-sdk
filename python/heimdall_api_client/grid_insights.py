@@ -76,9 +76,7 @@ def get_latest_icing(
         since=since_value,
     )
     if response.status_code != 200:
-        raise HeimdallApiError(
-            f"Error fetching latest icing: {response.status_code}", status_code=response.status_code
-        )
+        raise HeimdallApiError(f"Error fetching latest icing: {response.status_code}", status_code=response.status_code)
     return response.parsed
 
 

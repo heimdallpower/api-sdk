@@ -66,6 +66,7 @@ def _raises_then_returns(status_code: int, times: int, return_value):
 # HeimdallApiError unit tests
 # ---------------------------------------------------------------------------
 
+
 class TestHeimdallApiError:
     @pytest.mark.parametrize("status_code", [502, 503, 504])
     def test_is_transient_returns_true_for_transient_codes(self, status_code: int):
@@ -98,8 +99,8 @@ class TestHeimdallApiError:
 # _execute_with_retry — retry logic
 # ---------------------------------------------------------------------------
 
-class TestExecuteWithRetry:
 
+class TestExecuteWithRetry:
     @pytest.mark.parametrize("status_code", [502, 503, 504])
     @patch("heimdall_api_client.client.time.sleep")
     def test_retries_on_all_transient_codes(self, mock_sleep, status_code: int):
@@ -147,12 +148,14 @@ class TestExecuteWithRetry:
         The test verifies no unexpected exception type propagates.
         """
         client = _make_client()
-        func = MagicMock(side_effect=[
-            HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
-            HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
-            HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
-            HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
-        ])
+        func = MagicMock(
+            side_effect=[
+                HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
+                HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
+                HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
+                HeimdallApiError(_GATEWAY_TIMEOUT_HTML, status_code=504),
+            ]
+        )
 
         with pytest.raises(HeimdallApiError) as exc_info:
             client._execute_with_retry(func)
@@ -171,7 +174,7 @@ class TestExecuteWithRetry:
             client._execute_with_retry(func)
 
         assert exc_info.value.status_code == 500
-        assert func.call_count == 1   # no retry
+        assert func.call_count == 1  # no retry
         mock_sleep.assert_not_called()
 
 
@@ -179,8 +182,8 @@ class TestExecuteWithRetry:
 # _execute_with_retry — exponential backoff
 # ---------------------------------------------------------------------------
 
-class TestExponentialBackoff:
 
+class TestExponentialBackoff:
     @patch("heimdall_api_client.client.time.sleep")
     def test_backoff_delays_are_1_2_4_seconds(self, mock_sleep):
         """Retries use exponential backoff: 1 s, 2 s, 4 s."""
@@ -222,8 +225,8 @@ class TestExponentialBackoff:
 # _execute_with_retry — non-transient codes must NOT retry
 # ---------------------------------------------------------------------------
 
-class TestNonTransientErrors:
 
+class TestNonTransientErrors:
     @pytest.mark.parametrize("status_code", [400, 401, 403, 404, 422, 500])
     @patch("heimdall_api_client.client.time.sleep")
     def test_non_transient_errors_are_not_retried(self, mock_sleep, status_code: int):
@@ -235,7 +238,7 @@ class TestNonTransientErrors:
             client._execute_with_retry(func)
 
         assert exc_info.value.status_code == status_code
-        assert func.call_count == 1   # only one attempt
+        assert func.call_count == 1  # only one attempt
         mock_sleep.assert_not_called()
 
     @pytest.mark.parametrize("status_code", [400, 401, 403, 404, 500])
@@ -256,8 +259,8 @@ class TestNonTransientErrors:
 # _execute_with_retry — warning logger
 # ---------------------------------------------------------------------------
 
-class TestRetryLogging:
 
+class TestRetryLogging:
     @patch("heimdall_api_client.client.time.sleep")
     def test_warning_is_logged_on_each_retry(self, mock_sleep):
         """A warning must be emitted for each retry attempt."""
@@ -268,4 +271,3 @@ class TestRetryLogging:
             client._execute_with_retry(func)
 
         assert client.logger.warning.call_count == 3  # one per retry
-
