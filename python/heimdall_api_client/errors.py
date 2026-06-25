@@ -11,3 +11,15 @@ class HeimdallApiError(Exception):
     def is_transient(self) -> bool:
         """Returns True if the error is likely transient and safe to retry."""
         return self.status_code in {502, 503, 504}
+
+
+def body_preview(content: bytes, max_chars: int = 200) -> str:
+    """Returns a UTF-8 decoded, whitespace-collapsed preview of a response body."""
+    text = content.decode("utf-8", errors="replace").strip()
+    # Collapse runs of whitespace/newlines (common in HTML error pages)
+    import re
+
+    text = re.sub(r"\s+", " ", text)
+    if len(text) > max_chars:
+        return text[:max_chars] + "..."
+    return text or "(empty body)"

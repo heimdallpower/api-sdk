@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace HeimdallPower.Api.Client;
 
@@ -8,10 +9,10 @@ internal class HeimdallApiHttpClient(
     IAccessTokenProvider accessTokenProvider,
     HttpClient httpClient,
     Dictionary<string, string>? clientMetadata = null,
-    Func<TimeSpan, Task>? delayFunc = null)
+    Func<TimeSpan, CancellationToken, Task>? delayFunc = null)
 {
     /// <summary>Delay implementation — injectable for unit tests to avoid real sleeps.</summary>
-    private readonly Func<TimeSpan, Task> _delay = delayFunc ?? Task.Delay;
+    private readonly Func<TimeSpan, CancellationToken, Task> _delay = delayFunc ?? ((delay, ct) => Task.Delay(delay, ct));
     private HttpClient HttpClient { get; } = httpClient;
 
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
@@ -40,16 +41,16 @@ internal class HeimdallApiHttpClient(
 
     private const int MaxRetryAttempts = 3;
 
-    public async Task<T> GetAsync<T>(string url)
+    public async Task<T> GetAsync<T>(string url, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithAuthRetry(async () =>
             await ExecuteWithRetryAsync(async () =>
             {
-                var response = await HttpClient.GetAsync(url);
+                var response = await HttpClient.GetAsync(url, cancellationToken);
                 var jsonString = await HandleResponse(response);
                 return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
                        ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
-            }, _delay)
+            }, _delay, cancellationToken)
         );
     }
 
@@ -82,18 +83,26 @@ internal class HeimdallApiHttpClient(
                 // Body is not valid JSON (e.g. HTML error page from Application Gateway)
             }
 
-            var details = problem ?? new ProblemDetails { Detail = $"Request failed with status code {response.StatusCode}. The server may be temporarily unavailable." };
+            var details = problem ?? new ProblemDetails { Detail = $"Request failed with status code {(int)response.StatusCode} {response.StatusCode}: {TruncateBody(content)}" };
             throw new HeimdallApiException(details, response.StatusCode, requestUrl);
         }
 
         // Handles 502 Bad Gateway, 504 Gateway Timeout, and any other non-success codes
         throw new HeimdallApiException(
-            $"Request failed with status code {response.StatusCode}. The server may be temporarily unavailable.",
+            $"Request failed with status code {(int)response.StatusCode} {response.StatusCode}: {TruncateBody(content)}",
             response.StatusCode,
             requestUrl);
     }
 
-    private static async Task<T> ExecuteWithRetryAsync<T>(Func<Task<T>> operationFunc, Func<TimeSpan, Task> delay)
+    private static string TruncateBody(string content, int maxLength = 200)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return "(empty body)";
+        // Collapse whitespace runs — useful for HTML error pages
+        var collapsed = Regex.Replace(content.Trim(), @"\s+", " ");
+        return collapsed.Length <= maxLength ? collapsed : collapsed[..maxLength] + "...";
+    }
+
+    private static async Task<T> ExecuteWithRetryAsync<T>(Func<Task<T>> operationFunc, Func<TimeSpan, CancellationToken, Task> delay, CancellationToken cancellationToken)
     {
         var attempt = 0;
         while (true)
@@ -105,13 +114,13 @@ internal class HeimdallApiHttpClient(
             catch (HeimdallApiException ex) when (TransientStatusCodes.Contains(ex.StatusCode) && attempt < MaxRetryAttempts)
             {
                 attempt++;
-                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1))); // 1s, 2s, 4s
+                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)), cancellationToken); // 1s, 2s, 4s
             }
             catch (HttpRequestException) when (attempt < MaxRetryAttempts)
             {
                 // Network-level failures (connection refused, timeout, DNS, etc.)
                 attempt++;
-                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)));
+                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)), cancellationToken);
             }
         }
     }

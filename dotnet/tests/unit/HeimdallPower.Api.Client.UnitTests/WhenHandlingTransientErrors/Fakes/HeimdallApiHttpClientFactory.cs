@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace HeimdallPower.Api.Client.UnitTests.WhenHandlingTransientErrors.Fakes;
 
 internal static class HeimdallApiHttpClientFactory
@@ -15,7 +13,7 @@ internal static class HeimdallApiHttpClientFactory
             accessTokenProvider: new StubAccessTokenProvider(),
             httpClient: httpClient,
             clientMetadata: null,
-            delayFunc: _ => Task.CompletedTask); // no real sleeping in unit tests
+            delayFunc: (_, _) => Task.CompletedTask); // no real sleeping in unit tests
     }
 
     /// <summary>Convenience: single repeating response.</summary>

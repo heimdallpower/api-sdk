@@ -7,6 +7,8 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
+import httpx
+
 from heimdall_api_client.assets import get_assets
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
 from heimdall_api_client.auth import AuthService
@@ -61,6 +63,30 @@ class HeimdallApiClient:
     """
     SDK entrypoint for interacting with the Heimdall Power External API.
 
+    Parameters
+    ----------
+    client_id:
+        OAuth2 client ID.
+    client_secret:
+        OAuth2 client secret.
+    timeout:
+        Per-request HTTP timeout in seconds (``float``) or a pre-built
+        ``httpx.Timeout`` for fine-grained control over connect / read /
+        write timeouts.  Applies to every API call, including each retry
+        attempt.  Defaults to ``None`` (no timeout).
+
+        Example — abort any request that takes longer than 10 s::
+
+            client = HeimdallApiClient(client_id, client_secret, timeout=10.0)
+
+        Example — separate connect and read timeouts::
+
+            import httpx
+            client = HeimdallApiClient(
+                client_id, client_secret,
+                timeout=httpx.Timeout(connect=5.0, read=30.0),
+            )
+
     Retry behaviour
     ---------------
     All methods automatically retry up to 3 times with exponential backoff
@@ -75,12 +101,19 @@ class HeimdallApiClient:
     If all 3 retry attempts are exhausted the last
     :class:`~heimdall_api_client.errors.HeimdallApiError` is re-raised.
 
+    Note
+    ----
+    Python synchronous code has no native cancellation equivalent to
+    .NET's ``CancellationToken``.  Use the ``timeout`` parameter to bound
+    how long a single request (and each retry attempt) may take.
+
     Exceptions
     ----------
     All methods raise :class:`~heimdall_api_client.errors.HeimdallApiError` on
     non-transient HTTP errors (e.g. 400, 403, 404, 500) or after all retries
     are exhausted on transient errors. The ``status_code`` attribute carries
-    the HTTP status code.
+    the HTTP status code.  ``httpx.TimeoutException`` is raised if a request
+    exceeds the configured timeout.
     """
 
     def __init__(
@@ -94,6 +127,7 @@ class HeimdallApiClient:
         auth_scope: list[str] | None = None,
         logger: logging.Logger | None = None,
         client_metadata: dict[str, str] | None = None,
+        timeout: float | httpx.Timeout | None = None,
     ):
         self.logger = logger or logging.getLogger(__name__)
 
@@ -115,10 +149,16 @@ class HeimdallApiClient:
 
         # Ensure user values override the defaults
         self.client_metadata = {**default_metadata, **(client_metadata or {})}
+        self.timeout = httpx.Timeout(timeout) if isinstance(timeout, (int, float)) else timeout
 
     def _get_authenticated_client(self) -> AuthenticatedClient:
         token = self.auth_service.get_valid_token()
-        return AuthenticatedClient(base_url=self.api_base_url, token=token, headers=self.client_metadata)
+        return AuthenticatedClient(
+            base_url=self.api_base_url,
+            token=token,
+            headers=self.client_metadata,
+            timeout=self.timeout,
+        )
 
     def _get_region(self) -> str:
         return self.auth_service.get_region_from_token()
