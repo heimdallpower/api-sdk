@@ -66,7 +66,7 @@ public class WhenApplicationGatewayReturnsTransientError
         var exception = await Record.ExceptionAsync(() =>
             client.GetAsync<ApiResponse<SimpleData>>("/fake"));
 
-        // Must not be a JsonException — the old code threw this
+        // Must not be a JsonException
         Assert.IsNotType<System.Text.Json.JsonException>(exception);
         // Must be a clean HeimdallApiException instead
         Assert.IsType<HeimdallApiException>(exception);
