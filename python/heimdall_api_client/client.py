@@ -3,7 +3,8 @@ from __future__ import annotations
 import datetime
 import logging
 import time
-from typing import TYPE_CHECKING, Callable, TypeVar
+from collections.abc import Callable
+from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
 from heimdall_api_client.assets import get_assets
