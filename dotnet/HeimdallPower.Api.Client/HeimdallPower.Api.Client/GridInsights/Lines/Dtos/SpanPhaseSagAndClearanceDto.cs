@@ -9,7 +9,8 @@ public record SpanPhaseSagAndClearanceDto
     public Guid SpanPhaseId { get; init; }
 
     /// <summary>
-    /// Time (UTC) when the measurements were calculated for the span phase. Timestamps may differ per conductor due to data availability.
+    /// Time (UTC) when the measurements were calculated for the span phase.
+    /// Timestamps may differ per conductor due to data availability.
     /// </summary>
     /// <example>2024-01-15T12:34:56Z</example>
     public DateTimeOffset Timestamp { get; init; }

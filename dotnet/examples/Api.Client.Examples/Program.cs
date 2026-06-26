@@ -52,3 +52,11 @@ var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId.HasVal
     ? facility.Components.FirstOrDefault(c => c.Id == circuitRating.CircuitRating.AtFacilityComponentId.Value)?.Name ?? "unknown"
     : "none";
 Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");
+
+// Fetch historical data
+var from = DateTimeOffset.Now.AddDays(-1);
+var to = DateTimeOffset.Now;
+
+var sagAndClearances = await api.GetSagAndClearancesAsync(line.Id, from, to);
+
+Console.WriteLine($"- Sag and Clearance from {from} to {to} - Max Sag: {sagAndClearances.SagAndClearance.MaxSag.Value} - Min Clearance: {sagAndClearances.SagAndClearance.MinClearance?.Value}");
