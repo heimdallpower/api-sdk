@@ -16,6 +16,7 @@ from heimdall_api_client.capacity_monitoring_api_client.api.line import (
 from heimdall_api_client.capacity_monitoring_api_client.api.line import (
     capacity_monitoring_v1_lines_get_latest_heimdall_dlr_forecasts as get_latest_dlr_forecasts,
 )
+from heimdall_api_client.errors import HeimdallApiError, body_preview
 
 if TYPE_CHECKING:
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_response_200 import (  # noqa: E501
@@ -43,7 +44,12 @@ def get_latest_heimdall_dlr(
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
     response = get_latest_dlr.sync_detailed(client=client, line_id=line_id, x_region=region)
     if response.status_code != 200:
-        raise Exception(f"Error fetching latest Heimdall DLR: {response.status_code} {response.text}")
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest Heimdall DLR: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
     return response.parsed
 
 
@@ -52,7 +58,12 @@ def get_latest_heimdall_aar(
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
     response = get_latest_aar.sync_detailed(client=client, line_id=line_id, x_region=region)
     if response.status_code != 200:
-        raise Exception(f"Error fetching latest Heimdall AAR: {response.status_code} {response.text}")
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest Heimdall AAR: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
     return response.parsed
 
 
@@ -61,7 +72,12 @@ def get_latest_heimdall_dlr_forecasts(
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrForecastsResponse200:
     response = get_latest_dlr_forecasts.sync_detailed(client=client, line_id=line_id, x_region=region)
     if response.status_code != 200:
-        raise Exception(f"Error fetching latest Heimdall DLR forecasts: {response.status_code} {response.text}")
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest Heimdall DLR forecasts: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
     return response.parsed
 
 
@@ -70,7 +86,12 @@ def get_latest_heimdall_arr_forecasts(
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarForecastsResponse200:
     response = get_latest_aar_forecasts.sync_detailed(client=client, line_id=line_id, x_region=region)
     if response.status_code != 200:
-        raise Exception(f"Error fetching latest Heimdall AAR forecasts: {response.status_code} {response.text}")
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest Heimdall AAR forecasts: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
     return response.parsed
 
 
@@ -83,7 +104,12 @@ def get_latest_circuit_ratring(
 
     response = get_latest_circuit_rating.sync_detailed(client=client, facility_id=facility_id, x_region=x_region)
     if response.status_code != 200:
-        raise Exception(f"Error fetching latest circuit rating: {response.status_code} {response.text}")
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest circuit rating: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
     return response.parsed
 
 
@@ -98,5 +124,10 @@ def get_latest_circuit_rating_forecasts(
         client=client, facility_id=facility_id, x_region=x_region
     )
     if response.status_code != 200:
-        raise Exception(f"Error fetching latest circuit rating forecasts: {response.status_code} {response.text}")
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest circuit rating forecasts: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
     return response.parsed

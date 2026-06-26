@@ -10,6 +10,9 @@ Console.WriteLine("Initiating Heimdall API client");
 // Instantiate Cloud API Client
 var api = new HeimdallApiClient(clientId, clientSecret);
 
+// All API calls below automatically retry up to 3 times (1 s → 2 s → 4 s backoff)
+// on transient gateway errors (502, 503, 504). No extra retry logic needed.
+
 // Fetch Lines data
 var assets = await api.GetAssetsAsync();
 var line = assets.AllLines().FirstOrDefault();
@@ -52,3 +55,22 @@ var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId.HasVal
     ? facility.Components.FirstOrDefault(c => c.Id == circuitRating.CircuitRating.AtFacilityComponentId.Value)?.Name ?? "unknown"
     : "none";
 Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");
+
+// Example: wrapping a single call with error handling.
+// The client retries automatically on 502/503/504 — HeimdallApiException is only
+// thrown once all retries are exhausted or for non-transient errors (400, 404, 500, …).
+try
+{
+    var dlr = await api.GetLatestHeimdallDlrAsync(line.Id);
+    Console.WriteLine($"DLR: {dlr.HeimdallDlr.Value} {dlr.Unit}");
+}
+catch (HeimdallApiException ex)
+{
+    Console.Error.WriteLine($"API error {(int)ex.StatusCode}: {ex.Message}");
+}
+
+// Example: cancel the request (and any retry delays) after 10 seconds total.
+using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+var dlrWithTimeout = await api.GetLatestHeimdallDlrAsync(line.Id, cancellationToken: cts.Token);
+Console.WriteLine($"DLR with timeout: {dlrWithTimeout.HeimdallDlr.Value} {dlrWithTimeout.Unit}");
+

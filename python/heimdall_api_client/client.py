@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import datetime
 import logging
-from typing import TYPE_CHECKING
+import time
+from collections.abc import Callable
+from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
+
+import httpx
 
 from heimdall_api_client.assets import get_assets
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
@@ -14,7 +18,10 @@ from heimdall_api_client.capacity_monitoring import (
     get_latest_heimdall_dlr,
     get_latest_heimdall_dlr_forecasts,
 )
+from heimdall_api_client.errors import HeimdallApiError
 from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
+
+_T = TypeVar("_T")
 
 if TYPE_CHECKING:
     from heimdall_api_client.assets_api_client.models.assets_v1_get_assets_response_200 import (
@@ -49,9 +56,64 @@ if TYPE_CHECKING:
     )
 
 
+_MAX_RETRY_ATTEMPTS = 3
+
+
 class HeimdallApiClient:
     """
     SDK entrypoint for interacting with the Heimdall Power External API.
+
+    Parameters
+    ----------
+    client_id:
+        OAuth2 client ID.
+    client_secret:
+        OAuth2 client secret.
+    timeout:
+        Per-request HTTP timeout in seconds (``float``) or a pre-built
+        ``httpx.Timeout`` for fine-grained control over connect / read /
+        write timeouts.  Applies to every API call, including each retry
+        attempt.  Defaults to ``None`` (no timeout).
+
+        Example — abort any request that takes longer than 10 s::
+
+            client = HeimdallApiClient(client_id, client_secret, timeout=10.0)
+
+        Example — separate connect and read timeouts::
+
+            import httpx
+            client = HeimdallApiClient(
+                client_id, client_secret,
+                timeout=httpx.Timeout(connect=5.0, read=30.0),
+            )
+
+    Retry behaviour
+    ---------------
+    All methods automatically retry up to 3 times with exponential backoff
+    (1 s → 2 s → 4 s) when the server or Application Gateway returns a
+    transient error:
+
+    * ``502 Bad Gateway``
+    * ``503 Service Unavailable``
+    * ``504 Gateway Timeout``
+
+    A warning is logged for each retry attempt.
+    If all 3 retry attempts are exhausted the last
+    :class:`~heimdall_api_client.errors.HeimdallApiError` is re-raised.
+
+    Note
+    ----
+    Python synchronous code has no native cancellation equivalent to
+    .NET's ``CancellationToken``.  Use the ``timeout`` parameter to bound
+    how long a single request (and each retry attempt) may take.
+
+    Exceptions
+    ----------
+    All methods raise :class:`~heimdall_api_client.errors.HeimdallApiError` on
+    non-transient HTTP errors (e.g. 400, 403, 404, 500) or after all retries
+    are exhausted on transient errors. The ``status_code`` attribute carries
+    the HTTP status code.  ``httpx.TimeoutException`` is raised if a request
+    exceeds the configured timeout.
     """
 
     def __init__(
@@ -65,6 +127,7 @@ class HeimdallApiClient:
         auth_scope: list[str] | None = None,
         logger: logging.Logger | None = None,
         client_metadata: dict[str, str] | None = None,
+        timeout: float | httpx.Timeout | None = None,
     ):
         self.logger = logger or logging.getLogger(__name__)
 
@@ -86,34 +149,70 @@ class HeimdallApiClient:
 
         # Ensure user values override the defaults
         self.client_metadata = {**default_metadata, **(client_metadata or {})}
+        self.timeout = httpx.Timeout(timeout) if isinstance(timeout, (int, float)) else timeout
 
     def _get_authenticated_client(self) -> AuthenticatedClient:
         token = self.auth_service.get_valid_token()
-        return AuthenticatedClient(base_url=self.api_base_url, token=token, headers=self.client_metadata)
+        return AuthenticatedClient(
+            base_url=self.api_base_url,
+            token=token,
+            headers=self.client_metadata,
+            timeout=self.timeout,
+        )
 
     def _get_region(self) -> str:
         return self.auth_service.get_region_from_token()
+
+    def _execute_with_retry(self, func: Callable[[], _T]) -> _T:
+        """
+        Executes the given callable and retries automatically on transient API errors
+        (HTTP 500, 502, 503, 504) with exponential backoff (1s, 2s, 4s).
+        """
+        attempt = 0
+        while True:
+            try:
+                return func()
+            except HeimdallApiError as exc:
+                if exc.is_transient() and attempt < _MAX_RETRY_ATTEMPTS:
+                    attempt += 1
+                    delay = 2 ** (attempt - 1)  # 1s, 2s, 4s
+                    self.logger.warning(
+                        "Transient error (HTTP %s) on attempt %d/%d. Retrying in %ds...",
+                        exc.status_code,
+                        attempt,
+                        _MAX_RETRY_ATTEMPTS,
+                        delay,
+                    )
+                    time.sleep(delay)
+                else:
+                    raise
 
     def get_assets(self) -> AssetsV1GetAssetsResponse200:
         """
         Returns the list of assets from the Assets API.
         """
-        return get_assets(client=self._get_authenticated_client(), x_region=self._get_region())
+        return self._execute_with_retry(
+            lambda: get_assets(client=self._get_authenticated_client(), x_region=self._get_region())
+        )
 
     def get_latest_heimdall_dlr(self, line_id: UUID) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
         """
         Returns the latest Heimdall DLR (Dynamic Line rating) data.
         """
-        return get_latest_heimdall_dlr(
-            client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+        return self._execute_with_retry(
+            lambda: get_latest_heimdall_dlr(
+                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+            )
         )
 
     def get_latest_heimdall_aar(self, line_id: UUID) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
         """
         Returns the latest Heimdall AAR (Available Ampacity Rating) data.
         """
-        return get_latest_heimdall_aar(
-            client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+        return self._execute_with_retry(
+            lambda: get_latest_heimdall_aar(
+                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+            )
         )
 
     def get_latest_heimdall_dlr_forecasts(
@@ -122,8 +221,10 @@ class HeimdallApiClient:
         """
         Returns the latest Heimdall DLR forecasts.
         """
-        return get_latest_heimdall_dlr_forecasts(
-            client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+        return self._execute_with_retry(
+            lambda: get_latest_heimdall_dlr_forecasts(
+                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+            )
         )
 
     def get_latest_heimdall_aar_forecasts(
@@ -132,8 +233,10 @@ class HeimdallApiClient:
         """
         Returns the latest Heimdall AAR forecasts.
         """
-        return get_latest_heimdall_arr_forecasts(
-            client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+        return self._execute_with_retry(
+            lambda: get_latest_heimdall_arr_forecasts(
+                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+            )
         )
 
     def get_latest_circuit_rating(
@@ -144,8 +247,10 @@ class HeimdallApiClient:
         """
         from heimdall_api_client.capacity_monitoring import get_latest_circuit_ratring
 
-        return get_latest_circuit_ratring(
-            client=self._get_authenticated_client(), facility_id=facility_id, x_region=self._get_region()
+        return self._execute_with_retry(
+            lambda: get_latest_circuit_ratring(
+                client=self._get_authenticated_client(), facility_id=facility_id, x_region=self._get_region()
+            )
         )
 
     def get_latest_circuit_rating_forecasts(
@@ -156,8 +261,10 @@ class HeimdallApiClient:
         """
         from heimdall_api_client.capacity_monitoring import get_latest_circuit_rating_forecasts
 
-        return get_latest_circuit_rating_forecasts(
-            client=self._get_authenticated_client(), facility_id=facility_id, x_region=self._get_region()
+        return self._execute_with_retry(
+            lambda: get_latest_circuit_rating_forecasts(
+                client=self._get_authenticated_client(), facility_id=facility_id, x_region=self._get_region()
+            )
         )
 
     def get_latest_conductor_temperature(
@@ -168,8 +275,10 @@ class HeimdallApiClient:
         """
         from heimdall_api_client.grid_insights import get_latest_conductor_temperature
 
-        return get_latest_conductor_temperature(
-            client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+        return self._execute_with_retry(
+            lambda: get_latest_conductor_temperature(
+                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+            )
         )
 
     def get_latest_current(self, line_id: UUID) -> GridInsightsV1LinesGetLatestCurrentResponse200:
@@ -178,7 +287,11 @@ class HeimdallApiClient:
         """
         from heimdall_api_client.grid_insights import get_latest_current
 
-        return get_latest_current(client=self._get_authenticated_client(), line_id=line_id, region=self._get_region())
+        return self._execute_with_retry(
+            lambda: get_latest_current(
+                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+            )
+        )
 
     def get_latest_icing(
         self,
@@ -191,12 +304,14 @@ class HeimdallApiClient:
         """
         from heimdall_api_client.grid_insights import get_latest_icing
 
-        return get_latest_icing(
-            client=self._get_authenticated_client(),
-            line_id=line_id,
-            region=self._get_region(),
-            unit_system=unit_system,
-            since=since,
+        return self._execute_with_retry(
+            lambda: get_latest_icing(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                unit_system=unit_system,
+                since=since,
+            )
         )
 
     def get_latest_sag_and_clearance(
@@ -210,10 +325,12 @@ class HeimdallApiClient:
         """
         from heimdall_api_client.grid_insights import get_latest_sag_and_clearance
 
-        return get_latest_sag_and_clearance(
-            client=self._get_authenticated_client(),
-            line_id=line_id,
-            region=self._get_region(),
-            unit_system=unit_system,
-            since=since,
+        return self._execute_with_retry(
+            lambda: get_latest_sag_and_clearance(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                unit_system=unit_system,
+                since=since,
+            )
         )
