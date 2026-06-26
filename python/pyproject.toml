@@ -16,8 +16,8 @@ dependencies = [
 ]
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.15.18"
-pytest = "^9.1.0"
+ruff = "^0.15.20"
+pytest = "^9.1.1"
 
 [tool.poetry]
 packages = [{ include = "heimdall_api_client" }]
