@@ -3,7 +3,7 @@ namespace HeimdallPower.Api.Client.GridInsights.Lines.Dtos;
 public record SpanPhaseMeasurementResult
 {
     /// <summary>
-    /// Time (UTC) when the icing measurements were calculated for the span phase. Timestamps may differ per conductor due to data availability.
+    /// Time (in UTC) when the measurement was taken.
     /// </summary>
     /// <example>2024-01-15T12:34:56Z</example>
     public DateTimeOffset Timestamp { get; init; }

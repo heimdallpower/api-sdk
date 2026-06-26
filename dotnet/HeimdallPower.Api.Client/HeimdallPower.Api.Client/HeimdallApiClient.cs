@@ -118,6 +118,21 @@ public class HeimdallApiClient : IHeimdallApiClient
     }
 
     /// <summary>
+    /// Get sag and clearance data for the line within a time range.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
+    public async Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
+    {
+        var url = UrlBuilder.BuildSagAndClearanceUrl(lineId, from, to, unitSystem);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<LineSagAndClearancesResponse>>(url);
+        return response.Data;
+    }
+
+    /// <summary>
     /// Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve icing forecasts.</param>
