@@ -85,7 +85,7 @@ catch (HeimdallApiException ex)
     Console.Error.WriteLine($"API error {(int)ex.StatusCode}: {ex.Message}");
 }
 
-// Example: cancel the request (and any retry delays) after 10 seconds total.
+// Example: cancel the request after 10 seconds total.
 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 var dlrWithTimeout = await api.GetLatestHeimdallDlrAsync(line.Id, cancellationToken: cts.Token);
 Console.WriteLine($"DLR with timeout: {dlrWithTimeout.HeimdallDlr.Value} {dlrWithTimeout.Unit}");

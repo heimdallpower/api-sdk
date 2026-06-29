@@ -8,11 +8,8 @@ namespace HeimdallPower.Api.Client;
 internal class HeimdallApiHttpClient(
     IAccessTokenProvider accessTokenProvider,
     HttpClient httpClient,
-    Dictionary<string, string>? clientMetadata = null,
-    Func<TimeSpan, CancellationToken, Task>? delayFunc = null)
+    Dictionary<string, string>? clientMetadata = null)
 {
-    /// <summary>Delay implementation — injectable for unit tests to avoid real sleeps.</summary>
-    private readonly Func<TimeSpan, CancellationToken, Task> _delay = delayFunc ?? ((delay, ct) => Task.Delay(delay, ct));
     private HttpClient HttpClient { get; } = httpClient;
 
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
@@ -32,26 +29,15 @@ internal class HeimdallApiHttpClient(
         PropertyNameCaseInsensitive = true
     };
 
-    private static readonly HashSet<HttpStatusCode> TransientStatusCodes =
-    [
-        HttpStatusCode.BadGateway,
-        HttpStatusCode.ServiceUnavailable,
-        HttpStatusCode.GatewayTimeout,
-    ];
-
-    private const int MaxRetryAttempts = 3;
-
     public async Task<T> GetAsync<T>(string url, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithAuthRetry(async () =>
-            await ExecuteWithRetryAsync(async () =>
-            {
-                var response = await HttpClient.GetAsync(url, cancellationToken);
-                var jsonString = await HandleResponse(response);
-                return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
-                       ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
-            }, _delay, cancellationToken)
-        );
+        {
+            var response = await HttpClient.GetAsync(url, cancellationToken);
+            var jsonString = await HandleResponse(response);
+            return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
+                   ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
+        });
     }
 
     private static async Task<string> HandleResponse(HttpResponseMessage response)
@@ -100,29 +86,6 @@ internal class HeimdallApiHttpClient(
         // Collapse whitespace runs — useful for HTML error pages
         var collapsed = Regex.Replace(content.Trim(), @"\s+", " ");
         return collapsed.Length <= maxLength ? collapsed : collapsed[..maxLength] + "...";
-    }
-
-    private static async Task<T> ExecuteWithRetryAsync<T>(Func<Task<T>> operationFunc, Func<TimeSpan, CancellationToken, Task> delay, CancellationToken cancellationToken)
-    {
-        var attempt = 0;
-        while (true)
-        {
-            try
-            {
-                return await operationFunc();
-            }
-            catch (HeimdallApiException ex) when (TransientStatusCodes.Contains(ex.StatusCode) && attempt < MaxRetryAttempts)
-            {
-                attempt++;
-                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)), cancellationToken); // 1s, 2s, 4s
-            }
-            catch (HttpRequestException) when (attempt < MaxRetryAttempts)
-            {
-                // Network-level failures (connection refused, timeout, DNS, etc.)
-                attempt++;
-                await delay(TimeSpan.FromSeconds(Math.Pow(2, attempt - 1)), cancellationToken);
-            }
-        }
     }
 
     private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc)
