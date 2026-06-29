@@ -33,6 +33,7 @@ internal static class UrlBuilder
     private const string HeimdallAarForecast = "heimdall_aars/forecasts";
     private const string IcingLatest = "icing/latest";
     private const string IcingForecast = "icing/forecast";
+    private const string Icing = "icing";
     private const string ApparentPowerLatest = "apparent_power/latest";
     private const string ApparentPower = "apparent_power";
     private const string SagAndClearanceLatest = "sag_and_clearance/latest";
@@ -138,6 +139,15 @@ internal static class UrlBuilder
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingForecast, queryParams: queryParams);
     }
 
+    public static string BuildIcingUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"))
+            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"))
+            .AddQueryParam("unit_system", unitSystem);
+        return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: Icing, queryParams: queryParams);
+    }
+
     public static string BuildLatestApparentPowerUrl(Guid lineId)
         => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPowerLatest);
 
@@ -155,7 +165,7 @@ internal static class UrlBuilder
             .AddQueryParam("unit_system", unitSystem);
 
         if (since.HasValue)
-            queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString("o"));
+            queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString(""));
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: SagAndClearanceLatest, queryParams: queryParams);
     }

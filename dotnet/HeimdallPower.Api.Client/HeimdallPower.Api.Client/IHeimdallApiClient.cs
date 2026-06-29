@@ -68,6 +68,16 @@ public interface IHeimdallApiClient
     Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric");
 
     /// <summary>
+    /// Get icing data for the line within a time range, including maximum values and per-span/phase metrics.
+    /// The period between from and to must not exceed 30 days.
+    /// </summary>
+    /// <param name="lineId">Id of the line.</param>
+    /// <param name="from">Start of the time range (inclusive).</param>
+    /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
+    Task<LineIcingsResponse> GetIcingsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric");
+
+    /// <summary>
     /// Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve icing forecasts.</param>
