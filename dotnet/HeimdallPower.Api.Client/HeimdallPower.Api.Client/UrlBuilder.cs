@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using System.Globalization;
 using HeimdallPower.Api.Client.CapacityMonitoring;
 
 namespace HeimdallPower.Api.Client;
@@ -53,16 +54,16 @@ internal static class UrlBuilder
     public static string BuildCurrentsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to)
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"));
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to));
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: CurrentsHistorical, queryParams: queryParams);
     }
 
     public static string BuildConductorTemperaturesUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"))
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to))
             .AddQueryParam("unit_system", unitSystem);
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ConductorTemperaturesHistorical, queryParams: queryParams);
     }
@@ -86,8 +87,8 @@ internal static class UrlBuilder
     public static string BuildHeimdallDlrsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"))
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to))
             .AddQueryParam("quantity", quantity.ToQueryValue());
         return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlrs, queryParams: queryParams);
     }
@@ -95,8 +96,8 @@ internal static class UrlBuilder
     public static string BuildHeimdallAarsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"))
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to))
             .AddQueryParam("quantity", quantity.ToQueryValue());
         return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAars, queryParams: queryParams);
     }
@@ -115,8 +116,8 @@ internal static class UrlBuilder
     public static string BuildCircuitRatingsUrl(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"))
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to))
             .AddQueryParam("quantity", quantity.ToQueryValue());
         return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatings, queryParams: queryParams);
     }
@@ -127,7 +128,7 @@ internal static class UrlBuilder
             .AddQueryParam("unit_system", unitSystem);
 
         if (since.HasValue)
-            queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString("o"));
+            queryParams.AddQueryParam("since", ToApiTimestamp(since.Value));
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: IcingLatest, queryParams: queryParams);
     }
@@ -142,8 +143,8 @@ internal static class UrlBuilder
     public static string BuildIcingUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"))
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to))
             .AddQueryParam("unit_system", unitSystem);
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: Icing, queryParams: queryParams);
     }
@@ -154,8 +155,8 @@ internal static class UrlBuilder
     public static string BuildApparentPowersUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to)
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("o"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("o"));
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to));
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPower, queryParams: queryParams);
     }
 
@@ -173,11 +174,14 @@ internal static class UrlBuilder
     public static string BuildSagAndClearanceUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("from_timestamp", from.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"))
-            .AddQueryParam("to_timestamp", to.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"))
+            .AddQueryParam("from_timestamp", ToApiTimestamp(from))
+            .AddQueryParam("to_timestamp", ToApiTimestamp(to))
             .AddQueryParam("unit_system", unitSystem);
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: SagAndClearance, queryParams: queryParams);
     }
+
+    private static string ToApiTimestamp(DateTimeOffset timestamp)
+        => timestamp.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'", CultureInfo.InvariantCulture);
 
     private static string GetResourceUrl(string module, string apiVersion, string resource)
         => $"{module}/{apiVersion}/{resource}";
