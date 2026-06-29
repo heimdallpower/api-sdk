@@ -1,3 +1,6 @@
+import re
+
+
 class HeimdallApiError(Exception):
     """
     Raised when the Heimdall API returns a non-successful HTTP response.
@@ -17,7 +20,6 @@ def body_preview(content: bytes, max_chars: int = 200) -> str:
     """Returns a UTF-8 decoded, whitespace-collapsed preview of a response body."""
     text = content.decode("utf-8", errors="replace").strip()
     # Collapse runs of whitespace/newlines (common in HTML error pages)
-    import re
 
     text = re.sub(r"\s+", " ", text)
     if len(text) > max_chars:

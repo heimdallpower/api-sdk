@@ -166,7 +166,8 @@ class HeimdallApiClient:
     def _execute_with_retry(self, func: Callable[[], _T]) -> _T:
         """
         Executes the given callable and retries automatically on transient API errors
-        (HTTP 500, 502, 503, 504) with exponential backoff (1s, 2s, 4s).
+        (HTTP 502, 503, 504) with exponential backoff (1s, 2s, 4s).
+        Note: 500 Internal Server Error is NOT retried (permanent application error).
         """
         attempt = 0
         while True:
