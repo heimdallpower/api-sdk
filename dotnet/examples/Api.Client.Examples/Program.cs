@@ -21,16 +21,27 @@ if (line == null)
 
 Console.WriteLine($"Using line: {line.Name} (ID: {line.Id})");
 
+var from = DateTimeOffset.Now.AddDays(-1);
+var to = DateTimeOffset.Now;
+
 // Fetch Aggregated Measurements data
 var latestCurrent = await api.GetLatestCurrentAsync(line.Id);
 var latestConductorTemperature = await api.GetLatestConductorTemperatureAsync(line.Id);
+
 var latestIcing = await api.GetLatestIcingAsync(line.Id);
+var icings = await api.GetIcingsAsync(line.Id, from, to);
+
 var latestSagAndClearance = await api.GetLatestSagAndClearanceAsync(line.Id);
+var sagAndClearances = await api.GetSagAndClearancesAsync(line.Id, from, to);
 
 Console.WriteLine($"- Current: {latestCurrent.Current.Value} {latestCurrent.Unit} at {latestCurrent.Current.Timestamp}");
 Console.WriteLine($"- Conductor Temperature: {latestConductorTemperature.ConductorTemperature.Max} {latestConductorTemperature.Unit} at {latestConductorTemperature.ConductorTemperature.Timestamp}");
+
 Console.WriteLine($"- Icing: Maximum Ice weight: {latestIcing.Icing.Max.IceWeight.Value} at span phase: {latestIcing.Icing.Max.IceWeight.SpanPhaseId}");
+Console.WriteLine($"- Icing from {from} to {to} - Max Ice weight: {icings.Icing.Max.IceWeight.Value} {icings.Icing.Max.IceWeight.Unit} at span phase: {icings.Icing.Max.IceWeight.SpanPhaseId}");
+
 Console.WriteLine($"- Sag and Clearance: Maximum sag: {latestSagAndClearance.SagAndClearance.MaxSag.Value} {latestSagAndClearance.SagAndClearance.MaxSag.Unit} at span phase: {latestSagAndClearance.SagAndClearance.MaxSag.SpanPhaseId}");
+Console.WriteLine($"- Sag and Clearance from {from} to {to} - Max Sag: {sagAndClearances.SagAndClearance.MaxSag.Value} - Min Clearance: {sagAndClearances.SagAndClearance.MinClearance?.Value}");
 
 // Fetch DLR data
 var latestDlr = await api.GetLatestHeimdallDlrAsync(line.Id);
@@ -52,11 +63,3 @@ var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId.HasVal
     ? facility.Components.FirstOrDefault(c => c.Id == circuitRating.CircuitRating.AtFacilityComponentId.Value)?.Name ?? "unknown"
     : "none";
 Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");
-
-// Fetch historical data
-var from = DateTimeOffset.Now.AddDays(-1);
-var to = DateTimeOffset.Now;
-
-var sagAndClearances = await api.GetSagAndClearancesAsync(line.Id, from, to);
-
-Console.WriteLine($"- Sag and Clearance from {from} to {to} - Max Sag: {sagAndClearances.SagAndClearance.MaxSag.Value} - Min Clearance: {sagAndClearances.SagAndClearance.MinClearance?.Value}");
