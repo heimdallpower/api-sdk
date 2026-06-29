@@ -26,19 +26,27 @@ var to = DateTimeOffset.Now;
 
 // Fetch Aggregated Measurements data
 var latestCurrent = await api.GetLatestCurrentAsync(line.Id);
+var currents = await api.GetCurrentsAsync(line.Id, from, to);
+
+Console.WriteLine($"- Current: {latestCurrent.Current.Value} {latestCurrent.Unit} at {latestCurrent.Current.Timestamp}");
+Console.WriteLine($"- Currents from {from} to {to} - First value: {currents.Currents.FirstOrDefault()?.Value} {currents.Unit} at {currents.Currents.FirstOrDefault()?.Timestamp}, " +
+                  $"Last value: {currents.Currents.LastOrDefault()?.Value} {currents.Unit} at {currents.Currents.LastOrDefault()?.Timestamp}");
+
 var latestConductorTemperature = await api.GetLatestConductorTemperatureAsync(line.Id);
+var conductorTemperatures = await api.GetConductorTemperaturesAsync(line.Id, from, to);
+
+Console.WriteLine($"- Conductor Temperature: {latestConductorTemperature.ConductorTemperature.Max} {latestConductorTemperature.Unit} at {latestConductorTemperature.ConductorTemperature.Timestamp}");
+Console.WriteLine($"- Conductor Temperatures from {from} to {to} - First max value: {conductorTemperatures.ConductorTemperatures.FirstOrDefault()?.Max} {conductorTemperatures.Unit} at {conductorTemperatures.ConductorTemperatures.FirstOrDefault()?.Timestamp}, " +
+                  $" Last max value: {conductorTemperatures.ConductorTemperatures.LastOrDefault()?.Max} {conductorTemperatures.Unit} at {conductorTemperatures.ConductorTemperatures.LastOrDefault()?.Timestamp}");
 
 var latestIcing = await api.GetLatestIcingAsync(line.Id);
 var icings = await api.GetIcingsAsync(line.Id, from, to);
 
-var latestSagAndClearance = await api.GetLatestSagAndClearanceAsync(line.Id);
-var sagAndClearances = await api.GetSagAndClearancesAsync(line.Id, from, to);
-
-Console.WriteLine($"- Current: {latestCurrent.Current.Value} {latestCurrent.Unit} at {latestCurrent.Current.Timestamp}");
-Console.WriteLine($"- Conductor Temperature: {latestConductorTemperature.ConductorTemperature.Max} {latestConductorTemperature.Unit} at {latestConductorTemperature.ConductorTemperature.Timestamp}");
-
 Console.WriteLine($"- Icing: Maximum Ice weight: {latestIcing.Icing.Max.IceWeight.Value} at span phase: {latestIcing.Icing.Max.IceWeight.SpanPhaseId}");
 Console.WriteLine($"- Icing from {from} to {to} - Max Ice weight: {icings.Icing.Max.IceWeight.Value} {icings.Icing.Max.IceWeight.Unit} at span phase: {icings.Icing.Max.IceWeight.SpanPhaseId}");
+
+var latestSagAndClearance = await api.GetLatestSagAndClearanceAsync(line.Id);
+var sagAndClearances = await api.GetSagAndClearancesAsync(line.Id, from, to);
 
 Console.WriteLine($"- Sag and Clearance: Maximum sag: {latestSagAndClearance.SagAndClearance.MaxSag.Value} {latestSagAndClearance.SagAndClearance.MaxSag.Unit} at span phase: {latestSagAndClearance.SagAndClearance.MaxSag.SpanPhaseId}");
 Console.WriteLine($"- Sag and Clearance from {from} to {to} - Max Sag: {sagAndClearances.SagAndClearance.MaxSag.Value} - Min Clearance: {sagAndClearances.SagAndClearance.MinClearance?.Value}");
