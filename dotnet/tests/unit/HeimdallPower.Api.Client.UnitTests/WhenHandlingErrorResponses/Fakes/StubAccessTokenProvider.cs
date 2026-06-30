@@ -6,7 +6,7 @@ namespace HeimdallPower.Api.Client.UnitTests.WhenHandlingErrorResponses.Fakes;
 /// </summary>
 internal sealed class StubAccessTokenProvider : IAccessTokenProvider
 {
-    public Task AcquireTokenAsync() => Task.CompletedTask;
+    public Task AcquireTokenAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     public DateTimeOffset GetTokenExpiry() => DateTimeOffset.UtcNow.AddHours(1);
 

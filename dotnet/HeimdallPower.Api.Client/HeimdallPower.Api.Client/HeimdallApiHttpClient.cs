@@ -34,15 +34,15 @@ internal class HeimdallApiHttpClient(
         return await ExecuteWithAuthRetry(async () =>
         {
             var response = await HttpClient.GetAsync(url, cancellationToken);
-            var jsonString = await HandleResponse(response);
+            var jsonString = await HandleResponse(response, cancellationToken);
             return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
                    ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
-        });
+        }, cancellationToken);
     }
 
-    private static async Task<string> HandleResponse(HttpResponseMessage response)
+    private static async Task<string> HandleResponse(HttpResponseMessage response, CancellationToken cancellationToken)
     {
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
         var requestUrl = response.RequestMessage?.RequestUri?.ToString() ?? string.Empty;
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -88,25 +88,25 @@ internal class HeimdallApiHttpClient(
         return collapsed.Length <= maxLength ? collapsed : collapsed[..maxLength] + "...";
     }
 
-    private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc)
+    private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc, CancellationToken cancellationToken)
     {
         try
         {
-            await UpdateAccessTokenIfExpired();
+            await UpdateAccessTokenIfExpired(cancellationToken);
             return await operationFunc();
         }
         catch (UnauthorizedAccessException)
         {
-            await RefreshAccessToken();
+            await RefreshAccessToken(cancellationToken);
             return await operationFunc();
         }
     }
 
-    private async Task UpdateAccessTokenIfExpired()
+    private async Task UpdateAccessTokenIfExpired(CancellationToken cancellationToken)
     {
         if (_tokenExpiresOn == default || DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) > _tokenExpiresOn)
         {
-            await RefreshAccessToken();
+            await RefreshAccessToken(cancellationToken);
         }
     }
 
@@ -137,16 +137,16 @@ internal class HeimdallApiHttpClient(
         return headers;
     }
 
-    private async Task RefreshAccessToken()
+    private async Task RefreshAccessToken(CancellationToken cancellationToken)
     {
-        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30));
+        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30), cancellationToken);
         try
         {
             // Check if another thread already refreshed while we were waiting
             if (_tokenExpiresOn != default && DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) <= _tokenExpiresOn)
                 return;
 
-            await accessTokenProvider.AcquireTokenAsync();
+            await accessTokenProvider.AcquireTokenAsync(cancellationToken);
             _tokenExpiresOn = accessTokenProvider.GetTokenExpiry();
 
             foreach (var header in accessTokenProvider.GetAccessHeaders())
