@@ -74,7 +74,7 @@ var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId.HasVal
     : "none";
 Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");
 
-// Example: wrapping a single call with error handling.
+// Wrapping a single call with error handling
 try
 {
     var dlr = await api.GetLatestHeimdallDlrAsync(line.Id);
@@ -85,7 +85,7 @@ catch (HeimdallApiException ex)
     Console.Error.WriteLine($"API error {(int)ex.StatusCode}: {ex.Message}");
 }
 
-// Example: cancel the request after 10 seconds total.
+// Cancel the request after 10 seconds
 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 var dlrWithTimeout = await api.GetLatestHeimdallDlrAsync(line.Id, cancellationToken: cts.Token);
 Console.WriteLine($"DLR with timeout: {dlrWithTimeout.HeimdallDlr.Value} {dlrWithTimeout.Unit}");
