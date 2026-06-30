@@ -1,10 +1,14 @@
 ﻿using System.Net;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace HeimdallPower.Api.Client;
 
-internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, HttpClient httpClient, Dictionary<string, string>? clientMetadata = null)
+internal class HeimdallApiHttpClient(
+    IAccessTokenProvider accessTokenProvider,
+    HttpClient httpClient,
+    Dictionary<string, string>? clientMetadata = null)
 {
     private HttpClient HttpClient { get; } = httpClient;
 
@@ -20,20 +24,26 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
     private DateTimeOffset _tokenExpiresOn;
     private static readonly TimeSpan TokenExpirationBuffer = TimeSpan.FromMinutes(2);
 
-    public async Task<T> GetAsync<T>(string url)
+    private static readonly JsonSerializerOptions ProblemDetailsOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    public async Task<T> GetAsync<T>(string url, CancellationToken cancellationToken = default)
     {
         return await ExecuteWithAuthRetry(async () =>
         {
-            var response = await HttpClient.GetAsync(url);
-            var jsonString = await HandleResponse(response);
+            var response = await HttpClient.GetAsync(url, cancellationToken);
+            var jsonString = await HandleResponse(response, cancellationToken);
             return JsonSerializer.Deserialize<T>(jsonString, _jsonSerializerOptions)
                    ?? throw new HeimdallApiException("Failed to deserialize response.", response.StatusCode, url);
-        });
+        }, cancellationToken);
     }
 
-    private static async Task<string> HandleResponse(HttpResponseMessage response)
+    private static async Task<string> HandleResponse(HttpResponseMessage response, CancellationToken cancellationToken)
     {
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(cancellationToken);
+        var requestUrl = response.RequestMessage?.RequestUri?.ToString() ?? string.Empty;
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -44,38 +54,59 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
         {
             return content;
         }
-        if (response.StatusCode == HttpStatusCode.BadRequest ||
-            response.StatusCode == HttpStatusCode.InternalServerError ||
-            response.StatusCode == HttpStatusCode.ServiceUnavailable)
+
+        if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.InternalServerError or HttpStatusCode.ServiceUnavailable)
         {
-            var problem = JsonSerializer.Deserialize<ProblemDetails>(content)
-                ?? new ProblemDetails { Detail = "An error occurred while processing the request." };
-            throw new HeimdallApiException(problem, response.StatusCode, response.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
+            // Application Gateway may return HTML instead of JSON on 5xx errors.
+            // Attempt to parse as ProblemDetails, but fall back gracefully if body is not valid JSON.
+            ProblemDetails? problem = null;
+            try
+            {
+                problem = JsonSerializer.Deserialize<ProblemDetails>(content, ProblemDetailsOptions);
+            }
+            catch (JsonException)
+            {
+                // Body is not valid JSON (e.g. HTML error page from Application Gateway)
+            }
+
+            var details = problem ?? new ProblemDetails { Detail = $"Request failed with status code {(int)response.StatusCode} {response.StatusCode}: {TruncateBody(content)}" };
+            throw new HeimdallApiException(details, response.StatusCode, requestUrl);
         }
-        throw new HeimdallApiException($"Request failed with status code {response.StatusCode}: {content}", response.StatusCode, response.RequestMessage?.RequestUri?.ToString() ?? string.Empty);
+
+        // Handles 502 Bad Gateway, 504 Gateway Timeout, and any other non-success codes
+        throw new HeimdallApiException(
+            $"Request failed with status code {(int)response.StatusCode} {response.StatusCode}: {TruncateBody(content)}",
+            response.StatusCode,
+            requestUrl);
     }
 
+    private static string TruncateBody(string content, int maxLength = 200)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return "(empty body)";
+        // Collapse whitespace runs — useful for HTML error pages
+        var collapsed = Regex.Replace(content.Trim(), @"\s+", " ");
+        return collapsed.Length <= maxLength ? collapsed : collapsed[..maxLength] + "...";
+    }
 
-
-    private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc)
+    private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc, CancellationToken cancellationToken)
     {
         try
         {
-            await UpdateAccessTokenIfExpired();
+            await UpdateAccessTokenIfExpired(cancellationToken);
             return await operationFunc();
         }
         catch (UnauthorizedAccessException)
         {
-            await RefreshAccessToken();
+            await RefreshAccessToken(cancellationToken);
             return await operationFunc();
         }
     }
 
-    private async Task UpdateAccessTokenIfExpired()
+    private async Task UpdateAccessTokenIfExpired(CancellationToken cancellationToken)
     {
         if (_tokenExpiresOn == default || DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) > _tokenExpiresOn)
         {
-            await RefreshAccessToken();
+            await RefreshAccessToken(cancellationToken);
         }
     }
 
@@ -106,16 +137,16 @@ internal class HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, H
         return headers;
     }
 
-    private async Task RefreshAccessToken()
+    private async Task RefreshAccessToken(CancellationToken cancellationToken)
     {
-        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30));
+        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30), cancellationToken);
         try
         {
             // Check if another thread already refreshed while we were waiting
             if (_tokenExpiresOn != default && DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) <= _tokenExpiresOn)
                 return;
 
-            await accessTokenProvider.AcquireTokenAsync();
+            await accessTokenProvider.AcquireTokenAsync(cancellationToken);
             _tokenExpiresOn = accessTokenProvider.GetTokenExpiry();
 
             foreach (var header in accessTokenProvider.GetAccessHeaders())

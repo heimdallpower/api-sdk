@@ -14,7 +14,7 @@ The package is available on [NuGet](https://www.nuget.org/profiles/heimdall_powe
 dotnet add package HeimdallPower.Api.Client
 ```
 
-If you want DI integration and built-in resiliency, install:
+If you want DI integration and built-in resiliency (including retry), also install the Extensions package:
 
 ```bash
 dotnet add package HeimdallPower.Api.Client.Extensions
@@ -74,6 +74,65 @@ services.AddHeimdallPowerApiClient(options =>
 ```
 
 When no explicit `Address` is set, the SDK falls back to `HTTPS_PROXY`/`HTTP_PROXY`/`NO_PROXY` environment variables. The proxy applies to both API calls and token acquisition.
+
+## Error Handling
+
+### Resilience and retry
+
+**`HeimdallPower.Api.Client` (core package) does not retry automatically.** If you instantiate `HeimdallApiClient` directly (without DI), transient gateway errors such as 502/503/504 are thrown immediately as `HeimdallApiException`. Your application is responsible for any retry logic.
+
+**`HeimdallPower.Api.Client.Extensions` (DI package) adds full resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience) from `Microsoft.Extensions.Http.Resilience`. When you register the client with `AddHeimdallPowerApiClient`, the following pipeline is active automatically:
+
+| Layer | Behaviour |
+|---|---|
+| Retry | Up to **3 retries** with exponential back-off + jitter on all 5xx codes, 408, 429, and `HttpRequestException` |
+| Circuit breaker | Opens after sustained failures to avoid hammering an unavailable service |
+| Total request timeout | Caps the total time including retries |
+
+```csharp
+// Retries are handled automatically — no extra code needed.
+var dlr = await client.GetLatestHeimdallDlrAsync(lineId);
+```
+
+### Exceptions
+
+| Exception | When |
+|---|---|
+| `HeimdallApiException` | Non-success HTTP error (400, 403, 404, 500, 502, …). Check `StatusCode` for the HTTP status. |
+| `UnauthorizedAccessException` | Authentication failed after a token-refresh attempt. |
+| `OperationCanceledException` | The provided `CancellationToken` was cancelled. |
+
+```csharp
+try
+{
+    var dlr = await client.GetLatestHeimdallDlrAsync(lineId);
+}
+catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+{
+    // Line not found
+}
+catch (HeimdallApiException ex)
+{
+    // Other API error — ex.StatusCode contains the HTTP status
+}
+```
+
+### Cancellation and timeouts
+
+Every method accepts an optional `CancellationToken`. Cancellation is respected during the HTTP request.
+
+```csharp
+// Cancel after 10 seconds total
+using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+var dlr = await client.GetLatestHeimdallDlrAsync(lineId, cancellationToken: cts.Token);
+```
+
+To set a per-request HTTP timeout, configure `HttpClient.Timeout` and pass it to the constructor:
+
+```csharp
+var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+var client = new HeimdallApiClient(clientId, clientSecret, httpClient: httpClient);
+```
 
 ## License
 

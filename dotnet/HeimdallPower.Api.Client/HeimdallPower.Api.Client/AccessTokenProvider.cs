@@ -5,7 +5,7 @@ namespace HeimdallPower.Api.Client;
 
 internal interface IAccessTokenProvider
 {
-    Task AcquireTokenAsync();
+    Task AcquireTokenAsync(CancellationToken cancellationToken = default);
     DateTimeOffset GetTokenExpiry();
     IDictionary<string, string> GetAccessHeaders();
 }
@@ -36,13 +36,13 @@ internal class AccessTokenProvider(
 
     private AuthenticationResult? _authResult;
 
-    public async Task AcquireTokenAsync()
+    public async Task AcquireTokenAsync(CancellationToken cancellationToken = default)
     {
         try
         {
             _authResult = await _msalClient
                 .AcquireTokenForClient([scope])
-                .ExecuteAsync();
+                .ExecuteAsync(cancellationToken);
         }
         catch (MsalException ex)
         {
