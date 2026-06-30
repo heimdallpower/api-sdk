@@ -92,7 +92,9 @@ public interface IHeimdallApiClient
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
-    Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric");
+    /// <param name="cancellationToken">Token to cancel the request.</param>
+    /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
+    Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get icing data for the line within a time range, including maximum values and per-span/phase metrics.
@@ -102,7 +104,9 @@ public interface IHeimdallApiClient
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
-    Task<LineIcingsResponse> GetIcingsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric");
+    /// <param name="cancellationToken">Token to cancel the request.</param>
+    /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
+    Task<LineIcingsResponse> GetIcingsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.

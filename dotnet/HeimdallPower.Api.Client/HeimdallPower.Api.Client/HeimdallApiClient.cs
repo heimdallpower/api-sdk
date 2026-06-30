@@ -127,10 +127,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
-    public async Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
+    public async Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default)
     {
         var url = UrlBuilder.BuildSagAndClearanceUrl(lineId, from, to, unitSystem);
-        var response = await _heimdallApiClient.GetAsync<ApiResponse<LineSagAndClearancesResponse>>(url);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<LineSagAndClearancesResponse>>(url, cancellationToken);
         return response.Data;
     }
 
@@ -142,10 +143,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
-    public async Task<LineIcingsResponse> GetIcingsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
+    public async Task<LineIcingsResponse> GetIcingsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default)
     {
         var url = UrlBuilder.BuildIcingUrl(lineId, from, to, unitSystem);
-        var response = await _heimdallApiClient.GetAsync<ApiResponse<LineIcingsResponse>>(url);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<LineIcingsResponse>>(url, cancellationToken);
         return response.Data;
     }
 
