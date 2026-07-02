@@ -10,6 +10,24 @@ from heimdall_api_client.grid_insights_api_client.models.unit_system import Unit
 from heimdall_api_client.grid_insights_api_client.types import UNSET
 
 if TYPE_CHECKING:
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_apparent_power_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetApparentPowerResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_conductor_temperatures_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetConductorTemperaturesResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_currents_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetCurrentsResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_icing_forecast_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetIcingForecastResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_icing_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetIcingResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_apparent_power_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetLatestApparentPowerResponse200,
+    )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_conductor_temperature_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetLatestConductorTemperatureResponse200,
     )
@@ -18,6 +36,9 @@ if TYPE_CHECKING:
     )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_icing_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetLatestIcingResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_sag_and_clearance_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetSagAndClearanceResponse200,
     )
 
 
@@ -117,6 +138,178 @@ def get_latest_sag_and_clearance(
         status = int(response.status_code)
         raise HeimdallApiError(
             f"Error fetching latest sag and clearance: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_icing(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+    unit_system: UnitSystem | str | None = None,
+) -> GridInsightsV1LinesGetIcingResponse200:
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_icing as _get_icing,
+    )
+
+    unit_system_value = UNSET
+    if unit_system is not None:
+        unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
+
+    response = _get_icing.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
+        unit_system=unit_system_value,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching icing: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_sag_and_clearance(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+    unit_system: UnitSystem | str | None = None,
+) -> GridInsightsV1LinesGetSagAndClearanceResponse200:
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_sag_and_clearance as _get_sag_and_clearance,
+    )
+
+    unit_system_value = UNSET
+    if unit_system is not None:
+        unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
+
+    response = _get_sag_and_clearance.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
+        unit_system=unit_system_value,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching sag and clearance: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_apparent_power(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+) -> GridInsightsV1LinesGetApparentPowerResponse200:
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_apparent_power as _get_apparent_power,
+    )
+
+    response = _get_apparent_power.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching apparent power: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_latest_apparent_power(
+    client: AuthenticatedClient, line_id: UUID, region: str
+) -> GridInsightsV1LinesGetLatestApparentPowerResponse200:
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_latest_apparent_power as _get_latest_apparent_power,
+    )
+
+    response = _get_latest_apparent_power.sync_detailed(client=client, line_id=line_id, x_region=region)
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest apparent power: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_icing_forecast(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    unit_system: UnitSystem | str | None = None,
+) -> GridInsightsV1LinesGetIcingForecastResponse200:
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_icing_forecast as _get_icing_forecast,
+    )
+
+    unit_system_value = UNSET
+    if unit_system is not None:
+        unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
+
+    response = _get_icing_forecast.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        unit_system=unit_system_value,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching icing forecast: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_conductor_temperatures(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+) -> GridInsightsV1LinesGetConductorTemperaturesResponse200:
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_conductor_temperatures as _get_conductor_temperatures,
+    )
+
+    response = _get_conductor_temperatures.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching conductor temperatures: {status} {response.status_code.phrase}"
             f" - {body_preview(response.content)}",
             status_code=status,
         )

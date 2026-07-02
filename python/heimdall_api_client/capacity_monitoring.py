@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
@@ -19,11 +20,20 @@ from heimdall_api_client.capacity_monitoring_api_client.api.line import (
 from heimdall_api_client.errors import HeimdallApiError, body_preview
 
 if TYPE_CHECKING:
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_circuit_ratings_response_200 import (  # noqa: E501
+        CapacityMonitoringV1FacilitiesGetCircuitRatingsResponse200,
+    )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_response_200 import (  # noqa: E501
         CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200,
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_response_200 import (  # noqa: E501
         CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200,
+    )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_heimdall_aars_response_200 import (  # noqa: E501
+        CapacityMonitoringV1LinesGetHeimdallAarsResponse200,
+    )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_heimdall_dlrs_response_200 import (  # noqa: E501
+        CapacityMonitoringV1LinesGetHeimdallDlrsResponse200,
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_forecasts_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestHeimdallAarForecastsResponse200,
@@ -131,3 +141,88 @@ def get_latest_circuit_rating_forecasts(
             status_code=status,
         )
     return response.parsed
+
+
+def get_heimdall_dlrs(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+) -> CapacityMonitoringV1LinesGetHeimdallDlrsResponse200:
+    from heimdall_api_client.capacity_monitoring_api_client.api.line import (
+        capacity_monitoring_v1_lines_get_heimdall_dlrs as _get_heimdall_dlrs,
+    )
+
+    response = _get_heimdall_dlrs.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching Heimdall DLRs: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_heimdall_aars(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+) -> CapacityMonitoringV1LinesGetHeimdallAarsResponse200:
+    from heimdall_api_client.capacity_monitoring_api_client.api.line import (
+        capacity_monitoring_v1_lines_get_heimdall_aars as _get_heimdall_aars,
+    )
+
+    response = _get_heimdall_aars.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching Heimdall AARs: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_circuit_ratings(
+    client: AuthenticatedClient,
+    facility_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+) -> CapacityMonitoringV1FacilitiesGetCircuitRatingsResponse200:
+    from heimdall_api_client.capacity_monitoring_api_client.api.facility import (
+        capacity_monitoring_v1_facilities_get_circuit_ratings as _get_circuit_ratings,
+    )
+
+    response = _get_circuit_ratings.sync_detailed(
+        client=client,
+        facility_id=facility_id,
+        x_region=region,
+        from_timestamp=from_timestamp,
+        to_timestamp=to_timestamp,
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching circuit ratings: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
