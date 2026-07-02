@@ -168,8 +168,7 @@ def get_icing(
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
-            f"Error fetching icing: {status} {response.status_code.phrase}"
-            f" - {body_preview(response.content)}",
+            f"Error fetching icing: {status} {response.status_code.phrase} - {body_preview(response.content)}",
             status_code=status,
         )
     return response.parsed
@@ -230,8 +229,7 @@ def get_apparent_power(
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
-            f"Error fetching apparent power: {status} {response.status_code.phrase}"
-            f" - {body_preview(response.content)}",
+            f"Error fetching apparent power: {status} {response.status_code.phrase} - {body_preview(response.content)}",
             status_code=status,
         )
     return response.parsed
@@ -278,8 +276,7 @@ def get_icing_forecast(
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
-            f"Error fetching icing forecast: {status} {response.status_code.phrase}"
-            f" - {body_preview(response.content)}",
+            f"Error fetching icing forecast: {status} {response.status_code.phrase} - {body_preview(response.content)}",
             status_code=status,
         )
     return response.parsed

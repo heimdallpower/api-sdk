@@ -9,8 +9,8 @@ from heimdall_api_client import HeimdallApiError
 
 # "Heimdall Power Line" – d67d2205-6629-4bbd-aa9f-436bf22842ad
 _HEIMDALL_POWER_LINE_ID = uuid.UUID("d67d2205-6629-4bbd-aa9f-436bf22842ad")
-_FROM = datetime.datetime(2026, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
-_TO = datetime.datetime(2026, 1, 2, 0, 0, 0, tzinfo=datetime.timezone.utc)
+_FROM = datetime.datetime(2026, 1, 1, 0, 0, 0, tzinfo=datetime.UTC)
+_TO = datetime.datetime(2026, 1, 2, 0, 0, 0, tzinfo=datetime.UTC)
 
 
 @pytest.mark.integration
@@ -216,4 +216,3 @@ def test_get_apparent_power_all_readings_should_have_timestamps_within_requested
     for ap in apparent_power_result.data.apparent_powers:
         assert ap.timestamp >= _FROM, f"Timestamp {ap.timestamp} is before {_FROM}"
         assert ap.timestamp <= _TO, f"Timestamp {ap.timestamp} is after {_TO}"
-

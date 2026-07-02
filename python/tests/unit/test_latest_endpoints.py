@@ -101,18 +101,14 @@ class TestGetLatestConductorTemperature:
 
     def test_raises_404_error_on_not_found(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.grid_insights.get_latest_conductor_temperature", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.grid_insights.get_latest_conductor_temperature", side_effect=_raises_404()):
             with pytest.raises(HeimdallApiError) as exc_info:
                 client.get_latest_conductor_temperature(line_id=_LINE_ID)
         assert exc_info.value.status_code == 404
 
     def test_404_is_not_retried(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.grid_insights.get_latest_conductor_temperature", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.grid_insights.get_latest_conductor_temperature", side_effect=_raises_404()):
             with patch("time.sleep") as mock_sleep:
                 with pytest.raises(HeimdallApiError):
                     client.get_latest_conductor_temperature(line_id=_LINE_ID)
@@ -310,18 +306,14 @@ class TestGetLatestHeimdallDlrForecasts:
 
     def test_raises_404_error_on_not_found(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.client.get_latest_heimdall_dlr_forecasts", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.client.get_latest_heimdall_dlr_forecasts", side_effect=_raises_404()):
             with pytest.raises(HeimdallApiError) as exc_info:
                 client.get_latest_heimdall_dlr_forecasts(line_id=_LINE_ID)
         assert exc_info.value.status_code == 404
 
     def test_404_is_not_retried(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.client.get_latest_heimdall_dlr_forecasts", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.client.get_latest_heimdall_dlr_forecasts", side_effect=_raises_404()):
             with patch("time.sleep") as mock_sleep:
                 with pytest.raises(HeimdallApiError):
                     client.get_latest_heimdall_dlr_forecasts(line_id=_LINE_ID)
@@ -343,18 +335,14 @@ class TestGetLatestHeimdallAarForecasts:
 
     def test_raises_404_error_on_not_found(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.client.get_latest_heimdall_arr_forecasts", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.client.get_latest_heimdall_arr_forecasts", side_effect=_raises_404()):
             with pytest.raises(HeimdallApiError) as exc_info:
                 client.get_latest_heimdall_aar_forecasts(line_id=_LINE_ID)
         assert exc_info.value.status_code == 404
 
     def test_404_is_not_retried(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.client.get_latest_heimdall_arr_forecasts", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.client.get_latest_heimdall_arr_forecasts", side_effect=_raises_404()):
             with patch("time.sleep") as mock_sleep:
                 with pytest.raises(HeimdallApiError):
                     client.get_latest_heimdall_aar_forecasts(line_id=_LINE_ID)
@@ -370,26 +358,20 @@ class TestGetLatestCircuitRating:
     def test_returns_parsed_response_on_200(self):
         client = _make_client()
         expected = MagicMock()
-        with patch(
-            "heimdall_api_client.capacity_monitoring.get_latest_circuit_ratring", return_value=expected
-        ):
+        with patch("heimdall_api_client.capacity_monitoring.get_latest_circuit_ratring", return_value=expected):
             result = client.get_latest_circuit_rating(facility_id=_FACILITY_ID)
         assert result is expected
 
     def test_raises_404_error_on_not_found(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.capacity_monitoring.get_latest_circuit_ratring", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.capacity_monitoring.get_latest_circuit_ratring", side_effect=_raises_404()):
             with pytest.raises(HeimdallApiError) as exc_info:
                 client.get_latest_circuit_rating(facility_id=_FACILITY_ID)
         assert exc_info.value.status_code == 404
 
     def test_404_is_not_retried(self):
         client = _make_client()
-        with patch(
-            "heimdall_api_client.capacity_monitoring.get_latest_circuit_ratring", side_effect=_raises_404()
-        ):
+        with patch("heimdall_api_client.capacity_monitoring.get_latest_circuit_ratring", side_effect=_raises_404()):
             with patch("time.sleep") as mock_sleep:
                 with pytest.raises(HeimdallApiError):
                     client.get_latest_circuit_rating(facility_id=_FACILITY_ID)
@@ -432,4 +414,3 @@ class TestGetLatestCircuitRatingForecasts:
                 with pytest.raises(HeimdallApiError):
                     client.get_latest_circuit_rating_forecasts(facility_id=_FACILITY_ID)
         mock_sleep.assert_not_called()
-

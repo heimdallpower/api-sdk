@@ -166,4 +166,3 @@ def test_get_circuit_ratings_all_circuit_ratings_should_have_timestamps_within_r
 def test_get_circuit_ratings_all_circuit_ratings_should_have_positive_values(circuit_ratings_result):
     for cr in circuit_ratings_result.data.circuit_ratings:
         assert cr.value > 0, f"Circuit rating value {cr.value} at {cr.timestamp} should be positive"
-

@@ -164,8 +164,7 @@ def get_heimdall_dlrs(
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
-            f"Error fetching Heimdall DLRs: {status} {response.status_code.phrase}"
-            f" - {body_preview(response.content)}",
+            f"Error fetching Heimdall DLRs: {status} {response.status_code.phrase} - {body_preview(response.content)}",
             status_code=status,
         )
     return response.parsed
@@ -192,8 +191,7 @@ def get_heimdall_aars(
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
-            f"Error fetching Heimdall AARs: {status} {response.status_code.phrase}"
-            f" - {body_preview(response.content)}",
+            f"Error fetching Heimdall AARs: {status} {response.status_code.phrase} - {body_preview(response.content)}",
             status_code=status,
         )
     return response.parsed
@@ -225,4 +223,3 @@ def get_circuit_ratings(
             status_code=status,
         )
     return response.parsed
-
