@@ -11,8 +11,8 @@ from heimdall_api_client import HeimdallApiError
 _HEIMDALL_POWER_LINE_ID = uuid.UUID("d67d2205-6629-4bbd-aa9f-436bf22842ad")
 # "Heimdall Power Line" facility – c0ad547d-0d06-4f4c-b5dc-d319430902d2
 _HEIMDALL_POWER_FACILITY_ID = uuid.UUID("c0ad547d-0d06-4f4c-b5dc-d319430902d2")
-_FROM = datetime.datetime(2026, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
-_TO = datetime.datetime(2026, 1, 2, 0, 0, 0, tzinfo=datetime.timezone.utc)
+_FROM = datetime.datetime(2026, 1, 1, 0, 0, 0, tzinfo=datetime.UTC)
+_TO = datetime.datetime(2026, 1, 2, 0, 0, 0, tzinfo=datetime.UTC)
 
 
 @pytest.mark.integration

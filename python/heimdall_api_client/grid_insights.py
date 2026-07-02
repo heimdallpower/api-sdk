@@ -16,9 +16,6 @@ if TYPE_CHECKING:
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_conductor_temperatures_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetConductorTemperaturesResponse200,
     )
-    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_currents_response_200 import (  # noqa: E501
-        GridInsightsV1LinesGetCurrentsResponse200,
-    )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_icing_forecast_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetIcingForecastResponse200,
     )

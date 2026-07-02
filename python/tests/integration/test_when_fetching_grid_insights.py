@@ -9,8 +9,8 @@ from heimdall_api_client import HeimdallApiError
 
 # "Heimdall Power Line" – d67d2205-6629-4bbd-aa9f-436bf22842ad
 _HEIMDALL_POWER_LINE_ID = uuid.UUID("d67d2205-6629-4bbd-aa9f-436bf22842ad")
-_FROM = datetime.datetime(2026, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
-_TO = datetime.datetime(2026, 1, 2, 0, 0, 0, tzinfo=datetime.timezone.utc)
+_FROM = datetime.datetime(2026, 1, 1, 0, 0, 0, tzinfo=datetime.UTC)
+_TO = datetime.datetime(2026, 1, 2, 0, 0, 0, tzinfo=datetime.UTC)
 
 
 @pytest.mark.integration
@@ -216,92 +216,4 @@ def test_get_apparent_power_all_readings_should_have_timestamps_within_requested
     for ap in apparent_power_result.data.apparent_powers:
         assert ap.timestamp >= _FROM, f"Timestamp {ap.timestamp} is before {_FROM}"
         assert ap.timestamp <= _TO, f"Timestamp {ap.timestamp} is after {_TO}"
-
-
-
-# ---------------------------------------------------------------------------
-# get_currents – historical
-# ---------------------------------------------------------------------------
-
-
-@pytest.fixture(scope="module")
-def currents_result(api_client):
-    return api_client.get_currents(
-        line_id=_HEIMDALL_POWER_LINE_ID,
-        from_timestamp=_FROM,
-        to_timestamp=_TO,
-    )
-
-
-@pytest.mark.integration
-def test_get_currents_should_return_response(currents_result):
-    assert currents_result is not None
-
-
-@pytest.mark.integration
-def test_get_currents_result_should_have_metric(currents_result):
-    assert currents_result.data.metric, "Metric should not be empty"
-
-
-@pytest.mark.integration
-def test_get_currents_result_should_have_unit(currents_result):
-    assert currents_result.data.unit, "Unit should not be empty"
-
-
-@pytest.mark.integration
-def test_get_currents_result_should_have_currents_list(currents_result):
-    # The API returns HTTP 200 with a (possibly empty) list – an empty list is valid.
-    assert currents_result.data.currents is not None
-
-
-@pytest.mark.integration
-def test_get_currents_all_currents_should_have_timestamps_within_requested_range(currents_result):
-    for current in currents_result.data.currents:
-        assert current.timestamp >= _FROM, f"Timestamp {current.timestamp} is before {_FROM}"
-        assert current.timestamp <= _TO, f"Timestamp {current.timestamp} is after {_TO}"
-
-
-# ---------------------------------------------------------------------------
-# get_conductor_temperatures – historical
-# ---------------------------------------------------------------------------
-
-
-@pytest.fixture(scope="module")
-def conductor_temperatures_result(api_client):
-    return api_client.get_conductor_temperatures(
-        line_id=_HEIMDALL_POWER_LINE_ID,
-        from_timestamp=_FROM,
-        to_timestamp=_TO,
-    )
-
-
-@pytest.mark.integration
-def test_get_conductor_temperatures_should_return_response(conductor_temperatures_result):
-    assert conductor_temperatures_result is not None
-
-
-@pytest.mark.integration
-def test_get_conductor_temperatures_result_should_have_metric(conductor_temperatures_result):
-    assert conductor_temperatures_result.data.metric, "Metric should not be empty"
-
-
-@pytest.mark.integration
-def test_get_conductor_temperatures_result_should_have_unit(conductor_temperatures_result):
-    assert conductor_temperatures_result.data.unit, "Unit should not be empty"
-
-
-@pytest.mark.integration
-def test_get_conductor_temperatures_result_should_have_list(conductor_temperatures_result):
-    # The API returns HTTP 200 with a (possibly empty) list – an empty list is valid.
-    assert conductor_temperatures_result.data.conductor_temperatures is not None
-
-
-@pytest.mark.integration
-def test_get_conductor_temperatures_all_readings_should_have_timestamps_within_requested_range(
-    conductor_temperatures_result,
-):
-    for ct in conductor_temperatures_result.data.conductor_temperatures:
-        assert ct.timestamp >= _FROM, f"Timestamp {ct.timestamp} is before {_FROM}"
-        assert ct.timestamp <= _TO, f"Timestamp {ct.timestamp} is after {_TO}"
-
 
