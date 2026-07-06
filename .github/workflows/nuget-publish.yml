@@ -8,6 +8,9 @@ jobs:
   publish:
     name: Publish to NuGet
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # Allow actions/checkout to fetch the repository
+      id-token: write # Enable GitHub OIDC token issuance for NuGet Trusted Publishing
     defaults:
       run:
         working-directory: dotnet
@@ -42,11 +45,15 @@ jobs:
           dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client/HeimdallPower.Api.Client.csproj --configuration Release --no-build -o out /p:PackageVersion=$VERSION
           dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client.Extensions/HeimdallPower.Api.Client.Extensions.csproj --configuration Release --no-build -o out /p:PackageVersion=$VERSION
 
+      - name: NuGet login (OIDC -> short-lived API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ vars.NUGET_USER }}
+
       - name: Publish the package to nuget.org
         run: |
           for file in out/*.nupkg; do
             echo "Publishing $file"
-            dotnet nuget push "$file" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "$file" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json --skip-duplicate
           done
-        env:
-          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_API_KEY }}
