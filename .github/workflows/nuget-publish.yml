@@ -9,6 +9,7 @@ jobs:
     name: Publish to NuGet
     runs-on: ubuntu-latest
     permissions:
+      contents: read # Allow actions/checkout to fetch the repository
       id-token: write # Enable GitHub OIDC token issuance for NuGet Trusted Publishing
     defaults:
       run:
@@ -54,5 +55,5 @@ jobs:
         run: |
           for file in out/*.nupkg; do
             echo "Publishing $file"
-            dotnet nuget push "$file" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+            dotnet nuget push "$file" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json --skip-duplicate
           done
