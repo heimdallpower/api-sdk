@@ -51,7 +51,7 @@ ci: add conventional commits PR title validation
 - Contributions should be made as pull requests into `main`.
 - Releases are managed using GitHub Releases.
 - Tags must follow the format: `v<MAJOR>.<MINOR>.<PATCH>` (e.g., `v1.2.3`)
-- A GitHub Release must be published for the package to be built and pushed to NuGet
+- A GitHub Release must be published for the packages to be built and published: the .NET package is pushed to [NuGet](https://www.nuget.org/) and the Python package to [PyPI](https://pypi.org/project/heimdallpower-api-client/) (both via trusted publishing / OIDC, no stored API tokens)
 - The `v` prefix is automatically stripped when packaging
 
 ---
