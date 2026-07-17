@@ -2,6 +2,7 @@
 name = "heimdallpower-api-client"
 version = "0.1.0"
 description = "Python SDK for interacting with the Heimdall Power External API"
+readme = "README.md"
 authors = [
   { name = "Heimdall Power", email = "software-developers@heimdallpower.com" }
 ]
@@ -14,6 +15,12 @@ dependencies = [
   "attrs (>=25.3.0,<26.0.0)",
   "python-dateutil (>=2.9.0.post0,<3.0.0)"
 ]
+
+[project.urls]
+Homepage = "https://developer.heimdallcloud.com"
+Documentation = "https://developer.heimdallcloud.com/docs/welcome"
+Repository = "https://github.com/heimdallpower/api-sdk"
+Changelog = "https://github.com/heimdallpower/api-sdk/releases"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.15.20"
