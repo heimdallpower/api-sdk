@@ -1,6 +1,6 @@
 # Heimdall API SDK for Python
 
-This folder contains the Python SDK for accessing the [Heimdall Power External API](https://developer.heimdallcloud.com/docs/welcome).
+The official Python SDK for accessing the [Heimdall Power External API](https://developer.heimdallcloud.com/docs/welcome).
 
 ## Getting Started
 
