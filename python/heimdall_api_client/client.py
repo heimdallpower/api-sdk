@@ -4,6 +4,7 @@ import datetime
 import logging
 import time
 from collections.abc import Callable
+from importlib.metadata import PackageNotFoundError, version
 from typing import TYPE_CHECKING, TypeVar
 from uuid import UUID
 
@@ -57,6 +58,12 @@ if TYPE_CHECKING:
 
 
 _MAX_RETRY_ATTEMPTS = 3
+
+try:
+    _SDK_VERSION = version("heimdallpower-api-client")
+except PackageNotFoundError:
+    # Running from source (e.g. a repo checkout) rather than an installed distribution
+    _SDK_VERSION = "0.0.0"
 
 
 class HeimdallApiClient:
@@ -144,7 +151,7 @@ class HeimdallApiClient:
 
         default_metadata = {
             "x-client-name": "python-sdk",
-            "x-client-version": "0.0.0",
+            "x-client-version": _SDK_VERSION,
         }
 
         # Ensure user values override the defaults

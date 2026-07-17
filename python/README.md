@@ -18,10 +18,16 @@ poetry install
 
 ### Installing the SDK
 
-The package can be downloaded and installed using the GitHub release artifacts:
+The package is published to [PyPI](https://pypi.org/project/heimdallpower-api-client/):
 
 ```bash
-pip install https://github.com/heimdallpower/api-sdk/releases/download/v1.2.3/heimdall_api_client-1.2.3-py3-none-any.whl
+pip install heimdallpower-api-client
+```
+
+Alternatively, it can be downloaded and installed using the GitHub release artifacts:
+
+```bash
+pip install https://github.com/heimdallpower/api-sdk/releases/download/v1.2.3/heimdallpower_api_client-1.2.3-py3-none-any.whl
 ```
 
 > Replace the version and filename with the latest from [Releases](https://github.com/heimdallpower/api-sdk/releases)

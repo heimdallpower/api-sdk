@@ -1,5 +1,5 @@
 [project]
-name = "heimdall-api-client"
+name = "heimdallpower-api-client"
 version = "0.1.0"
 description = "Python SDK for interacting with the Heimdall Power External API"
 authors = [
