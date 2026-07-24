@@ -23,7 +23,7 @@ Repository = "https://github.com/heimdallpower/api-sdk"
 Changelog = "https://github.com/heimdallpower/api-sdk/releases"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.15.22"
+ruff = "^0.16.0"
 pytest = "^9.1.1"
 
 [tool.poetry]
