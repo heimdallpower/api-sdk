@@ -53,6 +53,9 @@ nunit-*.xml
 # vs code
 .vscode/
 
+# --- Visual Studio ---
+.vs/
+
 # --- Python-specific ignore rules ---
 
 # Byte-compiled / cache

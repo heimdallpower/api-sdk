@@ -1,0 +1,19 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/examples/">
+    <Project Path="examples/Api.Client.Examples/Api.Client.Examples.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/integration/">
+    <Project Path="tests/integration/HeimdallPower.Api.Client.IntegrationTests/HeimdallPower.Api.Client.IntegrationTests.csproj" />
+  </Folder>
+  <Folder Name="/tests/unit/">
+    <Project Path="tests/unit/HeimdallPower.Api.Client.UnitTests/HeimdallPower.Api.Client.UnitTests.csproj" />
+  </Folder>
+  <Project Path="HeimdallPower.Api.Client/HeimdallPower.Api.Client.Extensions/HeimdallPower.Api.Client.Extensions.csproj" />
+  <Project Path="HeimdallPower.Api.Client/HeimdallPower.Api.Client/HeimdallPower.Api.Client.csproj" />
+</Solution>
