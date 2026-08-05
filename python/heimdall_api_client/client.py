@@ -237,23 +237,37 @@ class HeimdallApiClient:
             lambda: get_assets(client=self._get_authenticated_client(), x_region=self._get_region())
         )
 
-    def get_latest_heimdall_dlr(self, line_id: UUID) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
+    def get_latest_heimdall_dlr(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
         """
         Returns the latest Heimdall DLR (Dynamic Line rating) data.
+
+        `since` bounds how old the returned value may be.
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_dlr(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
-    def get_latest_heimdall_aar(self, line_id: UUID) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
+    def get_latest_heimdall_aar(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
         """
         Returns the latest Heimdall AAR (Available Ampacity Rating) data.
+
+        `since` bounds how old the returned value may be.
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_aar(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
@@ -282,16 +296,21 @@ class HeimdallApiClient:
         )
 
     def get_latest_circuit_rating(
-        self, facility_id: UUID
+        self, facility_id: UUID, since: datetime.datetime | None = None
     ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200:
         """
         Returns the latest circuit rating for a given facility.
+
+        `since` bounds how old the returned value may be.
         """
         from heimdall_api_client.capacity_monitoring import get_latest_circuit_ratring
 
         return self._execute_with_retry(
             lambda: get_latest_circuit_ratring(
-                client=self._get_authenticated_client(), facility_id=facility_id, x_region=self._get_region()
+                client=self._get_authenticated_client(),
+                facility_id=facility_id,
+                x_region=self._get_region(),
+                since=since,
             )
         )
 

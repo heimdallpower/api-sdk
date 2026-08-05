@@ -53,9 +53,17 @@ if TYPE_CHECKING:
 
 
 def get_latest_heimdall_dlr(
-    client: AuthenticatedClient, line_id: UUID, region: str
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    since: datetime.datetime | None = None,
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
-    response = get_latest_dlr.sync_detailed(client=client, line_id=line_id, x_region=region)
+    response = get_latest_dlr.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        since=UNSET if since is None else as_zulu(since),
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
@@ -67,9 +75,17 @@ def get_latest_heimdall_dlr(
 
 
 def get_latest_heimdall_aar(
-    client: AuthenticatedClient, line_id: UUID, region: str
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    since: datetime.datetime | None = None,
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
-    response = get_latest_aar.sync_detailed(client=client, line_id=line_id, x_region=region)
+    response = get_latest_aar.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        since=UNSET if since is None else as_zulu(since),
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
@@ -109,13 +125,21 @@ def get_latest_heimdall_arr_forecasts(
 
 
 def get_latest_circuit_ratring(
-    client: AuthenticatedClient, facility_id: UUID, x_region: str
+    client: AuthenticatedClient,
+    facility_id: UUID,
+    x_region: str,
+    since: datetime.datetime | None = None,
 ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200:
     from heimdall_api_client.capacity_monitoring_api_client.api.facility import (
         capacity_monitoring_v1_facilities_get_latest_circuit_rating as get_latest_circuit_rating,
     )
 
-    response = get_latest_circuit_rating.sync_detailed(client=client, facility_id=facility_id, x_region=x_region)
+    response = get_latest_circuit_rating.sync_detailed(
+        client=client,
+        facility_id=facility_id,
+        x_region=x_region,
+        since=UNSET if since is None else as_zulu(since),
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(

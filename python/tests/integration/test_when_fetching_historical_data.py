@@ -162,6 +162,28 @@ def test_should_return_icing_forecast(api_client, line_id, unit_system):
 
 
 @pytest.mark.integration
+@pytest.mark.parametrize("method_name", ["get_latest_heimdall_dlr", "get_latest_heimdall_aar", "get_latest_icing"])
+def test_should_accept_since_on_latest_endpoints(api_client, line_id, method_name):
+    """`since` is serialized with the same isoformat() the API rejects unless normalized."""
+    since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=6)
+
+    _assert_endpoint_responds(
+        lambda: getattr(api_client, method_name)(line_id, since=since),
+        f"{method_name} with since={since.isoformat()}",
+    )
+
+
+@pytest.mark.integration
+def test_should_accept_since_on_latest_circuit_rating(api_client, facility_id):
+    since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=6)
+
+    _assert_endpoint_responds(
+        lambda: api_client.get_latest_circuit_rating(facility_id, since=since),
+        f"latest circuit rating with since={since.isoformat()}",
+    )
+
+
+@pytest.mark.integration
 def test_should_reject_window_longer_than_30_days(api_client, line_id):
     """The API caps the range at 30 days; the SDK surfaces that as HeimdallApiError."""
     to_timestamp = datetime.datetime.now(datetime.UTC)
