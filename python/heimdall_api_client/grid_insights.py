@@ -4,6 +4,7 @@ import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from heimdall_api_client._timestamps import as_zulu
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
 from heimdall_api_client.errors import HeimdallApiError, body_preview
 from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
@@ -15,6 +16,9 @@ if TYPE_CHECKING:
     )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_conductor_temperatures_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetConductorTemperaturesResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_currents_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetCurrentsResponse200,
     )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_icing_forecast_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetIcingForecastResponse200,
@@ -89,7 +93,7 @@ def get_latest_icing(
     if unit_system is not None:
         unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
 
-    since_value = UNSET if since is None else since
+    since_value = UNSET if since is None else as_zulu(since)
 
     response = get_latest_icing.sync_detailed(
         client=client,
@@ -122,7 +126,7 @@ def get_latest_sag_and_clearance(
     if unit_system is not None:
         unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
 
-    since_value = UNSET if since is None else since
+    since_value = UNSET if since is None else as_zulu(since)
 
     response = get_latest_sag_and_clearance.sync_detailed(
         client=client,
@@ -161,8 +165,8 @@ def get_icing(
         client=client,
         line_id=line_id,
         x_region=region,
-        from_timestamp=from_timestamp,
-        to_timestamp=to_timestamp,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
         unit_system=unit_system_value,
     )
     if response.status_code != 200:
@@ -194,8 +198,8 @@ def get_sag_and_clearance(
         client=client,
         line_id=line_id,
         x_region=region,
-        from_timestamp=from_timestamp,
-        to_timestamp=to_timestamp,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
         unit_system=unit_system_value,
     )
     if response.status_code != 200:
@@ -223,13 +227,40 @@ def get_apparent_power(
         client=client,
         line_id=line_id,
         x_region=region,
-        from_timestamp=from_timestamp,
-        to_timestamp=to_timestamp,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
     )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
             f"Error fetching apparent power: {status} {response.status_code.phrase} - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_currents(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    from_timestamp: datetime.datetime,
+    to_timestamp: datetime.datetime,
+) -> GridInsightsV1LinesGetCurrentsResponse200:
+    from heimdall_api_client.grid_insights_api_client.api.line import (
+        grid_insights_v1_lines_get_currents as _get_currents,
+    )
+
+    response = _get_currents.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching currents: {status} {response.status_code.phrase} - {body_preview(response.content)}",
             status_code=status,
         )
     return response.parsed
@@ -288,17 +319,23 @@ def get_conductor_temperatures(
     region: str,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    unit_system: UnitSystem | str | None = None,
 ) -> GridInsightsV1LinesGetConductorTemperaturesResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_conductor_temperatures as _get_conductor_temperatures,
     )
 
+    unit_system_value = UNSET
+    if unit_system is not None:
+        unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
+
     response = _get_conductor_temperatures.sync_detailed(
         client=client,
         line_id=line_id,
         x_region=region,
-        from_timestamp=from_timestamp,
-        to_timestamp=to_timestamp,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
+        unit_system=unit_system_value,
     )
     if response.status_code != 200:
         status = int(response.status_code)

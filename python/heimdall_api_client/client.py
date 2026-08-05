@@ -22,6 +22,7 @@ from heimdall_api_client.capacity_monitoring import (
     get_latest_heimdall_dlr,
     get_latest_heimdall_dlr_forecasts,
 )
+from heimdall_api_client.capacity_monitoring_api_client.models.quantity import Quantity
 from heimdall_api_client.errors import HeimdallApiError
 from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
 
@@ -402,6 +403,7 @@ class HeimdallApiClient:
         line_id: UUID,
         from_timestamp: datetime.datetime,
         to_timestamp: datetime.datetime,
+        unit_system: UnitSystem | str | None = None,
     ) -> GridInsightsV1LinesGetConductorTemperaturesResponse200:
         """
         Returns historical conductor temperature measurements for a given line.
@@ -415,6 +417,7 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 from_timestamp=from_timestamp,
                 to_timestamp=to_timestamp,
+                unit_system=unit_system,
             )
         )
 
@@ -423,6 +426,7 @@ class HeimdallApiClient:
         line_id: UUID,
         from_timestamp: datetime.datetime,
         to_timestamp: datetime.datetime,
+        quantity: Quantity | str | None = None,
     ) -> CapacityMonitoringV1LinesGetHeimdallDlrsResponse200:
         """
         Returns historical Heimdall DLR (Dynamic Line Rating) values for a given line.
@@ -434,6 +438,7 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 from_timestamp=from_timestamp,
                 to_timestamp=to_timestamp,
+                quantity=quantity,
             )
         )
 
@@ -442,6 +447,7 @@ class HeimdallApiClient:
         line_id: UUID,
         from_timestamp: datetime.datetime,
         to_timestamp: datetime.datetime,
+        quantity: Quantity | str | None = None,
     ) -> CapacityMonitoringV1LinesGetHeimdallAarsResponse200:
         """
         Returns historical Heimdall AAR (Available Ampacity Rating) values for a given line.
@@ -453,6 +459,7 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 from_timestamp=from_timestamp,
                 to_timestamp=to_timestamp,
+                quantity=quantity,
             )
         )
 
@@ -461,6 +468,7 @@ class HeimdallApiClient:
         facility_id: UUID,
         from_timestamp: datetime.datetime,
         to_timestamp: datetime.datetime,
+        quantity: Quantity | str | None = None,
     ) -> CapacityMonitoringV1FacilitiesGetCircuitRatingsResponse200:
         """
         Returns historical circuit ratings for a given facility.
@@ -472,6 +480,7 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 from_timestamp=from_timestamp,
                 to_timestamp=to_timestamp,
+                quantity=quantity,
             )
         )
 

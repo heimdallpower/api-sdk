@@ -4,6 +4,7 @@ import datetime
 from typing import TYPE_CHECKING
 from uuid import UUID
 
+from heimdall_api_client._timestamps import as_zulu
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
 from heimdall_api_client.capacity_monitoring_api_client.api.line import (
     capacity_monitoring_v1_lines_get_latest_heimdall_aar as get_latest_aar,
@@ -17,6 +18,8 @@ from heimdall_api_client.capacity_monitoring_api_client.api.line import (
 from heimdall_api_client.capacity_monitoring_api_client.api.line import (
     capacity_monitoring_v1_lines_get_latest_heimdall_dlr_forecasts as get_latest_dlr_forecasts,
 )
+from heimdall_api_client.capacity_monitoring_api_client.models.quantity import Quantity
+from heimdall_api_client.capacity_monitoring_api_client.types import UNSET
 from heimdall_api_client.errors import HeimdallApiError, body_preview
 
 if TYPE_CHECKING:
@@ -149,17 +152,23 @@ def get_heimdall_dlrs(
     region: str,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    quantity: Quantity | str | None = None,
 ) -> CapacityMonitoringV1LinesGetHeimdallDlrsResponse200:
     from heimdall_api_client.capacity_monitoring_api_client.api.line import (
         capacity_monitoring_v1_lines_get_heimdall_dlrs as _get_heimdall_dlrs,
     )
 
+    quantity_value = UNSET
+    if quantity is not None:
+        quantity_value = quantity if isinstance(quantity, Quantity) else Quantity(quantity)
+
     response = _get_heimdall_dlrs.sync_detailed(
         client=client,
         line_id=line_id,
         x_region=region,
-        from_timestamp=from_timestamp,
-        to_timestamp=to_timestamp,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
+        quantity=quantity_value,
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -176,17 +185,23 @@ def get_heimdall_aars(
     region: str,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    quantity: Quantity | str | None = None,
 ) -> CapacityMonitoringV1LinesGetHeimdallAarsResponse200:
     from heimdall_api_client.capacity_monitoring_api_client.api.line import (
         capacity_monitoring_v1_lines_get_heimdall_aars as _get_heimdall_aars,
     )
 
+    quantity_value = UNSET
+    if quantity is not None:
+        quantity_value = quantity if isinstance(quantity, Quantity) else Quantity(quantity)
+
     response = _get_heimdall_aars.sync_detailed(
         client=client,
         line_id=line_id,
         x_region=region,
-        from_timestamp=from_timestamp,
-        to_timestamp=to_timestamp,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
+        quantity=quantity_value,
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -203,17 +218,23 @@ def get_circuit_ratings(
     region: str,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    quantity: Quantity | str | None = None,
 ) -> CapacityMonitoringV1FacilitiesGetCircuitRatingsResponse200:
     from heimdall_api_client.capacity_monitoring_api_client.api.facility import (
         capacity_monitoring_v1_facilities_get_circuit_ratings as _get_circuit_ratings,
     )
 
+    quantity_value = UNSET
+    if quantity is not None:
+        quantity_value = quantity if isinstance(quantity, Quantity) else Quantity(quantity)
+
     response = _get_circuit_ratings.sync_detailed(
         client=client,
         facility_id=facility_id,
         x_region=region,
-        from_timestamp=from_timestamp,
-        to_timestamp=to_timestamp,
+        from_timestamp=as_zulu(from_timestamp),
+        to_timestamp=as_zulu(to_timestamp),
+        quantity=quantity_value,
     )
     if response.status_code != 200:
         status = int(response.status_code)
