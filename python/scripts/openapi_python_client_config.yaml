@@ -1,2 +1,11 @@
 # This file is used to configure the OpenAPI Python client generation process.
 meta: none # Igonre the project metadata
+
+# openapi-python-client formats its own output with these hooks. Its defaults
+# invoke the bare `ruff` executable, which silently no-ops when ruff is
+# installed but its Scripts directory is not on PATH -- producing unformatted
+# generated code and a huge spurious diff. Invoking it through the interpreter
+# that runs the generator makes the hooks independent of PATH.
+post_hooks:
+  - "python -m ruff check . --fix-only --extend-select=I"
+  - "python -m ruff format ."

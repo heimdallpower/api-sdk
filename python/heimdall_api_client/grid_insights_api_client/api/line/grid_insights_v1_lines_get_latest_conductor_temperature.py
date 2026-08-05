@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 from typing import Any, cast
 from urllib.parse import quote
@@ -22,6 +23,7 @@ def _get_kwargs(
     line_id: UUID,
     *,
     unit_system: UnitSystem | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> dict[str, Any]:
@@ -36,6 +38,11 @@ def _get_kwargs(
         json_unit_system = unit_system.value
 
     params["unit_system"] = json_unit_system
+
+    json_since: str | Unset = UNSET
+    if not isinstance(since, Unset):
+        json_since = since.isoformat()
+    params["since"] = json_since
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -104,6 +111,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
@@ -120,6 +128,7 @@ def sync_detailed(
     Args:
         line_id (UUID):
         unit_system (UnitSystem | Unset):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -134,6 +143,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         line_id=line_id,
         unit_system=unit_system,
+        since=since,
         x_region=x_region,
     )
 
@@ -149,6 +159,7 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
@@ -165,6 +176,7 @@ def sync(
     Args:
         line_id (UUID):
         unit_system (UnitSystem | Unset):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -180,6 +192,7 @@ def sync(
         line_id=line_id,
         client=client,
         unit_system=unit_system,
+        since=since,
         x_region=x_region,
     ).parsed
 
@@ -189,6 +202,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
@@ -205,6 +219,7 @@ async def asyncio_detailed(
     Args:
         line_id (UUID):
         unit_system (UnitSystem | Unset):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -219,6 +234,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         line_id=line_id,
         unit_system=unit_system,
+        since=since,
         x_region=x_region,
     )
 
@@ -232,6 +248,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
@@ -248,6 +265,7 @@ async def asyncio(
     Args:
         line_id (UUID):
         unit_system (UnitSystem | Unset):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -264,6 +282,7 @@ async def asyncio(
             line_id=line_id,
             client=client,
             unit_system=unit_system,
+            since=since,
             x_region=x_region,
         )
     ).parsed

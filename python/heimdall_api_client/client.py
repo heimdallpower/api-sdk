@@ -14,11 +14,15 @@ from heimdall_api_client.assets import get_assets
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
 from heimdall_api_client.auth import AuthService
 from heimdall_api_client.capacity_monitoring import (
+    get_circuit_ratings,
+    get_heimdall_aars,
+    get_heimdall_dlrs,
     get_latest_heimdall_aar,
     get_latest_heimdall_arr_forecasts,
     get_latest_heimdall_dlr,
     get_latest_heimdall_dlr_forecasts,
 )
+from heimdall_api_client.capacity_monitoring_api_client.models.quantity import Quantity
 from heimdall_api_client.errors import HeimdallApiError
 from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
 
@@ -28,11 +32,20 @@ if TYPE_CHECKING:
     from heimdall_api_client.assets_api_client.models.assets_v1_get_assets_response_200 import (
         AssetsV1GetAssetsResponse200,
     )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_circuit_ratings_response_200 import (  # noqa: E501
+        CapacityMonitoringV1FacilitiesGetCircuitRatingsResponse200,
+    )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts_response_200 import (  # noqa: E501
         CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200,
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_response_200 import (  # noqa: E501
         CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200,
+    )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_heimdall_aars_response_200 import (  # noqa: E501
+        CapacityMonitoringV1LinesGetHeimdallAarsResponse200,
+    )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_heimdall_dlrs_response_200 import (  # noqa: E501
+        CapacityMonitoringV1LinesGetHeimdallDlrsResponse200,
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_forecasts_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestHeimdallAarForecastsResponse200,
@@ -46,6 +59,24 @@ if TYPE_CHECKING:
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200,
     )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_apparent_power_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetApparentPowerResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_conductor_temperatures_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetConductorTemperaturesResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_currents_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetCurrentsResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_icing_forecast_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetIcingForecastResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_icing_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetIcingResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_apparent_power_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetLatestApparentPowerResponse200,
+    )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_conductor_temperature_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetLatestConductorTemperatureResponse200,
     )
@@ -54,6 +85,9 @@ if TYPE_CHECKING:
     )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_latest_icing_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetLatestIcingResponse200,
+    )
+    from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_sag_and_clearance_response_200 import (  # noqa: E501
+        GridInsightsV1LinesGetSagAndClearanceResponse200,
     )
 
 
@@ -203,23 +237,37 @@ class HeimdallApiClient:
             lambda: get_assets(client=self._get_authenticated_client(), x_region=self._get_region())
         )
 
-    def get_latest_heimdall_dlr(self, line_id: UUID) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
+    def get_latest_heimdall_dlr(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
         """
         Returns the latest Heimdall DLR (Dynamic Line rating) data.
+
+        `since` bounds how old the returned value may be.
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_dlr(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
-    def get_latest_heimdall_aar(self, line_id: UUID) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
+    def get_latest_heimdall_aar(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
         """
         Returns the latest Heimdall AAR (Available Ampacity Rating) data.
+
+        `since` bounds how old the returned value may be.
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_aar(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
@@ -248,16 +296,21 @@ class HeimdallApiClient:
         )
 
     def get_latest_circuit_rating(
-        self, facility_id: UUID
+        self, facility_id: UUID, since: datetime.datetime | None = None
     ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200:
         """
         Returns the latest circuit rating for a given facility.
+
+        `since` bounds how old the returned value may be.
         """
         from heimdall_api_client.capacity_monitoring import get_latest_circuit_ratring
 
         return self._execute_with_retry(
             lambda: get_latest_circuit_ratring(
-                client=self._get_authenticated_client(), facility_id=facility_id, x_region=self._get_region()
+                client=self._get_authenticated_client(),
+                facility_id=facility_id,
+                x_region=self._get_region(),
+                since=since,
             )
         )
 
@@ -276,28 +329,40 @@ class HeimdallApiClient:
         )
 
     def get_latest_conductor_temperature(
-        self, line_id: UUID
+        self, line_id: UUID, since: datetime.datetime | None = None
     ) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
         """
         Returns the latest conductor temperature for a given line.
+
+        `since` bounds how old the returned measurement may be.
         """
         from heimdall_api_client.grid_insights import get_latest_conductor_temperature
 
         return self._execute_with_retry(
             lambda: get_latest_conductor_temperature(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
-    def get_latest_current(self, line_id: UUID) -> GridInsightsV1LinesGetLatestCurrentResponse200:
+    def get_latest_current(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> GridInsightsV1LinesGetLatestCurrentResponse200:
         """
         Returns the latest current for a given line.
+
+        `since` bounds how old the returned measurement may be.
         """
         from heimdall_api_client.grid_insights import get_latest_current
 
         return self._execute_with_retry(
             lambda: get_latest_current(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
@@ -340,5 +405,217 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 unit_system=unit_system,
                 since=since,
+            )
+        )
+
+    def get_currents(
+        self,
+        line_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+    ) -> GridInsightsV1LinesGetCurrentsResponse200:
+        """
+        Returns historical current measurements for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_currents
+
+        return self._execute_with_retry(
+            lambda: get_currents(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+            )
+        )
+
+    def get_conductor_temperatures(
+        self,
+        line_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+        unit_system: UnitSystem | str | None = None,
+    ) -> GridInsightsV1LinesGetConductorTemperaturesResponse200:
+        """
+        Returns historical conductor temperature measurements for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_conductor_temperatures
+
+        return self._execute_with_retry(
+            lambda: get_conductor_temperatures(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+                unit_system=unit_system,
+            )
+        )
+
+    def get_heimdall_dlrs(
+        self,
+        line_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+        quantity: Quantity | str | None = None,
+    ) -> CapacityMonitoringV1LinesGetHeimdallDlrsResponse200:
+        """
+        Returns historical Heimdall DLR (Dynamic Line Rating) values for a given line.
+        """
+        return self._execute_with_retry(
+            lambda: get_heimdall_dlrs(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+                quantity=quantity,
+            )
+        )
+
+    def get_heimdall_aars(
+        self,
+        line_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+        quantity: Quantity | str | None = None,
+    ) -> CapacityMonitoringV1LinesGetHeimdallAarsResponse200:
+        """
+        Returns historical Heimdall AAR (Available Ampacity Rating) values for a given line.
+        """
+        return self._execute_with_retry(
+            lambda: get_heimdall_aars(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+                quantity=quantity,
+            )
+        )
+
+    def get_circuit_ratings(
+        self,
+        facility_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+        quantity: Quantity | str | None = None,
+    ) -> CapacityMonitoringV1FacilitiesGetCircuitRatingsResponse200:
+        """
+        Returns historical circuit ratings for a given facility.
+        """
+        return self._execute_with_retry(
+            lambda: get_circuit_ratings(
+                client=self._get_authenticated_client(),
+                facility_id=facility_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+                quantity=quantity,
+            )
+        )
+
+    def get_icing(
+        self,
+        line_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+        unit_system: UnitSystem | str | None = None,
+    ) -> GridInsightsV1LinesGetIcingResponse200:
+        """
+        Returns historical icing measurements for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_icing
+
+        return self._execute_with_retry(
+            lambda: get_icing(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+                unit_system=unit_system,
+            )
+        )
+
+    def get_sag_and_clearance(
+        self,
+        line_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+        unit_system: UnitSystem | str | None = None,
+    ) -> GridInsightsV1LinesGetSagAndClearanceResponse200:
+        """
+        Returns historical sag and clearance measurements for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_sag_and_clearance
+
+        return self._execute_with_retry(
+            lambda: get_sag_and_clearance(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+                unit_system=unit_system,
+            )
+        )
+
+    def get_apparent_power(
+        self,
+        line_id: UUID,
+        from_timestamp: datetime.datetime,
+        to_timestamp: datetime.datetime,
+    ) -> GridInsightsV1LinesGetApparentPowerResponse200:
+        """
+        Returns historical apparent power measurements for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_apparent_power
+
+        return self._execute_with_retry(
+            lambda: get_apparent_power(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                from_timestamp=from_timestamp,
+                to_timestamp=to_timestamp,
+            )
+        )
+
+    def get_latest_apparent_power(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> GridInsightsV1LinesGetLatestApparentPowerResponse200:
+        """
+        Returns the latest apparent power measurement for a given line.
+
+        `since` bounds how old the returned measurement may be.
+        """
+        from heimdall_api_client.grid_insights import get_latest_apparent_power
+
+        return self._execute_with_retry(
+            lambda: get_latest_apparent_power(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
+            )
+        )
+
+    def get_icing_forecast(
+        self,
+        line_id: UUID,
+        unit_system: UnitSystem | str | None = None,
+    ) -> GridInsightsV1LinesGetIcingForecastResponse200:
+        """
+        Returns the latest icing forecast for a given line.
+        """
+        from heimdall_api_client.grid_insights import get_icing_forecast
+
+        return self._execute_with_retry(
+            lambda: get_icing_forecast(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                unit_system=unit_system,
             )
         )
