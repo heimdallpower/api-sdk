@@ -46,11 +46,20 @@ try {
     Write-Host "Could not check PyPI for latest 'openapi-python-client' version." -ForegroundColor DarkYellow
 }
 
-# Check if ruff is installed for linting
-python -m ruff --version 2>$null
+# Ensure ruff is available to the interpreter that runs the generator.
+# openapi-python-client formats its output via the post_hooks in
+# openapi_python_client_config.yaml, which call 'python -m ruff'. Probing the
+# module (not the 'ruff' executable) is what those hooks actually need: pip
+# installs ruff.exe into a Scripts directory that is often not on PATH, and the
+# generator only warns when a hook fails, leaving the output unformatted.
+python -m ruff --version 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Installing 'ruff'..."
-    python -m pip install ruff
+    python -m pip install ruff --quiet
+    python -m ruff --version 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "'python -m ruff' is still unavailable after install; generated code would be left unformatted."
+    }
 }
 else {
     Write-Host "'ruff' is already installed."
@@ -61,7 +70,7 @@ if (!(Test-Path $specDir)) {
     New-Item -ItemType Directory -Force -Path $specDir | Out-Null
 }
 else {
-    Remove-Item -Recurse -Force "$specDir/*" -ErrorAction Silently
+    Remove-Item -Recurse -Force "$specDir/*" -ErrorAction SilentlyContinue
 }
 
 # Download the OpenAPI spec
@@ -72,6 +81,17 @@ Invoke-WebRequest -Uri $specUrl -OutFile $specPath
 Write-Host "Generating client for module '$Module'..."
 python -m openapi_python_client generate `
     --path $specPath --overwrite --output-path $generatedFolder --config openapi_python_client_config.yaml
+
+# Verify the post_hooks actually formatted the output. A hook failure is only a
+# warning to the generator, and unformatted code shows up as a diff touching
+# every file in the package rather than just the endpoints that changed.
+# Runs before the metadata cleanup below so ruff resolves the same config the
+# post_hooks used: the generated project's own pyproject.toml.
+Write-Host "Verifying generated code is formatted..."
+python -m ruff format --check $generatedFolder | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    throw "Generated code is not formatted: the post_hooks in openapi_python_client_config.yaml did not run. Aborting rather than producing a whole-package diff."
+}
 
 # Remove the generated README, .gitignore, and pyproject.toml files
 Write-Host "Cleaning up generated files in..."
