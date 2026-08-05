@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 from typing import Any, cast
 from urllib.parse import quote
@@ -22,6 +23,7 @@ def _get_kwargs(
     line_id: UUID,
     *,
     quantity: Quantity | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> dict[str, Any]:
@@ -36,6 +38,11 @@ def _get_kwargs(
         json_quantity = quantity.value
 
     params["quantity"] = json_quantity
+
+    json_since: str | Unset = UNSET
+    if not isinstance(since, Unset):
+        json_since = since.isoformat()
+    params["since"] = json_since
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -104,6 +111,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
@@ -137,6 +145,7 @@ def sync_detailed(
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -151,6 +160,7 @@ def sync_detailed(
     kwargs = _get_kwargs(
         line_id=line_id,
         quantity=quantity,
+        since=since,
         x_region=x_region,
     )
 
@@ -166,6 +176,7 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
@@ -199,6 +210,7 @@ def sync(
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -214,6 +226,7 @@ def sync(
         line_id=line_id,
         client=client,
         quantity=quantity,
+        since=since,
         x_region=x_region,
     ).parsed
 
@@ -223,6 +236,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
@@ -256,6 +270,7 @@ async def asyncio_detailed(
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -270,6 +285,7 @@ async def asyncio_detailed(
     kwargs = _get_kwargs(
         line_id=line_id,
         quantity=quantity,
+        since=since,
         x_region=x_region,
     )
 
@@ -283,6 +299,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
+    since: datetime.datetime | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
@@ -316,6 +333,7 @@ async def asyncio(
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -332,6 +350,7 @@ async def asyncio(
             line_id=line_id,
             client=client,
             quantity=quantity,
+            since=since,
             x_region=x_region,
         )
     ).parsed
