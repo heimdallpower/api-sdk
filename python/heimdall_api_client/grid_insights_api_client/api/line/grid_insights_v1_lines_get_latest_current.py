@@ -1,3 +1,4 @@
+import datetime
 from http import HTTPStatus
 from typing import Any, cast
 from urllib.parse import quote
@@ -12,23 +13,34 @@ from ...models.grid_insights_v1_lines_get_latest_current_response_200 import (
 )
 from ...models.grid_insights_v1_lines_get_latest_current_x_region import GridInsightsV1LinesGetLatestCurrentXRegion
 from ...models.problem_details import ProblemDetails
-from ...types import Response, Unset
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     line_id: UUID,
     *,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestCurrentXRegion | Unset = GridInsightsV1LinesGetLatestCurrentXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(x_region, Unset):
         headers["x-region"] = str(x_region)
 
+    params: dict[str, Any] = {}
+
+    json_since: str | Unset = UNSET
+    if not isinstance(since, Unset):
+        json_since = since.isoformat()
+    params["since"] = json_since
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/grid_insights/v1/lines/{line_id}/currents/latest".format(
             line_id=quote(str(line_id), safe=""),
         ),
+        "params": params,
     }
 
     _kwargs["headers"] = headers
@@ -87,6 +99,7 @@ def sync_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestCurrentXRegion | Unset = GridInsightsV1LinesGetLatestCurrentXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestCurrentResponse200 | ProblemDetails]:
     """Get latest current
@@ -100,6 +113,7 @@ def sync_detailed(
 
     Args:
         line_id (UUID):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestCurrentXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestCurrentXRegion.EU.
 
@@ -113,6 +127,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        since=since,
         x_region=x_region,
     )
 
@@ -127,6 +142,7 @@ def sync(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestCurrentXRegion | Unset = GridInsightsV1LinesGetLatestCurrentXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestCurrentResponse200 | ProblemDetails | None:
     """Get latest current
@@ -140,6 +156,7 @@ def sync(
 
     Args:
         line_id (UUID):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestCurrentXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestCurrentXRegion.EU.
 
@@ -154,6 +171,7 @@ def sync(
     return sync_detailed(
         line_id=line_id,
         client=client,
+        since=since,
         x_region=x_region,
     ).parsed
 
@@ -162,6 +180,7 @@ async def asyncio_detailed(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestCurrentXRegion | Unset = GridInsightsV1LinesGetLatestCurrentXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestCurrentResponse200 | ProblemDetails]:
     """Get latest current
@@ -175,6 +194,7 @@ async def asyncio_detailed(
 
     Args:
         line_id (UUID):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestCurrentXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestCurrentXRegion.EU.
 
@@ -188,6 +208,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         line_id=line_id,
+        since=since,
         x_region=x_region,
     )
 
@@ -200,6 +221,7 @@ async def asyncio(
     line_id: UUID,
     *,
     client: AuthenticatedClient | Client,
+    since: datetime.datetime | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestCurrentXRegion | Unset = GridInsightsV1LinesGetLatestCurrentXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestCurrentResponse200 | ProblemDetails | None:
     """Get latest current
@@ -213,6 +235,7 @@ async def asyncio(
 
     Args:
         line_id (UUID):
+        since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
         x_region (GridInsightsV1LinesGetLatestCurrentXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestCurrentXRegion.EU.
 
@@ -228,6 +251,7 @@ async def asyncio(
         await asyncio_detailed(
             line_id=line_id,
             client=client,
+            since=since,
             x_region=x_region,
         )
     ).parsed

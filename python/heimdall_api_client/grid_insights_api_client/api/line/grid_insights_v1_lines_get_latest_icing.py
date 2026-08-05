@@ -124,12 +124,14 @@ def sync_detailed(
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
-    is to its breaking point.
+    is to its breaking point or how close it is to the maximum tension it's designed to safely
+    withstand.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
+    returned regardless of age.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 
@@ -187,12 +189,14 @@ def sync(
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
-    is to its breaking point.
+    is to its breaking point or how close it is to the maximum tension it's designed to safely
+    withstand.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
+    returned regardless of age.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 
@@ -245,12 +249,14 @@ async def asyncio_detailed(
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
-    is to its breaking point.
+    is to its breaking point or how close it is to the maximum tension it's designed to safely
+    withstand.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
+    returned regardless of age.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 
@@ -306,12 +312,14 @@ async def asyncio(
     - **`ice_weight`**: The mass of ice accumulated on the conductor.
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
-    is to its breaking point.
+    is to its breaking point or how close it is to the maximum tension it's designed to safely
+    withstand.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
+    returned regardless of age.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 

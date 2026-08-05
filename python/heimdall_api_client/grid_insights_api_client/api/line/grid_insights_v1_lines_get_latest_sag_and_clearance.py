@@ -135,7 +135,8 @@ def sync_detailed(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
+    phase is returned regardless of age.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.
@@ -200,7 +201,8 @@ def sync(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
+    phase is returned regardless of age.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.
@@ -260,7 +262,8 @@ async def asyncio_detailed(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
+    phase is returned regardless of age.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.
@@ -323,7 +326,8 @@ async def asyncio(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
+    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
+    phase is returned regardless of age.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.
