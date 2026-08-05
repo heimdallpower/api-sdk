@@ -65,3 +65,28 @@ def test_client_exposes_method(name: str):
     from heimdall_api_client import HeimdallApiClient
 
     assert callable(getattr(HeimdallApiClient, name, None)), f"HeimdallApiClient.{name} is missing"
+
+
+# The API added `since` to these after the wrappers were first written; the
+# generated endpoints accept it, so the wrappers must not silently drop it.
+_METHODS_ACCEPTING_SINCE = [
+    "get_latest_current",
+    "get_latest_conductor_temperature",
+    "get_latest_apparent_power",
+    "get_latest_icing",
+    "get_latest_sag_and_clearance",
+    "get_latest_heimdall_dlr",
+    "get_latest_heimdall_aar",
+    "get_latest_circuit_rating",
+]
+
+
+@pytest.mark.parametrize("name", _METHODS_ACCEPTING_SINCE)
+def test_client_method_accepts_since(name: str):
+    import inspect
+
+    from heimdall_api_client import HeimdallApiClient
+
+    parameters = inspect.signature(getattr(HeimdallApiClient, name)).parameters
+    assert "since" in parameters, f"HeimdallApiClient.{name} should accept since"
+    assert parameters["since"].default is None, f"HeimdallApiClient.{name} should default since to None"

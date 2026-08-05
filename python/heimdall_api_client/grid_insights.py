@@ -44,13 +44,21 @@ if TYPE_CHECKING:
 
 
 def get_latest_conductor_temperature(
-    client: AuthenticatedClient, line_id: UUID, region: str
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    since: datetime.datetime | None = None,
 ) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_conductor_temperature as get_latest_conductor_temperature,
     )
 
-    response = get_latest_conductor_temperature.sync_detailed(client=client, line_id=line_id, x_region=region)
+    response = get_latest_conductor_temperature.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        since=UNSET if since is None else as_zulu(since),
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
@@ -62,13 +70,21 @@ def get_latest_conductor_temperature(
 
 
 def get_latest_current(
-    client: AuthenticatedClient, line_id: UUID, region: str
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    since: datetime.datetime | None = None,
 ) -> GridInsightsV1LinesGetLatestCurrentResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_current as get_latest_current,
     )
 
-    response = get_latest_current.sync_detailed(client=client, line_id=line_id, x_region=region)
+    response = get_latest_current.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        since=UNSET if since is None else as_zulu(since),
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
@@ -267,13 +283,21 @@ def get_currents(
 
 
 def get_latest_apparent_power(
-    client: AuthenticatedClient, line_id: UUID, region: str
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    since: datetime.datetime | None = None,
 ) -> GridInsightsV1LinesGetLatestApparentPowerResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_apparent_power as _get_latest_apparent_power,
     )
 
-    response = _get_latest_apparent_power.sync_detailed(client=client, line_id=line_id, x_region=region)
+    response = _get_latest_apparent_power.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        since=UNSET if since is None else as_zulu(since),
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(

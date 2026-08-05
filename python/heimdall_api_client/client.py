@@ -329,28 +329,40 @@ class HeimdallApiClient:
         )
 
     def get_latest_conductor_temperature(
-        self, line_id: UUID
+        self, line_id: UUID, since: datetime.datetime | None = None
     ) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
         """
         Returns the latest conductor temperature for a given line.
+
+        `since` bounds how old the returned measurement may be.
         """
         from heimdall_api_client.grid_insights import get_latest_conductor_temperature
 
         return self._execute_with_retry(
             lambda: get_latest_conductor_temperature(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
-    def get_latest_current(self, line_id: UUID) -> GridInsightsV1LinesGetLatestCurrentResponse200:
+    def get_latest_current(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> GridInsightsV1LinesGetLatestCurrentResponse200:
         """
         Returns the latest current for a given line.
+
+        `since` bounds how old the returned measurement may be.
         """
         from heimdall_api_client.grid_insights import get_latest_current
 
         return self._execute_with_retry(
             lambda: get_latest_current(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                since=since,
             )
         )
 
@@ -570,9 +582,13 @@ class HeimdallApiClient:
             )
         )
 
-    def get_latest_apparent_power(self, line_id: UUID) -> GridInsightsV1LinesGetLatestApparentPowerResponse200:
+    def get_latest_apparent_power(
+        self, line_id: UUID, since: datetime.datetime | None = None
+    ) -> GridInsightsV1LinesGetLatestApparentPowerResponse200:
         """
         Returns the latest apparent power measurement for a given line.
+
+        `since` bounds how old the returned measurement may be.
         """
         from heimdall_api_client.grid_insights import get_latest_apparent_power
 
@@ -581,6 +597,7 @@ class HeimdallApiClient:
                 client=self._get_authenticated_client(),
                 line_id=line_id,
                 region=self._get_region(),
+                since=since,
             )
         )
 

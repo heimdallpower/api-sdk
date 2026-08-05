@@ -162,7 +162,18 @@ def test_should_return_icing_forecast(api_client, line_id, unit_system):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("method_name", ["get_latest_heimdall_dlr", "get_latest_heimdall_aar", "get_latest_icing"])
+@pytest.mark.parametrize(
+    "method_name",
+    [
+        "get_latest_heimdall_dlr",
+        "get_latest_heimdall_aar",
+        "get_latest_icing",
+        "get_latest_current",
+        "get_latest_conductor_temperature",
+        "get_latest_apparent_power",
+        "get_latest_sag_and_clearance",
+    ],
+)
 def test_should_accept_since_on_latest_endpoints(api_client, line_id, method_name):
     """`since` is serialized with the same isoformat() the API rejects unless normalized."""
     since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=6)
