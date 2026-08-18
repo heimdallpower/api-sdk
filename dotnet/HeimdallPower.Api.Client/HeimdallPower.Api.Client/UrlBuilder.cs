@@ -22,6 +22,8 @@ internal static class UrlBuilder
     private const string CircuitRatings = "circuit_ratings";
     private const string CircuitRatingForecasts = "circuit_ratings/forecasts";
     private const string CircuitRatingLatest = "circuit_ratings/latest";
+    private const string CircuitTransientRatingLatest = "circuit_transient_ratings/latest";
+    private const string LineTransientRatingLatest = "transient_ratings/latest";
     private const string ConductorTemperatures = "conductor_temperatures/latest";
     private const string ConductorTemperaturesHistorical = "conductor_temperatures";
     private const string Currents = "currents/latest";
@@ -102,6 +104,17 @@ internal static class UrlBuilder
         return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAars, queryParams: queryParams);
     }
 
+    public static string BuildLatestLineTransientRatingUrl(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("quantity", quantity.ToQueryValue());
+
+        if (since.HasValue)
+            queryParams.AddQueryParam("since", ToApiTimestamp(since.Value));
+
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: LineTransientRatingLatest, queryParams: queryParams);
+    }
+
     public static string BuildAssetsUrl()
         => GetResourceUrl(module: Assets, apiVersion: V1, resource: AssetsResource);
 
@@ -112,6 +125,17 @@ internal static class UrlBuilder
     public static string BuildLatestCircuitRatingUrl(Guid facilityId, Quantity quantity = Quantity.Current)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest,
             queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
+
+    public static string BuildLatestCircuitTransientRatingUrl(Guid facilityId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null)
+    {
+        var queryParams = new NameValueCollection()
+            .AddQueryParam("quantity", quantity.ToQueryValue());
+
+        if (since.HasValue)
+            queryParams.AddQueryParam("since", ToApiTimestamp(since.Value));
+
+        return GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitTransientRatingLatest, queryParams: queryParams);
+    }
 
     public static string BuildCircuitRatingsUrl(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current)
     {

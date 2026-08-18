@@ -259,6 +259,24 @@ public class HeimdallApiClient : IHeimdallApiClient
     }
 
     /// <summary>
+    /// Get the most recent line transient rating for the line.
+    /// The line transient rating is the short-duration overload ampacity the line can sustain for each calculated duration.
+    /// The response contains a single timestamp and one value per calculated duration (for example 5, 10 or 15 minutes).
+    /// Transient ratings are only calculated for configured durations of one hour or shorter.
+    /// The endpoint returns real-time data and can be polled at short intervals (for example every 3–5 minutes).
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve the latest line transient rating.</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="since">Optional cutoff time (UTC). If the latest line transient rating is older than this instant, the API responds with 404.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
+    public async Task<LatestLineTransientRatingResponse> GetLatestLineTransientRatingAsync(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    {
+        var url = UrlBuilder.BuildLatestLineTransientRatingUrl(lineId, quantity, since);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestLineTransientRatingResponse>>(url, cancellationToken);
+        return response.Data;
+    }
+
+    /// <summary>
     /// Get the most recent Heimdall Dynamic Line Rating (DLR) forecasts for the line.
     /// The forecasted hours returned by the endpoint are set to 72 hours, and are provided in 1-hour intervals.
     /// The response contains a series of buckets, each with a timestamp and predictions based on different values of confidence levels p80, p90, p95 and p99.
@@ -363,6 +381,24 @@ public class HeimdallApiClient : IHeimdallApiClient
     {
         var url = UrlBuilder.BuildCircuitRatingsUrl(facilityId, from, to, quantity);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingsResponse>>(url, cancellationToken);
+        return response.Data;
+    }
+
+    /// <summary>
+    /// Get the most recent circuit transient rating for a specified facility, including the limiting facility component for each duration.
+    /// The circuit transient rating is the line transient rating capped, per duration, by the most-limiting facility component's emergency rating.
+    /// The response contains a single timestamp and one value per calculated duration (for example 5, 10 or 15 minutes).
+    /// Transient ratings are only calculated for configured durations of one hour or shorter.
+    /// The endpoint returns real-time data and can be polled at short intervals (for example every 3–5 minutes).
+    /// </summary>
+    /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit transient rating.</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="since">Optional cutoff time (UTC). If the latest circuit transient rating is older than this instant, the API responds with 404.</param>
+    /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
+    public async Task<LatestCircuitTransientRatingResponse> GetLatestCircuitTransientRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    {
+        var url = UrlBuilder.BuildLatestCircuitTransientRatingUrl(facilityId, quantity, since);
+        var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCircuitTransientRatingResponse>>(url, cancellationToken);
         return response.Data;
     }
 }
