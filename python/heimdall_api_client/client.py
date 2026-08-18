@@ -21,6 +21,7 @@ from heimdall_api_client.capacity_monitoring import (
     get_latest_heimdall_arr_forecasts,
     get_latest_heimdall_dlr,
     get_latest_heimdall_dlr_forecasts,
+    get_latest_line_transient_rating,
 )
 from heimdall_api_client.capacity_monitoring_api_client.models.quantity import Quantity
 from heimdall_api_client.errors import HeimdallApiError
@@ -41,6 +42,9 @@ if TYPE_CHECKING:
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_response_200 import (  # noqa: E501
         CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200,
     )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_transient_rating_response_200 import (  # noqa: E501
+        CapacityMonitoringV1FacilitiesGetLatestCircuitTransientRatingResponse200,
+    )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_heimdall_aars_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetHeimdallAarsResponse200,
     )
@@ -58,6 +62,9 @@ if TYPE_CHECKING:
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200,
+    )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_transient_rating_response_200 import (  # noqa: E501
+        CapacityMonitoringV1LinesGetLatestTransientRatingResponse200,
     )
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_apparent_power_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetApparentPowerResponse200,
@@ -271,6 +278,29 @@ class HeimdallApiClient:
             )
         )
 
+    def get_latest_line_transient_rating(
+        self,
+        line_id: UUID,
+        quantity: Quantity | str | None = None,
+        since: datetime.datetime | None = None,
+    ) -> CapacityMonitoringV1LinesGetLatestTransientRatingResponse200:
+        """
+        Returns the latest line transient rating for a given line: the short-duration
+        overload ampacity the line can sustain for each calculated duration.
+
+        The response holds one timestamp and one value per calculated duration.
+        `since` bounds how old the returned value may be.
+        """
+        return self._execute_with_retry(
+            lambda: get_latest_line_transient_rating(
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                quantity=quantity,
+                since=since,
+            )
+        )
+
     def get_latest_heimdall_dlr_forecasts(
         self, line_id: UUID
     ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrForecastsResponse200:
@@ -310,6 +340,32 @@ class HeimdallApiClient:
                 client=self._get_authenticated_client(),
                 facility_id=facility_id,
                 x_region=self._get_region(),
+                since=since,
+            )
+        )
+
+    def get_latest_circuit_transient_rating(
+        self,
+        facility_id: UUID,
+        quantity: Quantity | str | None = None,
+        since: datetime.datetime | None = None,
+    ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitTransientRatingResponse200:
+        """
+        Returns the latest circuit transient rating for a given facility: the line transient
+        rating capped, per duration, by the most-limiting facility component.
+
+        The response holds one timestamp and one value per calculated duration, each with the
+        limiting facility component id (``None`` when the line transient rating is the binding
+        constraint). `since` bounds how old the returned value may be.
+        """
+        from heimdall_api_client.capacity_monitoring import get_latest_circuit_transient_rating
+
+        return self._execute_with_retry(
+            lambda: get_latest_circuit_transient_rating(
+                client=self._get_authenticated_client(),
+                facility_id=facility_id,
+                x_region=self._get_region(),
+                quantity=quantity,
                 since=since,
             )
         )

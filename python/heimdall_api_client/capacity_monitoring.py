@@ -18,6 +18,9 @@ from heimdall_api_client.capacity_monitoring_api_client.api.line import (
 from heimdall_api_client.capacity_monitoring_api_client.api.line import (
     capacity_monitoring_v1_lines_get_latest_heimdall_dlr_forecasts as get_latest_dlr_forecasts,
 )
+from heimdall_api_client.capacity_monitoring_api_client.api.line import (
+    capacity_monitoring_v1_lines_get_latest_transient_rating as get_latest_line_transient_rating_endpoint,
+)
 from heimdall_api_client.capacity_monitoring_api_client.models.quantity import Quantity
 from heimdall_api_client.capacity_monitoring_api_client.types import UNSET
 from heimdall_api_client.errors import HeimdallApiError, body_preview
@@ -31,6 +34,9 @@ if TYPE_CHECKING:
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_rating_response_200 import (  # noqa: E501
         CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200,
+    )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_facilities_get_latest_circuit_transient_rating_response_200 import (  # noqa: E501
+        CapacityMonitoringV1FacilitiesGetLatestCircuitTransientRatingResponse200,
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_heimdall_aars_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetHeimdallAarsResponse200,
@@ -49,6 +55,9 @@ if TYPE_CHECKING:
     )
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200,
+    )
+    from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_transient_rating_response_200 import (  # noqa: E501
+        CapacityMonitoringV1LinesGetLatestTransientRatingResponse200,
     )
 
 
@@ -90,6 +99,34 @@ def get_latest_heimdall_aar(
         status = int(response.status_code)
         raise HeimdallApiError(
             f"Error fetching latest Heimdall AAR: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_latest_line_transient_rating(
+    client: AuthenticatedClient,
+    line_id: UUID,
+    region: str,
+    quantity: Quantity | str | None = None,
+    since: datetime.datetime | None = None,
+) -> CapacityMonitoringV1LinesGetLatestTransientRatingResponse200:
+    quantity_value = UNSET
+    if quantity is not None:
+        quantity_value = quantity if isinstance(quantity, Quantity) else Quantity(quantity)
+
+    response = get_latest_line_transient_rating_endpoint.sync_detailed(
+        client=client,
+        line_id=line_id,
+        x_region=region,
+        quantity=quantity_value,
+        since=UNSET if since is None else as_zulu(since),
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest line transient rating: {status} {response.status_code.phrase}"
             f" - {body_preview(response.content)}",
             status_code=status,
         )
@@ -144,6 +181,38 @@ def get_latest_circuit_ratring(
         status = int(response.status_code)
         raise HeimdallApiError(
             f"Error fetching latest circuit rating: {status} {response.status_code.phrase}"
+            f" - {body_preview(response.content)}",
+            status_code=status,
+        )
+    return response.parsed
+
+
+def get_latest_circuit_transient_rating(
+    client: AuthenticatedClient,
+    facility_id: UUID,
+    x_region: str,
+    quantity: Quantity | str | None = None,
+    since: datetime.datetime | None = None,
+) -> CapacityMonitoringV1FacilitiesGetLatestCircuitTransientRatingResponse200:
+    from heimdall_api_client.capacity_monitoring_api_client.api.facility import (
+        capacity_monitoring_v1_facilities_get_latest_circuit_transient_rating as _get_latest_circuit_transient_rating,
+    )
+
+    quantity_value = UNSET
+    if quantity is not None:
+        quantity_value = quantity if isinstance(quantity, Quantity) else Quantity(quantity)
+
+    response = _get_latest_circuit_transient_rating.sync_detailed(
+        client=client,
+        facility_id=facility_id,
+        x_region=x_region,
+        quantity=quantity_value,
+        since=UNSET if since is None else as_zulu(since),
+    )
+    if response.status_code != 200:
+        status = int(response.status_code)
+        raise HeimdallApiError(
+            f"Error fetching latest circuit transient rating: {status} {response.status_code.phrase}"
             f" - {body_preview(response.content)}",
             status_code=status,
         )

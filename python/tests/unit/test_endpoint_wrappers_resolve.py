@@ -30,6 +30,8 @@ _CAPACITY_MONITORING_WRAPPERS = [
     "get_latest_heimdall_arr_forecasts",
     "get_latest_circuit_ratring",
     "get_latest_circuit_rating_forecasts",
+    "get_latest_line_transient_rating",
+    "get_latest_circuit_transient_rating",
     "get_heimdall_dlrs",
     "get_heimdall_aars",
     "get_circuit_ratings",
@@ -47,6 +49,8 @@ _CLIENT_METHODS = [
     "get_heimdall_dlrs",
     "get_heimdall_aars",
     "get_circuit_ratings",
+    "get_latest_line_transient_rating",
+    "get_latest_circuit_transient_rating",
 ]
 
 
@@ -78,6 +82,8 @@ _METHODS_ACCEPTING_SINCE = [
     "get_latest_heimdall_dlr",
     "get_latest_heimdall_aar",
     "get_latest_circuit_rating",
+    "get_latest_line_transient_rating",
+    "get_latest_circuit_transient_rating",
 ]
 
 
