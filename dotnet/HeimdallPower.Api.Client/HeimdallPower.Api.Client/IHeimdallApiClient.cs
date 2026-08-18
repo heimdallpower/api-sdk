@@ -172,6 +172,17 @@ public interface IHeimdallApiClient
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
     Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Get the most recent line transient rating for the line: the short-duration overload ampacity the line can
+    /// sustain for each calculated duration. Returns one timestamp and one value per calculated duration.
+    /// </summary>
+    /// <param name="lineId">Id of the line for which to retrieve the latest line transient rating.</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="since">Optional cutoff time (UTC). If the latest line transient rating is older than this instant, the API responds with 404.</param>
+    /// <param name="cancellationToken">Token to cancel the request.</param>
+    /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
+    Task<LatestLineTransientRatingResponse> GetLatestLineTransientRatingAsync(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default);
+
     /// <summary>Get the most recent Heimdall Dynamic Line Rating (DLR) forecasts for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall DLR forecasts.</param>
     /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
@@ -226,4 +237,15 @@ public interface IHeimdallApiClient
     /// <param name="cancellationToken">Token to cancel the request.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
     Task<CircuitRatingsResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Get the most recent circuit transient rating for a specified facility, including the limiting facility component
+    /// for each duration. Returns one timestamp and one value per calculated duration.
+    /// </summary>
+    /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit transient rating.</param>
+    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="since">Optional cutoff time (UTC). If the latest circuit transient rating is older than this instant, the API responds with 404.</param>
+    /// <param name="cancellationToken">Token to cancel the request.</param>
+    /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
+    Task<LatestCircuitTransientRatingResponse> GetLatestCircuitTransientRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default);
 }
