@@ -62,6 +62,12 @@ var forecastAar = await api.GetHeimdallAarForecastsAsync(line.Id);
 Console.WriteLine($"- Heimdall DLR: {latestDlr.HeimdallDlr.Value} {latestDlr.Unit} at {latestDlr.HeimdallDlr.Timestamp} with IsFallback={latestDlr.HeimdallDlr.IsFallback}");
 Console.WriteLine($"- Heimdall AAR: {latestAar.HeimdallAar.Value} {latestAar.Unit} at {latestAar.HeimdallAar.Timestamp}");
 
+// Fetch Line Transient Rating data - the short-duration overload ampacity per calculated duration
+var lineTransientRating = await api.GetLatestLineTransientRatingAsync(line.Id);
+
+var lineTransientRatings = string.Join(", ", lineTransientRating.LineTransientRating.Ratings.Select(r => $"{r.DurationMinutes} min: {r.Value} {lineTransientRating.Unit}"));
+Console.WriteLine($"- Line Transient Rating at {lineTransientRating.LineTransientRating.Timestamp}: {lineTransientRatings}");
+
 // Fetch Circuit Rating data
 var facilities = assets.AllFacilities();
 var facility = facilities.First(f => f.Line != null && f.Line.Name.Equals(line.Name));
@@ -73,6 +79,18 @@ var limitingComponent = circuitRating.CircuitRating.AtFacilityComponentId.HasVal
     ? facility.Components.FirstOrDefault(c => c.Id == circuitRating.CircuitRating.AtFacilityComponentId.Value)?.Name ?? "unknown"
     : "none";
 Console.WriteLine($"- Circuit Rating: {circuitRating.CircuitRating.Value} {circuitRating.Unit} at {circuitRating.CircuitRating.Timestamp}, limiting component: {limitingComponent}, IsFallback={circuitRating.CircuitRating.IsFallback}");
+
+// Fetch Circuit Transient Rating data - the line transient rating capped per duration by the facility components
+var circuitTransientRating = await api.GetLatestCircuitTransientRatingAsync(facility.Id);
+
+var circuitTransientRatings = string.Join(", ", circuitTransientRating.CircuitTransientRating.Ratings.Select(r =>
+{
+    var limitingTransientComponent = r.LimitingComponentId.HasValue
+        ? facility.Components.FirstOrDefault(c => c.Id == r.LimitingComponentId.Value)?.Name ?? "unknown"
+        : "none";
+    return $"{r.DurationMinutes} min: {r.Value} {circuitTransientRating.Unit} (limiting component: {limitingTransientComponent})";
+}));
+Console.WriteLine($"- Circuit Transient Rating at {circuitTransientRating.CircuitTransientRating.Timestamp}: {circuitTransientRatings}");
 
 // Wrapping a single call with error handling
 try
