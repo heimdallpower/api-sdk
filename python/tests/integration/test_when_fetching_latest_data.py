@@ -17,6 +17,7 @@ _LATEST_LINE_METHODS_ACCEPTING_SINCE = [
     "get_latest_sag_and_clearance",
     "get_latest_heimdall_dlr",
     "get_latest_heimdall_aar",
+    "get_latest_line_transient_rating",
 ]
 
 
@@ -33,6 +34,7 @@ _LATEST_LINE_METHODS_ACCEPTING_SINCE = [
         "get_latest_heimdall_aar",
         "get_latest_heimdall_dlr_forecasts",
         "get_latest_heimdall_aar_forecasts",
+        "get_latest_line_transient_rating",
     ],
 )
 def test_should_return_latest_line_data(api_client, line_id, assert_endpoint_responds, method_name):
@@ -43,7 +45,14 @@ def test_should_return_latest_line_data(api_client, line_id, assert_endpoint_res
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("method_name", ["get_latest_circuit_rating", "get_latest_circuit_rating_forecasts"])
+@pytest.mark.parametrize(
+    "method_name",
+    [
+        "get_latest_circuit_rating",
+        "get_latest_circuit_rating_forecasts",
+        "get_latest_circuit_transient_rating",
+    ],
+)
 def test_should_return_latest_facility_data(api_client, facility_id, assert_endpoint_responds, method_name):
     assert_endpoint_responds(
         lambda: getattr(api_client, method_name)(facility_id),
@@ -77,12 +86,15 @@ def test_should_accept_since_on_latest_line_endpoints(api_client, line_id, asser
 
 
 @pytest.mark.integration
-def test_should_accept_since_on_latest_circuit_rating(api_client, facility_id, assert_endpoint_responds):
+@pytest.mark.parametrize("method_name", ["get_latest_circuit_rating", "get_latest_circuit_transient_rating"])
+def test_should_accept_since_on_latest_facility_endpoints(
+    api_client, facility_id, assert_endpoint_responds, method_name
+):
     since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=6)
 
     assert_endpoint_responds(
-        lambda: api_client.get_latest_circuit_rating(facility_id, since=since),
-        f"latest circuit rating with since={since.isoformat()}",
+        lambda: getattr(api_client, method_name)(facility_id, since=since),
+        f"{method_name} with since={since.isoformat()}",
     )
 
 
