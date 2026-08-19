@@ -32,18 +32,22 @@ jobs:
             exit 1
           fi
 
+      - name: Set version from tag
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "Building and packing with version: $VERSION"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore -p:Version=$VERSION
 
       - name: Pack using tag version
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
-          echo "Packing with version: $VERSION"
-          dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client/HeimdallPower.Api.Client.csproj --configuration Release --no-build -o out /p:PackageVersion=$VERSION
-          dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client.Extensions/HeimdallPower.Api.Client.Extensions.csproj --configuration Release --no-build -o out /p:PackageVersion=$VERSION
+          dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client/HeimdallPower.Api.Client.csproj --configuration Release --no-build -o out -p:Version=$VERSION
+          dotnet pack HeimdallPower.Api.Client/HeimdallPower.Api.Client.Extensions/HeimdallPower.Api.Client.Extensions.csproj --configuration Release --no-build -o out -p:Version=$VERSION
 
       - name: NuGet login (OIDC -> short-lived API key)
         uses: NuGet/login@v1
