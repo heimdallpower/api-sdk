@@ -1,19 +1,35 @@
+using System.Net;
 using System.Net.ServerSentEvents;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace HeimdallPower.Api.Client;
+namespace HeimdallPower.Api.Client.Stream;
 
-public class HeimdallStreamClient(HttpClient httpClient) : IHeimdallStreamClient
+public class HeimdallStreamClient : IHeimdallStreamClient
 {
-    private static readonly TimeSpan InitialRetryDelay = TimeSpan.FromSeconds(1);
-    private static readonly TimeSpan MaxRetryDelay = TimeSpan.FromSeconds(30);
+    private readonly HttpClient _httpClient;
+    private readonly AccessTokenHeaderRefresher _tokenRefresher;
+    private readonly StreamConnectionRetryPolicy _retryPolicy;
 
-    private static readonly string AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
-    private const string ClientName = "dotnet-sdk";
+    /// <summary>
+    /// A client that lets you consume the Heimdall Stream API.
+    /// Throws <see cref="HeimdallApiException"/> on non-transient errors.
+    /// </summary>
+    public HeimdallStreamClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null, HttpMessageHandler? proxyHandler = null)
+        : this(
+            new AccessTokenProvider(clientId, clientSecret, HeimdallApiEndpoints.Authority, HeimdallApiEndpoints.Scope, proxyHandler),
+            httpClient ?? new HttpClient { BaseAddress = new Uri(HeimdallApiEndpoints.ApiUrl) },
+            clientMetadata)
+    {
+    }
 
+    // Seam for unit tests to inject a stub IAccessTokenProvider and a zero-delay retry policy instead of hitting real MSAL/AAD and real backoff delays.
+    internal HeimdallStreamClient(IAccessTokenProvider accessTokenProvider, HttpClient httpClient, Dictionary<string, string>? clientMetadata = null, StreamConnectionRetryPolicy? retryPolicy = null)
+    {
+        _httpClient = httpClient;
+        _tokenRefresher = new AccessTokenHeaderRefresher(accessTokenProvider, httpClient, clientMetadata);
+        _retryPolicy = retryPolicy ?? new StreamConnectionRetryPolicy();
+    }
 
     /// <summary>
     /// Streams events, transparently reconnecting with exponential backoff when the
@@ -26,15 +42,11 @@ public class HeimdallStreamClient(HttpClient httpClient) : IHeimdallStreamClient
     {
         var failedAttempts = 0;
 
-        // Do as the api sdk does
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("x-client-name", ClientName);
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("x-client-version", AssemblyVersion);
-
         while (!token.IsCancellationRequested)
         {
             // The inner iterator is driven manually so that try/catch can wrap MoveNextAsync
             // without ever wrapping a yield return (which the compiler forbids).
-            await using var enumerator = ConnectAndReadAsync(gridOwnerId, httpClient, infoLogger, token)
+            await using var enumerator = ConnectAndReadAsync(gridOwnerId, infoLogger, token)
                                                 .GetAsyncEnumerator(token);
 
             while (true)
@@ -53,6 +65,13 @@ public class HeimdallStreamClient(HttpClient httpClient) : IHeimdallStreamClient
                 {
                     yield break;
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    failedAttempts++;
+                    infoLogger($"Stream error: unauthorized. Refreshing token and reconnecting... (attempt #{failedAttempts})");
+                    await _tokenRefresher.ForceRefreshAsync(token);
+                    break;
+                }
                 catch (Exception ex)
                 {
                     failedAttempts++;
@@ -69,7 +88,7 @@ public class HeimdallStreamClient(HttpClient httpClient) : IHeimdallStreamClient
             try
             {
                 // Should we break the loop after a number of failed attempts?
-                await Task.Delay(GetRetryDelay(failedAttempts), token);
+                await Task.Delay(_retryPolicy.GetDelay(failedAttempts), token);
             }
             catch (OperationCanceledException)
             {
@@ -78,17 +97,22 @@ public class HeimdallStreamClient(HttpClient httpClient) : IHeimdallStreamClient
         }
     }
 
-    private static async IAsyncEnumerable<HeimdallEventEnvelope> ConnectAndReadAsync(
+    private async IAsyncEnumerable<HeimdallEventEnvelope> ConnectAndReadAsync(
         Guid? gridOwnerId,
-        HttpClient httpClient,
         Action<string> infoLogger,
         [EnumeratorCancellation] CancellationToken token)
     {
+        await _tokenRefresher.EnsureFreshTokenAsync(token);
+
         using var request = new HttpRequestMessage(
                                     HttpMethod.Get,
                                     $"/v1/stream?gridownerid={gridOwnerId}");
 
-        using var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
+        using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
+
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+            throw new UnauthorizedAccessException("Unauthorized access. Please check your credentials.");
+
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(token);
@@ -104,80 +128,15 @@ public class HeimdallStreamClient(HttpClient httpClient) : IHeimdallStreamClient
             if (string.IsNullOrWhiteSpace(item.Data))
                 continue;
 
-            if (item.EventType == HeimdallDlr.MetricName)
+            if (item.EventType == HeimdallDlrEvent.MetricName)
             {
-                HeimdallEventEnvelope? envelope = JsonSerializer.Deserialize<HeimdallEventEnvelope>(item.Data, HeimdallJsonSerializerOptions.Default);
+                HeimdallEventEnvelope? envelope = JsonSerializer.Deserialize<HeimdallEventEnvelope>(item.Data, HeimdallStreamJsonSerializerOptions.Default);
 
                 if (envelope is null)
                     continue;
 
                 yield return envelope;
             }
-        }
-    }
-
-    private static TimeSpan GetRetryDelay(int failedAttempts)
-    {
-        if (failedAttempts <= 0)
-            return InitialRetryDelay;
-
-        var exponential = InitialRetryDelay * Math.Pow(2, Math.Min(failedAttempts, 10));
-        var capped = exponential < MaxRetryDelay ? exponential : MaxRetryDelay;
-
-        // Jitter avoids a thundering herd of clients reconnecting simultaneously.
-        return capped * (0.8 + (Random.Shared.NextDouble() * 0.4));
-    }
-}
-
-
-
-public record HeimdallEventEnvelope(
-    string SchemaVersion,
-    string Metric,
-    string Unit,
-    JsonElement Data)
-{
-    private HeimdallDlr? _heimdallDlr;
-
-    public HeimdallDlr? HeimdallDlr
-    {
-        get
-        {
-            return _heimdallDlr ??= Data.Deserialize<HeimdallDlr>(HeimdallJsonSerializerOptions.Default);
-        }
-    }
-}
-
-public record HeimdallDlr(
-    Guid AtLineId,
-    Guid AtSpanId,
-    DateTimeOffset Timestamp,
-    double Value,
-    bool IsFallback)
-{
-    public const string MetricName = "Heimdall DLR";
-}
-
-public static class HeimdallJsonSerializerOptions
-{
-    private static JsonSerializerOptions? _jsonOptions;
-
-    private static JsonSerializerOptions CreateJsonOptions()
-    {
-        var options = new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        };
-        options.Converters.Add(new JsonStringEnumConverter());
-        return options;
-    }
-
-    public static JsonSerializerOptions Default
-    {
-        get
-        {
-            return _jsonOptions ??= CreateJsonOptions();
         }
     }
 }

@@ -13,12 +13,6 @@ namespace HeimdallPower.Api.Client;
 /// </summary>
 public class HeimdallApiClient : IHeimdallApiClient
 {
-    private const string ApiUrl = "https://external-api.heimdallcloud.com";
-    private const string Policy = "B2C_1A_CLIENTCREDENTIALSFLOW";
-    private const string Instance = "https://hpadb2cprod.b2clogin.com";
-    private const string Domain = "hpadb2cprod.onmicrosoft.com";
-    private const string Scope = $"https://{Domain}/dc5758ae-4eea-416e-9e61-812914d9a49a/.default";
-    private const string Authority = $"{Instance}/tfp/{Domain}/{Policy}";
     private readonly HeimdallApiHttpClient _heimdallApiClient;
 
     /// <summary>
@@ -27,8 +21,8 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// </summary>
     public HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null, HttpMessageHandler? proxyHandler = null)
     {
-        var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, Authority, Scope, proxyHandler);
-        _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, httpClient ?? new HttpClient { BaseAddress = new Uri(ApiUrl) }, clientMetadata);
+        var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, HeimdallApiEndpoints.Authority, HeimdallApiEndpoints.Scope, proxyHandler);
+        _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, httpClient ?? new HttpClient { BaseAddress = new Uri(HeimdallApiEndpoints.ApiUrl) }, clientMetadata);
     }
 
     /// <summary>

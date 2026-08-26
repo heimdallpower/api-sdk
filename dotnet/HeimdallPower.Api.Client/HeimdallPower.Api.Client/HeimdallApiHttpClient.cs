@@ -1,18 +1,13 @@
 ﻿using System.Net;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace HeimdallPower.Api.Client;
 
-internal class HeimdallApiHttpClient(
-    IAccessTokenProvider accessTokenProvider,
-    HttpClient httpClient,
-    Dictionary<string, string>? clientMetadata = null)
+internal class HeimdallApiHttpClient
 {
-    private HttpClient HttpClient { get; } = httpClient;
-
-    private readonly SemaphoreSlim _tokenLock = new(1, 1);
+    private HttpClient HttpClient { get; }
+    private readonly AccessTokenHeaderRefresher _tokenRefresher;
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -21,13 +16,16 @@ internal class HeimdallApiHttpClient(
         WriteIndented = true
     };
 
-    private DateTimeOffset _tokenExpiresOn;
-    private static readonly TimeSpan TokenExpirationBuffer = TimeSpan.FromMinutes(2);
-
     private static readonly JsonSerializerOptions ProblemDetailsOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
+
+    public HeimdallApiHttpClient(IAccessTokenProvider accessTokenProvider, HttpClient httpClient, Dictionary<string, string>? clientMetadata = null)
+    {
+        HttpClient = httpClient;
+        _tokenRefresher = new AccessTokenHeaderRefresher(accessTokenProvider, httpClient, clientMetadata);
+    }
 
     public async Task<T> GetAsync<T>(string url, CancellationToken cancellationToken = default)
     {
@@ -92,82 +90,13 @@ internal class HeimdallApiHttpClient(
     {
         try
         {
-            await UpdateAccessTokenIfExpired(cancellationToken);
+            await _tokenRefresher.EnsureFreshTokenAsync(cancellationToken);
             return await operationFunc();
         }
         catch (UnauthorizedAccessException)
         {
-            await RefreshAccessToken(cancellationToken);
+            await _tokenRefresher.ForceRefreshAsync(cancellationToken);
             return await operationFunc();
-        }
-    }
-
-    private async Task UpdateAccessTokenIfExpired(CancellationToken cancellationToken)
-    {
-        if (_tokenExpiresOn == default || DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) > _tokenExpiresOn)
-        {
-            await RefreshAccessToken(cancellationToken);
-        }
-    }
-
-    private static readonly string AssemblyVersion = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0";
-    private const string ClientName = "dotnet-sdk";
-
-    /// <summary>
-    /// Builds the client headers to be sent with each request.
-    /// Includes client name, version, and any additional metadata provided.
-    /// </summary>
-    /// <returns></returns>
-    private Dictionary<string, string> BuildClientHeaders()
-    {
-        var headers = new Dictionary<string, string>
-        {
-            { "x-client-name", ClientName },
-            { "x-client-version", AssemblyVersion },
-        };
-
-        if (clientMetadata != null)
-        {
-            foreach (var kvp in clientMetadata)
-            {
-                headers[kvp.Key] = kvp.Value; // Overwrite defaults if present
-            }
-        }
-
-        return headers;
-    }
-
-    private async Task RefreshAccessToken(CancellationToken cancellationToken)
-    {
-        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30), cancellationToken);
-        try
-        {
-            // Check if another thread already refreshed while we were waiting
-            if (_tokenExpiresOn != default && DateTimeOffset.UtcNow.Add(TokenExpirationBuffer) <= _tokenExpiresOn)
-                return;
-
-            await accessTokenProvider.AcquireTokenAsync(cancellationToken);
-            _tokenExpiresOn = accessTokenProvider.GetTokenExpiry();
-
-            foreach (var header in accessTokenProvider.GetAccessHeaders())
-            {
-                HttpClient.DefaultRequestHeaders.Remove(header.Key);
-                HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-            }
-            foreach (var header in BuildClientHeaders())
-            {
-                if (header.Key.Equals("x-region", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue; // Skip adding x-region as this should be set from the token
-                }
-
-                HttpClient.DefaultRequestHeaders.Remove(header.Key);
-                HttpClient.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-            }
-        }
-        finally
-        {
-            _tokenLock.Release();
         }
     }
 }
