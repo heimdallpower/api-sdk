@@ -1,3 +1,4 @@
+using HeimdallPower.Api.Client.Stream.CapacityMonitoring.Lines;
 using System.Net;
 using System.Net.ServerSentEvents;
 using System.Runtime.CompilerServices;
@@ -5,6 +6,10 @@ using System.Text.Json;
 
 namespace HeimdallPower.Api.Client.Stream;
 
+/// <summary>
+/// Default <see cref="IHeimdallStreamClient"/> implementation, backed by an <see cref="HttpClient"/> that
+/// consumes the Heimdall Stream API's Server-Sent Events endpoint.
+/// </summary>
 public class HeimdallStreamClient : IHeimdallStreamClient
 {
     private readonly HttpClient _httpClient;
@@ -15,10 +20,15 @@ public class HeimdallStreamClient : IHeimdallStreamClient
     /// A client that lets you consume the Heimdall Stream API.
     /// Throws <see cref="HeimdallApiException"/> on non-transient errors.
     /// </summary>
+    /// <param name="clientId">The client ID used to authenticate with the Heimdall Power API.</param>
+    /// <param name="clientSecret">The client secret used to authenticate with the Heimdall Power API.</param>
+    /// <param name="httpClient">An optional pre-configured <see cref="HttpClient"/>. When omitted, one is created with the default stream base address.</param>
+    /// <param name="clientMetadata">Optional additional metadata to include in request headers.</param>
+    /// <param name="proxyHandler">An optional message handler used to route token acquisition through a proxy.</param>
     public HeimdallStreamClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null, HttpMessageHandler? proxyHandler = null)
         : this(
             new AccessTokenProvider(clientId, clientSecret, HeimdallApiEndpoints.Authority, HeimdallApiEndpoints.Scope, proxyHandler),
-            httpClient ?? new HttpClient { BaseAddress = new Uri(HeimdallApiEndpoints.ApiUrl) },
+            httpClient ?? new HttpClient { BaseAddress = new Uri(HeimdallApiEndpoints.StreamUrl) },
             clientMetadata)
     {
     }
@@ -35,6 +45,10 @@ public class HeimdallStreamClient : IHeimdallStreamClient
     /// Streams events, transparently reconnecting with exponential backoff when the
     /// connection drops or fails. The consumer only ever sees a continuous sequence of events.
     /// </summary>
+    /// <param name="gridOwnerId">The grid owner to receive events for, or <see langword="null"/> to receive events for the authenticated grid owner.</param>
+    /// <param name="infoLogger">Callback invoked with diagnostic messages (e.g. heartbeats, reconnect attempts).</param>
+    /// <param name="token">A token used to stop receiving events and end the stream.</param>
+    /// <returns>An asynchronous stream of Heimdall event envelopes that runs until cancelled.</returns>
     public async IAsyncEnumerable<HeimdallEventEnvelope> ReceiveAsync(
         Guid? gridOwnerId,
         Action<string> infoLogger,
@@ -97,6 +111,10 @@ public class HeimdallStreamClient : IHeimdallStreamClient
         }
     }
 
+    /// <summary>
+    /// Opens a single SSE connection and yields the events read from it until the connection ends or fails.
+    /// Does not reconnect; that is handled by the caller, <see cref="ReceiveAsync"/>.
+    /// </summary>
     private async IAsyncEnumerable<HeimdallEventEnvelope> ConnectAndReadAsync(
         Guid? gridOwnerId,
         Action<string> infoLogger,

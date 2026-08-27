@@ -8,6 +8,11 @@ internal sealed class StreamConnectionRetryPolicy(TimeSpan? initialDelay = null,
     private readonly TimeSpan _initialDelay = initialDelay ?? TimeSpan.FromSeconds(1);
     private readonly TimeSpan _maxDelay = maxDelay ?? TimeSpan.FromSeconds(30);
 
+    /// <summary>
+    /// Gets the delay to wait before the next reconnect attempt.
+    /// </summary>
+    /// <param name="failedAttempts">The number of consecutive failed connection attempts so far.</param>
+    /// <returns>The backoff delay, with jitter applied, capped at the configured maximum delay.</returns>
     public TimeSpan GetDelay(int failedAttempts)
     {
         if (failedAttempts <= 0)

@@ -10,13 +10,14 @@ namespace HeimdallPower.Api.Client.Extensions;
 public static class HeimdallStreamClientExtensions
 {
     /// <summary>
-    /// Adds the Heimdall Power stream client to the service collection.
+    /// Registers <see cref="IHeimdallStreamClient"/> as a singleton, configured via <paramref name="configureOptions"/>.
     /// </summary>
     /// <remarks>
-    /// Unlike <see cref="HeimdallApiClientExtensions.AddHeimdallPowerApiClient"/>, no standard resilience
-    /// handler is applied: its default total-request timeout would tear down the long-lived streaming
-    /// connection. Reconnection is instead handled internally by <see cref="HeimdallStreamClient"/>.
+    /// The stream connection reconnects with exponential backoff internally, handled by <see cref="HeimdallStreamClient"/>.
     /// </remarks>
+    /// <param name="services">The service collection to add the client to.</param>
+    /// <param name="configureOptions">Callback used to set the <see cref="HeimdallStreamClientOptions"/>, such as client credentials and optional proxy settings.</param>
+    /// <returns>The same service collection, for chaining.</returns>
     public static IServiceCollection AddHeimdallPowerStreamClient(this IServiceCollection services, Action<HeimdallStreamClientOptions> configureOptions)
     {
         const string clientName = "HeimdallPowerStream";
@@ -26,8 +27,7 @@ public static class HeimdallStreamClientExtensions
         services.AddHttpClient(clientName)
             .ConfigureHttpClient((_, client) =>
             {
-                client.BaseAddress = new Uri("https://external-api.heimdallcloud.com");
-                client.DefaultRequestHeaders.Add("Accept", "text/event-stream");
+                client.BaseAddress = new Uri("https://stream-api.heimdallcloud.com");
             })
             .ConfigurePrimaryHttpMessageHandler(sp =>
             {

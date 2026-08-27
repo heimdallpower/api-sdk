@@ -3,6 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace HeimdallPower.Api.Client.Stream;
 
+/// <summary>
+/// Shared, lazily-created <see cref="JsonSerializerOptions"/> used to (de)serialize Stream API payloads
+/// (snake_case property names, case-insensitive matching, string enums).
+/// </summary>
 internal static class HeimdallStreamJsonSerializerOptions
 {
     private static JsonSerializerOptions? _jsonOptions;
@@ -18,6 +22,9 @@ internal static class HeimdallStreamJsonSerializerOptions
         return options;
     }
 
+    /// <summary>
+    /// The shared <see cref="JsonSerializerOptions"/> instance, created on first access.
+    /// </summary>
     public static JsonSerializerOptions Default
     {
         get

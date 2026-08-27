@@ -6,6 +6,7 @@ namespace HeimdallPower.Api.Client;
 internal static class HeimdallApiEndpoints
 {
     public const string ApiUrl = "https://external-api.heimdallcloud.com";
+    public const string StreamUrl = "https://stream-api.heimdallcloud.com";
     private const string Policy = "B2C_1A_CLIENTCREDENTIALSFLOW";
     private const string Instance = "https://hpadb2cprod.b2clogin.com";
     private const string Domain = "hpadb2cprod.onmicrosoft.com";
