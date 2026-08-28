@@ -1,4 +1,5 @@
 using HeimdallPower.Api.Client.Stream;
+using HeimdallPower.Api.Client.Stream.CapacityMonitoring;
 
 // Configuration setup
 const string clientId = "insert-your-client-id-here";
@@ -19,22 +20,17 @@ Console.CancelKeyPress += (_, e) =>
 
 Console.WriteLine("Listening for events. Press Ctrl+C to stop.");
 
-try
+// Pass a specific grid owner ID to only receive events for that grid owner.
+await foreach (var envelope in streamClient.ReceiveAsync(gridOwnerId: null, quantity: Quantity.Current, infoLogger: Console.WriteLine, traceLogger: Console.WriteLine, token: cts.Token))
 {
-    // Pass a specific grid owner ID to only receive events for that grid owner.
-    await foreach (var envelope in streamClient.ReceiveAsync(gridOwnerId: null, infoLogger: Console.WriteLine, cts.Token))
+    if (envelope.HeimdallDlr is { } dlr)
     {
-        if (envelope.HeimdallDlr is { } dlr)
-        {
-            Console.WriteLine($"- Heimdall DLR: {dlr.Value} {envelope.Unit} for line {dlr.AtLineId} at {dlr.Timestamp} (IsFallback={dlr.IsFallback})");
-        }
-        else
-        {
-            Console.WriteLine($"- {envelope.Metric}: {envelope.Data}");
-        }
+        Console.WriteLine($"- Heimdall DLR: {dlr.Value} {envelope.Unit} for line {dlr.AtLineId} at {dlr.Timestamp} (IsFallback={dlr.IsFallback})");
+    }
+    else
+    {
+        Console.WriteLine($"- {envelope.Metric}: {envelope.Data}");
     }
 }
-catch (OperationCanceledException)
-{
-    Console.WriteLine("Stream stopped.");
-}
+
+Console.WriteLine("Stream stopped.");

@@ -10,7 +10,8 @@ namespace HeimdallPower.Api.Client.UnitTests.WhenStreaming;
 [Trait("Category", "Unit")]
 public class WhenReconnecting
 {
-    private static readonly StreamConnectionRetryPolicy ZeroDelay = new(TimeSpan.Zero, TimeSpan.Zero);
+    private const int _maxRetriesInTest = 3;
+    private static readonly StreamConnectionRetryPolicy ZeroDelay = new(new StreamConnectionRetryPolicyOptions { InitialDelay = TimeSpan.Zero, MaxDelay = TimeSpan.Zero, MaxRetries = _maxRetriesInTest });
 
     private static HeimdallStreamClient CreateClient(HttpMessageHandler handler) =>
         new(new CountingAccessTokenProvider(),
@@ -38,7 +39,7 @@ public class WhenReconnecting
         var logMessages = new List<string>();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, token: cts.Token))
         {
             received = envelope;
             break;
@@ -67,7 +68,7 @@ public class WhenReconnecting
         using var cts = new CancellationTokenSource();
 
         var values = new List<double>();
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
         {
             values.Add(envelope.HeimdallDlr!.Value);
             if (values.Count == 3)
@@ -88,7 +89,7 @@ public class WhenReconnecting
 
         var enumerationTask = Task.Run(async () =>
         {
-            await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, cts.Token))
+            await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
             {
                 events.Add(envelope);
             }
@@ -100,5 +101,20 @@ public class WhenReconnecting
         await enumerationTask;
 
         Assert.Empty(events);
+    }
+
+
+    [Fact]
+    public void ShouldRetryMaxTimes_ThenStop()
+    {
+        for (var failedAttempts = 0; failedAttempts <= _maxRetriesInTest; failedAttempts++)
+        {
+            bool shouldRetry = ZeroDelay.ShouldRetry(failedAttempts);
+
+            Assert.True(shouldRetry, $"ShouldRetry returned false for failedAttempts={failedAttempts}");
+        }
+
+        bool shouldRetryAfterThree = ZeroDelay.ShouldRetry(_maxRetriesInTest + 1);
+        Assert.False(shouldRetryAfterThree, $"ShouldRetry returned true for failedAttempts={_maxRetriesInTest + 1}");
     }
 }

@@ -42,7 +42,7 @@ public static class HeimdallStreamClientExtensions
             var httpClient = httpClientFactory.CreateClient(clientName);
             var proxyHandler = ProxyHandlerFactory.CreateHandler(options.Proxy);
 
-            return new HeimdallStreamClient(options.ClientId, options.ClientSecret, httpClient, options.ClientMetadata, proxyHandler);
+            return new HeimdallStreamClient(options.ClientId, options.ClientSecret, httpClient, options.ClientMetadata, proxyHandler, options.RetryPolicy);
         });
 
         services.AddSingleton<IHeimdallStreamClient>(sp => sp.GetRequiredService<HeimdallStreamClient>());

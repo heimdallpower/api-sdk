@@ -1,3 +1,5 @@
+using HeimdallPower.Api.Client.Stream;
+
 namespace HeimdallPower.Api.Client.Extensions;
 
 /// <summary>
@@ -25,4 +27,9 @@ public class HeimdallStreamClientOptions
     /// are routed through the specified proxy.
     /// </summary>
     public ProxyOptions? Proxy { get; set; }
+
+    /// <summary>
+    /// Optional configuration for the reconnect backoff behavior used when the stream connection drops.
+    /// </summary>
+    public StreamConnectionRetryPolicyOptions? RetryPolicy { get; set; }
 }

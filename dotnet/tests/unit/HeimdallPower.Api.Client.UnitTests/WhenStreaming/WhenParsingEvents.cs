@@ -13,7 +13,7 @@ public class WhenParsingEvents
     private static HeimdallStreamClient CreateClient(HttpMessageHandler handler) =>
         new(new CountingAccessTokenProvider(),
             new HttpClient(handler) { BaseAddress = new Uri("https://fake-stream.example.com") },
-            retryPolicy: new StreamConnectionRetryPolicy(TimeSpan.Zero, TimeSpan.Zero));
+            retryPolicy: new StreamConnectionRetryPolicy(new StreamConnectionRetryPolicyOptions { InitialDelay = TimeSpan.Zero, MaxDelay = TimeSpan.Zero }));
 
     [Fact]
     public async Task ShouldYieldDeserializedDlrEvent_ForHeimdallDlrEventType()
@@ -29,7 +29,7 @@ public class WhenParsingEvents
         using var cts = new CancellationTokenSource();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
         {
             received = envelope;
             break;
@@ -56,16 +56,17 @@ public class WhenParsingEvents
         var client = CreateClient(handler);
         using var cts = new CancellationTokenSource();
         var logMessages = new List<string>();
+        var traceMessages = new List<string>();
 
         var events = new List<HeimdallEventEnvelope>();
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, traceLogger: traceMessages.Add, token: cts.Token))
         {
             events.Add(envelope);
             break;
         }
 
         Assert.Single(events);
-        Assert.Contains(logMessages, m => m.Contains("Heartbeat", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(traceMessages, m => m.Contains("Heartbeat", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -80,7 +81,7 @@ public class WhenParsingEvents
         using var cts = new CancellationTokenSource();
 
         var events = new List<HeimdallEventEnvelope>();
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
         {
             events.Add(envelope);
             break;
@@ -110,7 +111,7 @@ public class WhenParsingEvents
         var logMessages = new List<string>();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, token: cts.Token))
         {
             received = envelope;
             break;

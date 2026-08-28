@@ -11,7 +11,7 @@ namespace HeimdallPower.Api.Client.UnitTests.WhenStreaming;
 [Trait("Category", "Unit")]
 public class WhenAuthenticating
 {
-    private static readonly StreamConnectionRetryPolicy ZeroDelay = new(TimeSpan.Zero, TimeSpan.Zero);
+    private static readonly StreamConnectionRetryPolicy ZeroDelay = new(new StreamConnectionRetryPolicyOptions { InitialDelay = TimeSpan.Zero, MaxDelay = TimeSpan.Zero });
 
     [Fact]
     public async Task ShouldAttachAuthAndClientHeaders_BeforeFirstConnect()
@@ -29,7 +29,7 @@ public class WhenAuthenticating
             retryPolicy: ZeroDelay);
 
         using var cts = new CancellationTokenSource();
-        await foreach (var _ in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, cts.Token))
+        await foreach (var _ in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
         {
             break;
         }
@@ -57,7 +57,7 @@ public class WhenAuthenticating
 
         using var cts = new CancellationTokenSource();
         var receivedCount = 0;
-        await foreach (var _ in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, cts.Token))
+        await foreach (var _ in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
         {
             receivedCount++;
             if (receivedCount == 2)
@@ -93,7 +93,7 @@ public class WhenAuthenticating
         var logMessages = new List<string>();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, token: cts.Token))
         {
             received = envelope;
             break;

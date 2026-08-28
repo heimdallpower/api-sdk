@@ -1,3 +1,5 @@
+using HeimdallPower.Api.Client.Stream.CapacityMonitoring;
+
 namespace HeimdallPower.Api.Client.Stream;
 
 /// <summary>
@@ -22,9 +24,11 @@ public interface IHeimdallStreamClient
     /// reconnecting behind the scenes, until <paramref name="token"/> is cancelled. Cancelling the
     /// token ends enumeration gracefully rather than throwing.
     /// </remarks>
-    /// <param name="gridOwnerId">The grid owner to receive events for, or <see langword="null"/> to receive events for all grid owners accessible to the authenticated client.</param>
-    /// <param name="infoLogger">Callback invoked with diagnostic messages (e.g. heartbeats, reconnect attempts). Not used for the actual event data.</param>
+    /// <param name="gridOwnerId">The grid owner to receive events for, or <see langword="null"/> to receive events for the authenticated grid owner.</param>
+    /// <param name="quantity">The physical quantity to receive events for, Current (default) or ApparentPower.</param>
+    /// <param name="infoLogger">Callback invoked with diagnostic messages (e.g. errors, reconnect attempts), or <see langword="null"/> if no logging is desired. Not used for any event data.</param>
+    /// <param name="traceLogger">Callback invoked with trace messages (e.g. heartbeats, received events), or <see langword="null"/> if no logging is desired. Does not log the detailed event data.</param>
     /// <param name="token">A token used to stop receiving events and end the stream.</param>
     /// <returns>An asynchronous stream of Heimdall event envelopes that runs until cancelled.</returns>
-    IAsyncEnumerable<HeimdallEventEnvelope> ReceiveAsync(Guid? gridOwnerId, Action<string> infoLogger, CancellationToken token);
+    IAsyncEnumerable<HeimdallEventEnvelope> ReceiveAsync(Guid? gridOwnerId, Quantity quantity = Quantity.Current, Action<string>? infoLogger = null, Action<string>? traceLogger = null, CancellationToken token = default);
 }

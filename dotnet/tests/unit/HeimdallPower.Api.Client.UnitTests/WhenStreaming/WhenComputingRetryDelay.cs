@@ -1,10 +1,12 @@
 using HeimdallPower.Api.Client.Stream;
 
-namespace HeimdallPower.Api.Client.UnitTests.WhenComputingRetryDelay;
+namespace HeimdallPower.Api.Client.UnitTests.WhenStreaming;
 
 /// <summary>
 /// Data-driven tests for <see cref="StreamConnectionRetryPolicy"/>'s exponential backoff + jitter math.
 /// Jitter is random, so assertions check bounds rather than exact values.
+/// Also verifies that the policy never exceeds the configured maximum delay, even after many failed attempts.
+/// And checks the maximum limit of retries, which is a safety feature to prevent infinite retry loops in case of persistent failures.
 /// </summary>
 [Trait("Category", "Unit")]
 public class WhenComputingRetryDelay
@@ -12,7 +14,7 @@ public class WhenComputingRetryDelay
     private static readonly TimeSpan InitialDelay = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan MaxDelay = TimeSpan.FromSeconds(30);
 
-    private readonly StreamConnectionRetryPolicy _policy = new(InitialDelay, MaxDelay);
+    private readonly StreamConnectionRetryPolicy _policy = new(new StreamConnectionRetryPolicyOptions { InitialDelay = InitialDelay, MaxDelay = MaxDelay });
 
     [Theory]
     [InlineData(0)]
