@@ -107,7 +107,7 @@ var streamClient = provider.GetRequiredService<IHeimdallStreamClient>();
 
 `AddHeimdallPowerStreamClient` reuses the same proxy configuration (`ProxyOptions`) as `AddHeimdallPowerApiClient`, but does **not** apply the standard resilience handler — reconnection for the long-lived stream connection is handled internally by `HeimdallStreamClient` instead.
 
-See the full example in [`examples/Api.Client.StreamExample`](examples/Api.Client.StreamExample).
+See the full example in [`examples/Stream.Client.Examples`](examples/Stream.Client.Examples).
 
 ## Error Handling
 

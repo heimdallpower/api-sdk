@@ -6,7 +6,7 @@
   </Configurations>
   <Folder Name="/examples/">
     <Project Path="examples/Api.Client.Examples/Api.Client.Examples.csproj" />
-    <Project Path="examples/Api.Client.StreamExample/Api.Client.StreamExample.csproj" />
+    <Project Path="examples/Stream.Client.Examples/Stream.Client.Examples.csproj" />
   </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/integration/">
