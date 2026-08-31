@@ -84,7 +84,7 @@ using HeimdallPower.Api.Client.Stream;
 
 var streamClient = new HeimdallStreamClient(clientId, clientSecret);
 
-await foreach (var envelope in streamClient.ReceiveAsync(gridOwnerId: null, infoLogger: Console.WriteLine, cancellationToken))
+await foreach (var envelope in streamClient.ReceiveAsync())
 {
     if (envelope.HeimdallDlr is { } dlr)
     {

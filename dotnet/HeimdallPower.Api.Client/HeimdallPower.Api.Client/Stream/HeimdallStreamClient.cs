@@ -20,8 +20,11 @@ public class HeimdallStreamClient : IHeimdallStreamClient
 
     /// <summary>
     /// A client that lets you consume the Heimdall Stream API.
-    /// Throws <see cref="HeimdallApiException"/> on non-transient errors.
     /// </summary>
+    /// <remarks>
+    /// This client will automatically attempt to reconnect with exponential backoff when transient errors occur.
+    /// The number of retry attempts is determined by the <see cref="StreamConnectionRetryPolicyOptions"/>.
+    /// </remarks>
     /// <param name="clientId">The client ID used to authenticate with the Heimdall Power API.</param>
     /// <param name="clientSecret">The client secret used to authenticate with the Heimdall Power API.</param>
     /// <param name="httpClient">An optional pre-configured <see cref="HttpClient"/>. When omitted, one is created with the default stream base address.</param>
@@ -50,12 +53,13 @@ public class HeimdallStreamClient : IHeimdallStreamClient
     /// connection drops or fails. The consumer only ever sees a continuous sequence of events. All event types are returned in a single stream, and the consumer can filter them by type if desired.
     /// The stream runs until the provided cancellation token is cancelled, or an unrecoverable error occurs.
     /// </summary>
+    /// <throws cref="HeimdallApiException">Thrown on non-transient errors after exhausting all retry attempts.</throws>
     /// <param name="gridOwnerId">The grid owner to receive events for, or <see langword="null"/> to receive events for the authenticated grid owner.</param>
     /// <param name="quantity">The physical quantity to receive events for, Current (default) or ApparentPower.</param>
     /// <param name="infoLogger">Callback invoked with diagnostic messages (e.g. errors, reconnect attempts), or <see langword="null"/> if no logging is desired. Not used for any event data.</param>
     /// <param name="traceLogger">Callback invoked with trace messages (e.g. heartbeats, received events), or <see langword="null"/> if no logging is desired. Does not log the detailed event data.</param>
     /// <param name="token">A token used to stop receiving events and end the stream.</param>
-    /// <returns>An asynchronous stream of Heimdall event envelopes that runs until cancelled.</returns>
+    /// <returns>An asynchronous stream of <see cref="HeimdallEventEnvelope"/> that runs until cancelled.</returns>
     public async IAsyncEnumerable<HeimdallEventEnvelope> ReceiveAsync(
         Guid? gridOwnerId,
         Quantity quantity = Quantity.Current,
@@ -98,9 +102,12 @@ public class HeimdallStreamClient : IHeimdallStreamClient
                 }
                 catch (Exception ex)
                 {
-                    if (ex is HeimdallApiException) throw;
-
                     failedAttempts++;
+
+                    if (ex is HeimdallApiException
+                    && !_retryPolicy.ShouldRetry(failedAttempts)) 
+                        throw;
+
                     infoLogger?.Invoke($"Stream error: {ex.Message}. Reconnecting... (attempt #{failedAttempts})");
                     break;
                 }
@@ -113,7 +120,6 @@ public class HeimdallStreamClient : IHeimdallStreamClient
 
             try
             {
-                // Should we break the loop after a number of failed attempts?
                 if (_retryPolicy.ShouldRetry(failedAttempts))
                 {
                     await Task.Delay(_retryPolicy.GetDelay(failedAttempts), token);
@@ -143,7 +149,7 @@ public class HeimdallStreamClient : IHeimdallStreamClient
     {
         await _tokenRefresher.EnsureFreshTokenAsync(token);
 
-        var url = UrlBuilder.BuildStreamUrl(version: 1, gridOwnerId, quantity);
+        string url = UrlBuilder.BuildStreamUrl(version: 1, gridOwnerId, quantity);
 
         using var request = new HttpRequestMessage(
                                     HttpMethod.Get,
