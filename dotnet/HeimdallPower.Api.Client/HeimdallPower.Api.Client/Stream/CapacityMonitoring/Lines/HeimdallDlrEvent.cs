@@ -2,7 +2,7 @@ namespace HeimdallPower.Api.Client.Stream.CapacityMonitoring.Lines;
 
 /// <summary>
 /// A Heimdall Dynamic Line Rating (DLR) reading for a span, as carried in <see cref="HeimdallEventEnvelope.Data"/>
-/// when <see cref="HeimdallEventEnvelope.Metric"/> equals <see cref="MetricName"/>.
+/// when <see cref="HeimdallEventEnvelope.Metric"/> equals <see cref="EventName"/>.
 /// </summary>
 /// <param name="AtLineId">The ID of the line the span belongs to.</param>
 /// <param name="AtSpanId">The ID of the span the reading applies to.</param>
@@ -17,7 +17,7 @@ public record HeimdallDlrEvent(
     bool IsFallback)
 {
     /// <summary>
-    /// The value of <see cref="HeimdallEventEnvelope.Metric"/> for Heimdall DLR events.
+    /// The value of SSE 'event:' field for Heimdall DLR events.
     /// </summary>
-    public const string MetricName = "Heimdall DLR";
+    public const string EventName = "heimdall_dlr";
 }

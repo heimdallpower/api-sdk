@@ -182,7 +182,7 @@ public class HeimdallStreamClient : IHeimdallStreamClient
             if (string.IsNullOrWhiteSpace(item.Data))
                 continue;
 
-            if (item.EventType == HeimdallDlrEvent.MetricName)
+            if (item.EventType == HeimdallDlrEvent.EventName)
             {
                 HeimdallEventEnvelope? envelope = JsonSerializer.Deserialize<HeimdallEventEnvelope>(item.Data, HeimdallStreamJsonSerializerOptions.Default);
 
