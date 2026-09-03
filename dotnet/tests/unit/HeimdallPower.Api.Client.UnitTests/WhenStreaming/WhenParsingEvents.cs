@@ -29,7 +29,7 @@ public class WhenParsingEvents
         using var cts = new CancellationTokenSource();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(infoLogger: _ => { }, token: cts.Token))
         {
             received = envelope;
             break;
@@ -59,7 +59,7 @@ public class WhenParsingEvents
         var traceMessages = new List<string>();
 
         var events = new List<HeimdallEventEnvelope>();
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, traceLogger: traceMessages.Add, token: cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(infoLogger: logMessages.Add, traceLogger: traceMessages.Add, token: cts.Token))
         {
             events.Add(envelope);
             break;
@@ -67,6 +67,7 @@ public class WhenParsingEvents
 
         Assert.Single(events);
         Assert.Contains(traceMessages, m => m.Contains("Heartbeat", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(logMessages, m => !m.Contains("Heartbeat", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -81,7 +82,7 @@ public class WhenParsingEvents
         using var cts = new CancellationTokenSource();
 
         var events = new List<HeimdallEventEnvelope>();
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(infoLogger: _ => { }, token: cts.Token))
         {
             events.Add(envelope);
             break;
@@ -111,7 +112,7 @@ public class WhenParsingEvents
         var logMessages = new List<string>();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, token: cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(infoLogger: logMessages.Add, token: cts.Token))
         {
             received = envelope;
             break;

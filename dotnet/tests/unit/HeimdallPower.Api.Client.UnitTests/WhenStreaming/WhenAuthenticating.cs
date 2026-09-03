@@ -29,7 +29,7 @@ public class WhenAuthenticating
             retryPolicy: ZeroDelay);
 
         using var cts = new CancellationTokenSource();
-        await foreach (var _ in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
+        await foreach (var _ in client.ReceiveAsync(infoLogger: _ => { }, token: cts.Token))
         {
             break;
         }
@@ -57,7 +57,7 @@ public class WhenAuthenticating
 
         using var cts = new CancellationTokenSource();
         var receivedCount = 0;
-        await foreach (var _ in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
+        await foreach (var _ in client.ReceiveAsync(infoLogger: _ => { }, token: cts.Token))
         {
             receivedCount++;
             if (receivedCount == 2)
@@ -93,7 +93,7 @@ public class WhenAuthenticating
         var logMessages = new List<string>();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, token: cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(infoLogger: logMessages.Add, token: cts.Token))
         {
             received = envelope;
             break;

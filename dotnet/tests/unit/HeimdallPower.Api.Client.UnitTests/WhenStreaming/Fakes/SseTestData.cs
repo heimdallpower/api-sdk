@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using HeimdallPower.Api.Client.Stream.CapacityMonitoring.Lines;
 
 namespace HeimdallPower.Api.Client.UnitTests.WhenStreaming.Fakes;
 
@@ -21,12 +22,12 @@ internal static class SseTestData
             data = new { at_line_id = lineId, at_span_id = spanId, timestamp, value, is_fallback = isFallback },
         };
         var json = JsonSerializer.Serialize(payload);
-        return $"event: Heimdall DLR\ndata: {json}\n\n";
+        return $"event: {HeimdallDlrEvent.EventName}\ndata: {json}\n\n";
     }
 
     public static string UnknownEvent => "event: something_else\ndata: {\"foo\":\"bar\"}\n\n";
 
-    public static string MalformedDlrEvent => "event: Heimdall DLR\ndata: not-json\n\n";
+    public static string MalformedDlrEvent => $"event: {HeimdallDlrEvent.EventName}\ndata: not-json\n\n";
 
     public static HttpResponseMessage OkResponse(string sseBody) => new(HttpStatusCode.OK)
     {

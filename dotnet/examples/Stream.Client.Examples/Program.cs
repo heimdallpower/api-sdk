@@ -20,8 +20,7 @@ Console.CancelKeyPress += (_, e) =>
 
 Console.WriteLine("Listening for events. Press Ctrl+C to stop.");
 
-// Pass a specific grid owner ID to only receive events for that grid owner.
-await foreach (var envelope in streamClient.ReceiveAsync(gridOwnerId: null, quantity: Quantity.Current, infoLogger: Console.WriteLine, traceLogger: Console.WriteLine, token: cts.Token))
+await foreach (var envelope in streamClient.ReceiveAsync(quantity: Quantity.Current, infoLogger: Console.WriteLine, traceLogger: Console.WriteLine, token: cts.Token))
 {
     if (envelope.HeimdallDlr is { } dlr)
     {

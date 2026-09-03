@@ -39,7 +39,7 @@ public class WhenReconnecting
         var logMessages = new List<string>();
 
         HeimdallEventEnvelope? received = null;
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: logMessages.Add, token: cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(infoLogger: logMessages.Add, token: cts.Token))
         {
             received = envelope;
             break;
@@ -68,7 +68,7 @@ public class WhenReconnecting
         using var cts = new CancellationTokenSource();
 
         var values = new List<double>();
-        await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
+        await foreach (var envelope in client.ReceiveAsync(infoLogger: _ => { }, token: cts.Token))
         {
             values.Add(envelope.HeimdallDlr!.Value);
             if (values.Count == 3)
@@ -89,7 +89,7 @@ public class WhenReconnecting
 
         var enumerationTask = Task.Run(async () =>
         {
-            await foreach (var envelope in client.ReceiveAsync(gridOwnerId: null, infoLogger: _ => { }, token: cts.Token))
+            await foreach (var envelope in client.ReceiveAsync(infoLogger: _ => { }, token: cts.Token))
             {
                 events.Add(envelope);
             }
