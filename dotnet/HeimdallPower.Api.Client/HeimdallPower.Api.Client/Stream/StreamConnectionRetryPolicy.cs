@@ -38,7 +38,7 @@ internal sealed class StreamConnectionRetryPolicy(StreamConnectionRetryPolicyOpt
     /// <returns>The backoff delay, with jitter applied, capped at the configured maximum delay.</returns>
     public TimeSpan GetDelay(int failedAttempts)
     {
-        if (failedAttempts <= 0)
+        if (failedAttempts <= 1)
             return _initialDelay;
 
         var exponential = _initialDelay * Math.Pow(2, Math.Min(failedAttempts, 10));

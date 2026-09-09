@@ -2,8 +2,8 @@ using HeimdallPower.Api.Client.Stream;
 using HeimdallPower.Api.Client.Stream.CapacityMonitoring;
 
 // Configuration setup
-const string clientId = "insert-your-client-id-here";
-const string clientSecret = "insert-your-client-secret-here";
+string clientId = Environment.GetEnvironmentVariable("HP_CLIENT_ID") ?? throw new InvalidOperationException("HP_CLIENT_ID environment variable is not set.");
+string clientSecret = Environment.GetEnvironmentVariable("HP_CLIENT_SECRET") ?? throw new InvalidOperationException("HP_CLIENT_SECRET environment variable is not set.");
 
 Console.WriteLine("Initiating Heimdall Stream client");
 

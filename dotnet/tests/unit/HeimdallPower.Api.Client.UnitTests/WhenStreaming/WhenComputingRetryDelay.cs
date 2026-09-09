@@ -17,9 +17,10 @@ public class WhenComputingRetryDelay
     private readonly StreamConnectionRetryPolicy _policy = new(new StreamConnectionRetryPolicyOptions { InitialDelay = InitialDelay, MaxDelay = MaxDelay });
 
     [Theory]
+    [InlineData(1)]
     [InlineData(0)]
     [InlineData(-1)]
-    public void ShouldReturnInitialDelay_WhenNoFailedAttempts(int failedAttempts)
+    public void ShouldReturnInitialDelay_WhenFirstOrNoFailedAttempts(int failedAttempts)
     {
         var delay = _policy.GetDelay(failedAttempts);
 
@@ -27,9 +28,9 @@ public class WhenComputingRetryDelay
     }
 
     [Theory]
-    [InlineData(1, 1.6, 2.4)]   // 1s * 2^1 = 2s, +/-20% jitter
     [InlineData(2, 3.2, 4.8)]   // 1s * 2^2 = 4s, +/-20% jitter
     [InlineData(3, 6.4, 9.6)]   // 1s * 2^3 = 8s, +/-20% jitter
+    [InlineData(4, 12.8, 19.2)] // 1s * 2^4 = 16s, +/-20% jitter
     public void ShouldDoubleDelayPerAttempt_WithinJitterBand(int failedAttempts, double minSeconds, double maxSeconds)
     {
         var delay = _policy.GetDelay(failedAttempts);

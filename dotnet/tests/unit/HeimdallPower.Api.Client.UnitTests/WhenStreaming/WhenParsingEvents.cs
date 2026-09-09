@@ -65,9 +65,10 @@ public class WhenParsingEvents
             break;
         }
 
-        Assert.Single(events);
+        Assert.Single(events);        
+        Assert.Equal("Heimdall DLR", events[0].Metric);
         Assert.Contains(traceMessages, m => m.Contains("Heartbeat", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(logMessages, m => !m.Contains("Heartbeat", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(logMessages, m => m.Contains("Heartbeat", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

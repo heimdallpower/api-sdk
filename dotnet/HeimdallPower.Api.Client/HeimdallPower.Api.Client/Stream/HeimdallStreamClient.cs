@@ -77,6 +77,8 @@ public class HeimdallStreamClient : IHeimdallStreamClient
 
             while (true)
             {
+                // Note for devs: break means retry, but yield break means end the enumeration and exit method
+
                 HeimdallEventEnvelope envelope;
 
                 try
@@ -95,7 +97,14 @@ public class HeimdallStreamClient : IHeimdallStreamClient
                 {
                     failedAttempts++;
                     infoLogger?.Invoke($"Stream error: unauthorized. Refreshing token and reconnecting... (attempt #{failedAttempts})");
-                    await _tokenRefresher.ForceRefreshAsync(token);
+                    try
+                    {
+                        await _tokenRefresher.ForceRefreshAsync(token);
+                    }
+                    catch (OperationCanceledException) when (token.IsCancellationRequested)
+                    {
+                        yield break;
+                    }
                     break;
                 }
                 catch (Exception ex)
