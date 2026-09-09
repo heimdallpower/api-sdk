@@ -1,3 +1,5 @@
+using HeimdallPower.Api.Client.Common;
+
 namespace HeimdallPower.Api.Client.UnitTests.WhenStreaming.Fakes;
 
 /// <summary>

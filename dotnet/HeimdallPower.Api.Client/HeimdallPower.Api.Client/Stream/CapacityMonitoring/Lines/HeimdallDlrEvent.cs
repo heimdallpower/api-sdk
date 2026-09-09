@@ -6,9 +6,9 @@ namespace HeimdallPower.Api.Client.Stream.CapacityMonitoring.Lines;
 /// </summary>
 /// <param name="AtLineId">The ID of the line the span belongs to.</param>
 /// <param name="AtSpanId">The ID of the span the reading applies to.</param>
-/// <param name="Timestamp">The time the reading was taken.</param>
-/// <param name="Value">The DLR value, in the unit specified by <see cref="HeimdallEventEnvelope.Unit"/>.</param>
-/// <param name="IsFallback">Whether this is a fallback rating, used when a live DLR value is unavailable.</param>
+/// <param name="Timestamp">Time (in UTC) when the Heimdall DLR was calculated. <example>2024-01-01T12:00:00Z</example></param>
+/// <param name="Value">The minimum calculated ampacity, in the unit specified by <see cref="HeimdallEventEnvelope.Unit"/>. <example>375.4</example></param>
+/// <param name="IsFallback">Indicates whether the Heimdall DLR is a fallback value. Only applies to grid owners opting in for this feature.</param>
 public record HeimdallDlrEvent(
     Guid AtLineId,
     Guid AtSpanId,

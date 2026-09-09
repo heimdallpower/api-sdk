@@ -41,7 +41,7 @@ internal sealed class StreamConnectionRetryPolicy(StreamConnectionRetryPolicyOpt
         if (failedAttempts <= 1)
             return _initialDelay;
 
-        var exponential = _initialDelay * Math.Pow(2, Math.Min(failedAttempts, 10));
+        var exponential = _initialDelay * Math.Pow(2, Math.Min(failedAttempts-1, 10));
         var capped = exponential < _maxDelay ? exponential : _maxDelay;
 
         // Jitter avoids a thundering herd of clients reconnecting simultaneously.

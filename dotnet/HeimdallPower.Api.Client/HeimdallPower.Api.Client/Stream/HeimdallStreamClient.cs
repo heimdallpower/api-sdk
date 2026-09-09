@@ -1,5 +1,5 @@
-using HeimdallPower.Api.Client;
-using HeimdallPower.Api.Client.Stream.CapacityMonitoring;
+using HeimdallPower.Api.Client.Common;
+using HeimdallPower.Api.Client.REST;
 using HeimdallPower.Api.Client.Stream.CapacityMonitoring.Lines;
 using System.Net;
 using System.Net.ServerSentEvents;
@@ -84,7 +84,10 @@ public class HeimdallStreamClient : IHeimdallStreamClient
                 try
                 {
                     if (!await enumerator.MoveNextAsync())
+                    {
+                        failedAttempts++;
                         break; // Stream closed by server - reconnect.
+                    }
 
                     envelope = enumerator.Current;
                     failedAttempts = 0; // A successful read resets the backoff.
@@ -155,11 +158,9 @@ public class HeimdallStreamClient : IHeimdallStreamClient
     {
         await _tokenRefresher.EnsureFreshTokenAsync(token);
 
-        string url = UrlBuilder.BuildStreamUrl(version: 1, quantity);
+        string url = StreamUrlBuilder.BuildStreamUrl(version: 1, quantity);
 
-        using var request = new HttpRequestMessage(
-                                    HttpMethod.Get,
-                                    url);
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
 
         using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
 

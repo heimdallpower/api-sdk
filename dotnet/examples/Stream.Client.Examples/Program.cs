@@ -1,5 +1,5 @@
+using HeimdallPower.Api.Client.Common;
 using HeimdallPower.Api.Client.Stream;
-using HeimdallPower.Api.Client.Stream.CapacityMonitoring;
 
 // Configuration setup
 string clientId = Environment.GetEnvironmentVariable("HP_CLIENT_ID") ?? throw new InvalidOperationException("HP_CLIENT_ID environment variable is not set.");

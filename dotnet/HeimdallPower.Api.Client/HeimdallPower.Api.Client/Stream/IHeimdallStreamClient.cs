@@ -1,4 +1,5 @@
-using HeimdallPower.Api.Client.Stream.CapacityMonitoring;
+using HeimdallPower.Api.Client.Common;
+using HeimdallPower.Api.Client.REST;
 
 namespace HeimdallPower.Api.Client.Stream;
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using HeimdallPower.Api.Client.REST;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace HeimdallPower.Api.Client.Extensions;

@@ -1,4 +1,6 @@
 using System.Net;
+using HeimdallPower.Api.Client.Common;
+using HeimdallPower.Api.Client.REST;
 using HeimdallPower.Api.Client.UnitTests.WhenHandlingErrorResponses.Fakes;
 
 namespace HeimdallPower.Api.Client.UnitTests.WhenHandlingErrorResponses;

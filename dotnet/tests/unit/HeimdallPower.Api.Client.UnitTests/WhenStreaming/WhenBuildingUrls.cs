@@ -1,5 +1,5 @@
-using HeimdallPower.Api.Client.Stream.CapacityMonitoring;
-using StreamUrlBuilder = HeimdallPower.Api.Client.Stream.UrlBuilder;
+using HeimdallPower.Api.Client.Common;
+using StreamUrlBuilder = HeimdallPower.Api.Client.Stream.StreamUrlBuilder;
 
 namespace HeimdallPower.Api.Client.UnitTests.WhenStreaming;
 

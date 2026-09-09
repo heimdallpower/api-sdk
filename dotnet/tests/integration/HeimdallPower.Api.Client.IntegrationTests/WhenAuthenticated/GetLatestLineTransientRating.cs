@@ -1,4 +1,4 @@
-using HeimdallPower.Api.Client.CapacityMonitoring.Lines;
+using HeimdallPower.Api.Client.REST.CapacityMonitoring.Lines;
 
 namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;
 
