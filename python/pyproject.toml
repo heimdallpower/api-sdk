@@ -9,7 +9,7 @@ authors = [
 requires-python = ">=3.11"
 dependencies = [
   "httpx>=0.24.1,<1.0",
-  "pydantic>=2.13.4,<3.0",
+  "pydantic>=2.13.5,<3.0",
   "PyJWT>=2.13.0,<3.0",
   "requests (>=2.34.2,<3.0.0)",
   "attrs (>=25.3.0,<26.0.0)",
@@ -23,7 +23,7 @@ Repository = "https://github.com/heimdallpower/api-sdk"
 Changelog = "https://github.com/heimdallpower/api-sdk/releases"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.16.4"
+ruff = "^0.16.5"
 pytest = "^9.1.1"
 
 [tool.poetry]
