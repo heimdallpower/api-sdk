@@ -5,12 +5,32 @@ on:
     types: [published]
 
 jobs:
+  guard:
+    name: Check tag belongs to .NET
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      publish: ${{ steps.guard.outputs.publish }}
+      version: ${{ steps.guard.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Validate tag format
+        id: guard
+        run: bash .github/scripts/tag-guard.sh dotnet "$GITHUB_REF_NAME"
+
   publish:
     name: Publish to NuGet
+    needs: guard
+    if: needs.guard.outputs.publish == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read # Allow actions/checkout to fetch the repository
       id-token: write # Enable GitHub OIDC token issuance for NuGet Trusted Publishing
+    env:
+      VERSION: ${{ needs.guard.outputs.version }}
     defaults:
       run:
         working-directory: dotnet
@@ -24,19 +44,9 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Validate tag format
+      - name: Show version from tag
         run: |
-          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9\.]+)?$ ]]; then
-            echo "Invalid tag format: $GITHUB_REF_NAME"
-            echo "Expected: v<MAJOR>.<MINOR>.<PATCH> (e.g., v1.2.3 or v1.2.3-beta.1)"
-            exit 1
-          fi
-
-      - name: Set version from tag
-        run: |
-          VERSION=${GITHUB_REF_NAME#v}
           echo "Building and packing with version: $VERSION"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Restore dependencies
         run: dotnet restore
