@@ -1,0 +1,24 @@
+name: Release scripts tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/scripts/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/scripts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Test tag guard
+        run: bash .github/scripts/tag-guard.test.sh
