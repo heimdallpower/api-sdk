@@ -49,10 +49,25 @@ ci: add conventional commits PR title validation
 ## Branching & Releases
 
 - Contributions should be made as pull requests into `main`.
-- Releases are managed using GitHub Releases.
-- Tags must follow the format: `v<MAJOR>.<MINOR>.<PATCH>` (e.g., `v1.2.3`)
-- A GitHub Release must be published for the packages to be built and published: the .NET package is pushed to [NuGet](https://www.nuget.org/) and the Python package to [PyPI](https://pypi.org/project/heimdallpower-api-client/) (both via trusted publishing / OIDC, no stored API tokens)
-- The `v` prefix is automatically stripped when packaging
+- The two SDKs are **versioned and released independently**, each from its own tag:
+  - .NET (`HeimdallPower.Api.Client`, `HeimdallPower.Api.Client.Extensions` → NuGet): `dotnet-v<MAJOR>.<MINOR>.<PATCH>[-<prerelease>]`, e.g. `dotnet-v4.1.0`, `dotnet-v4.2.0-beta.1`
+  - Python (`heimdallpower-api-client` → PyPI): `python-v<MAJOR>.<MINOR>.<PATCH>[-(alpha|beta|rc).<N>]`, e.g. `python-v4.1.0`, `python-v4.2.0-rc.1` (the suffix must be valid PEP 440; `-test` is not)
+- The version lives **only in the tag**. `<Version>0.0.0</Version>` and `version = "0.0.0"` in the repo are placeholders that CI overrides; do not bump them.
+- A change that touches both SDKs gets **two releases**, one per tag.
+- The unprefixed `vX.Y.Z` format (up to `v4.0.0`) is retired. Pushing one now fails both publish workflows on purpose.
+
+### Cutting a release
+
+1. Run the **Prepare release (draft)** workflow (Actions → *Prepare release (draft)* → *Run workflow*), choose the SDK, optionally type a version. It computes the baseline from the highest existing `<sdk>-v*` tag (falling back to the legacy `v*` tag before any prefixed tag exists) and diffs `HEAD` against it. If it finds no `feat`/`fix`/breaking commits for that SDK since the baseline, it prints its report and exits **without drafting anything** — pass a version override to force a release anyway.
+   - The suggested bump is **advisory only**: it comes from conventional-commit **subject lines** (plus a `BREAKING CHANGE:`/`BREAKING-CHANGE:` footer) since the baseline tag — dependency-bump commit *bodies* that embed another project's changelog are ignored. A `chore:` that breaks consumers (as the .NET 10 upgrade did) is invisible to it. Decide the number yourself.
+   - It also reports commits that touch files outside both SDKs' path sets (check whether they matter) and unreleased commits on the *other* SDK (so a paired change is not forgotten).
+   - If the proposed tag **already exists**, it refuses to draft (`::error::`) — a published version can't be re-targeted this way.
+   - If you pass a version override and there are no matching changes, it still drafts, but emits a `::warning::` and says so in the release notes body — check that this is really what you meant before publishing.
+2. Open the draft, review the notes and the version. **Do not click "Generate release notes"** — GitHub compares against the chronologically previous release, which under a split is often the *other* SDK's.
+3. Publish. Publishing creates the tag, which triggers `nuget-publish.yml` or `python-publish.yml`; the other one skips. Both use trusted publishing (OIDC) — no stored API tokens.
+4. Nothing published to NuGet or PyPI can be re-used: a wrong version number is permanent. Check twice.
+
+> The **Latest** badge / `releases/latest` on the Releases page now alternates between whichever SDK shipped most recently. Link to explicit tags, never to `releases/latest`.
 
 ---
 
