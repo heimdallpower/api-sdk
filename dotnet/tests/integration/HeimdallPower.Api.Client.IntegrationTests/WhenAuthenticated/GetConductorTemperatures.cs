@@ -1,4 +1,4 @@
-using HeimdallPower.Api.Client.GridInsights.Lines;
+using HeimdallPower.Api.Client.REST.GridInsights.Lines;
 
 namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;
 

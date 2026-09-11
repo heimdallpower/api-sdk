@@ -75,6 +75,40 @@ services.AddHeimdallPowerApiClient(options =>
 
 When no explicit `Address` is set, the SDK falls back to `HTTPS_PROXY`/`HTTP_PROXY`/`NO_PROXY` environment variables. The proxy applies to both API calls and token acquisition.
 
+## Streaming
+
+`HeimdallStreamClient` consumes the Heimdall Stream API (Server-Sent Events), transparently reconnecting with exponential backoff. It authenticates the same way as `HeimdallApiClient`, using the same client credentials.
+
+```csharp
+using HeimdallPower.Api.Client.Stream;
+
+var streamClient = new HeimdallStreamClient(clientId, clientSecret);
+
+await foreach (var envelope in streamClient.ReceiveAsync())
+{
+    if (envelope.HeimdallDlr is { } dlr)
+    {
+        Console.WriteLine($"{dlr.Value} {envelope.Unit} at {dlr.Timestamp}");
+    }
+}
+```
+
+Using the `HeimdallPower.Api.Client.Extensions` package:
+
+```csharp
+services.AddHeimdallPowerStreamClient(options =>
+{
+    options.ClientId = "your-client-id";
+    options.ClientSecret = "your-client-secret";
+});
+
+var streamClient = provider.GetRequiredService<IHeimdallStreamClient>();
+```
+
+`AddHeimdallPowerStreamClient` reuses the same proxy configuration (`ProxyOptions`) as `AddHeimdallPowerApiClient`, but does **not** apply the standard resilience handler — reconnection for the long-lived stream connection is handled internally by `HeimdallStreamClient` instead.
+
+See the full example in [`examples/Stream.Client.Examples`](examples/Stream.Client.Examples).
+
 ## Error Handling
 
 ### Resilience and retry

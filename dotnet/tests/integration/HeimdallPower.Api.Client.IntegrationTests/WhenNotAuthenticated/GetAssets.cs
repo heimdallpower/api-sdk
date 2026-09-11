@@ -1,4 +1,6 @@
-﻿namespace HeimdallPower.Api.Client.IntegrationTests.WhenNotAuthenticated;
+using HeimdallPower.Api.Client.REST;
+
+namespace HeimdallPower.Api.Client.IntegrationTests.WhenNotAuthenticated;
 
 [Trait("Category", "Integration")]
 public class GetAssets(GetAssets.Scenario scenario) : IClassFixture<GetAssets.Scenario>

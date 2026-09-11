@@ -1,7 +1,8 @@
 using System.Net;
-using HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
-using HeimdallPower.Api.Client.CapacityMonitoring.Lines;
-using HeimdallPower.Api.Client.GridInsights.Lines;
+using HeimdallPower.Api.Client.REST;
+using HeimdallPower.Api.Client.REST.CapacityMonitoring.Facilities;
+using HeimdallPower.Api.Client.REST.CapacityMonitoring.Lines;
+using HeimdallPower.Api.Client.REST.GridInsights.Lines;
 using HeimdallPower.Api.Client.UnitTests.WhenHandlingErrorResponses.Fakes;
 
 namespace HeimdallPower.Api.Client.UnitTests.WhenHandlingErrorResponses;

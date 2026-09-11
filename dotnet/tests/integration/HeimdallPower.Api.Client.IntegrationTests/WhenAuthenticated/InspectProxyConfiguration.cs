@@ -1,4 +1,5 @@
 using HeimdallPower.Api.Client.Extensions;
+using HeimdallPower.Api.Client.REST;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;

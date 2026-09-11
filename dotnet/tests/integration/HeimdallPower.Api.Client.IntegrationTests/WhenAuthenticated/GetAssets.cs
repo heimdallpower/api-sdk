@@ -1,4 +1,4 @@
-﻿using HeimdallPower.Api.Client.Assets;
+using HeimdallPower.Api.Client.REST.Assets;
 
 namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;
 

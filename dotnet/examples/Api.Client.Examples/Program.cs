@@ -1,5 +1,6 @@
-﻿using HeimdallPower.Api.Client;
-using HeimdallPower.Api.Client.Assets;
+using HeimdallPower.Api.Client.REST.Assets;
+using HeimdallPower.Api.Client.Common;
+using HeimdallPower.Api.Client.REST;
 
 // Configuration setup
 const string clientId = "insert-your-client-id-here";

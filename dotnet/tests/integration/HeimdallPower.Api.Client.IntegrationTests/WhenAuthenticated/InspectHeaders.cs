@@ -1,3 +1,5 @@
+using HeimdallPower.Api.Client.REST;
+
 namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;
 
 [Trait("Category", "Integration")]
