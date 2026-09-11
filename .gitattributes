@@ -1,3 +1,4 @@
-# Shell scripts must keep LF endings — they run on ubuntu-latest runners,
-# where CR would abort the interpreter. The repo is otherwise CRLF (core.autocrlf).
+# Shell scripts must keep LF endings in the object store and on checkout —
+# they are executed by bash on ubuntu-latest runners, where a CR would abort
+# the interpreter. This does not depend on any contributor's core.autocrlf.
 *.sh text eol=lf
