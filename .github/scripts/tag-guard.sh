@@ -17,15 +17,21 @@ sdk=${1:-}
 tag=${2:-}
 out=${GITHUB_OUTPUT:-/dev/stdout}
 
+# SemVer 2 prerelease identifier: numeric (no leading zeroes) or alphanumeric
+# (at least one non-digit; hyphens allowed, so `alpha-1` is valid).
+ident='(0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)'
+
 case "$sdk" in
-  dotnet) other=python; pre='(-[a-z0-9.]+)?' ;;                 # NuGet: any SemVer 2 prerelease
+  dotnet) other=python; pre="(-${ident}(\.${ident})*)?" ;;      # NuGet: any SemVer 2 prerelease
   python) other=dotnet; pre='(-(alpha|beta|rc)\.[0-9]+)?' ;;    # PyPI: must normalise under PEP 440
   *) echo "::error::unknown sdk '$sdk' (expected dotnet or python)"; exit 2 ;;
 esac
 
 semver='[0-9]+\.[0-9]+\.[0-9]+'
+mine_re="^${sdk}-v(${semver}${pre})$"
+other_re="^${other}-v"
 
-if [[ "$tag" =~ ^${sdk}-v(${semver}${pre})$ ]]; then
+if [[ "$tag" =~ $mine_re ]]; then
   version=${BASH_REMATCH[1]}
   echo "publish=true" >> "$out"
   echo "version=$version" >> "$out"
@@ -33,7 +39,7 @@ if [[ "$tag" =~ ^${sdk}-v(${semver}${pre})$ ]]; then
   exit 0
 fi
 
-if [[ "$tag" =~ ^${other}-v ]]; then
+if [[ "$tag" =~ $other_re ]]; then
   echo "publish=false" >> "$out"
   echo "::notice::$tag is a $other release tag; nothing to do for $sdk"
   exit 0

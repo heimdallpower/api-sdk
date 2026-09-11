@@ -30,6 +30,8 @@ expect dotnet dotnet-v4.1.0-preview.2 0 true 4.1.0-preview.2
 expect python python-v4.1.0-rc.1      0 true 4.1.0-rc.1
 expect python python-v4.1.0-beta.1    0 true 4.1.0-beta.1
 expect python python-v4.1.0-alpha.3   0 true 4.1.0-alpha.3
+expect dotnet dotnet-v4.1.0-alpha-1   0 true 4.1.0-alpha-1   # hyphen is legal in a SemVer identifier
+expect dotnet dotnet-v4.1.0-rc.1.2    0 true 4.1.0-rc.1.2    # dot-separated identifiers
 
 # Other SDK's prefix -> skip green, no version
 expect dotnet python-v4.1.0           0 false -
@@ -44,8 +46,11 @@ expect dotnet v9.9.9-test             1 - -
 # Malformed -> fail red
 expect dotnet dotnet-v4.1             1 - -
 expect dotnet dotnet-4.1.0            1 - -
+expect dotnet dotnet-v4.1.0-          1 - -   # empty prerelease
+expect dotnet dotnet-v4.1.0-..        1 - -   # empty identifiers
+expect dotnet dotnet-v4.1.0-01        1 - -   # leading zero in a numeric identifier
 expect python python-v0.0.1-test      1 - -   # not PEP 440
-expect python python-v4.1.0-preview.1 1 - -   # not PEP 440
+expect python python-v4.1.0-preview.1 1 - -   # valid PEP 440, but not accepted here
 expect dotnet garbage                 1 - -
 expect python ""                      1 - -
 

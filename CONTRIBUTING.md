@@ -41,7 +41,7 @@ The two SDKs are **versioned and released independently**, each from its own tag
 
 - The version lives **only in the tag**. The `0.0.0` values in the `.csproj` files and `pyproject.toml` are placeholders that CI overrides — don't bump them.
 - A change touching both SDKs gets **two releases**, one per tag.
-- Python prerelease suffixes must be valid PEP 440; `-test` and `-preview` are not.
+- Python prereleases accept only `-alpha.N`, `-beta.N` and `-rc.N`. Other PEP 440 spellings (`-preview`, `-pre`, `-a1`) are rejected by the guard, and `-test` isn't PEP 440 at all.
 - The unprefixed `vX.Y.Z` format is retired — a release on a new one fails both publish workflows on purpose. Don't re-publish on the old `v1.0.0`–`v4.0.0` tags either: those commits predate the guard and still run the unsplit workflows.
 
 ### Cutting a release
