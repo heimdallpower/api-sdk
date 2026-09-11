@@ -147,7 +147,7 @@ report() {
   echo "- Suggested bump: **$suggested**${override:+ (overridden to \`$override\`)}"
   echo "- Proposed tag: \`${version:+$tag}\`"
   echo; echo "### $sdk changes since $base"; list "$changes"
-  echo; echo "### Commits touching files outside both SDK path sets (review)"; list "$outside"
+  echo; echo "### Commits also touching files outside both SDK path sets (review)"; list "$outside"
   echo; echo "### ⚠ Unreleased on $other since $other_base"; list "$other_changes"
 }
 report

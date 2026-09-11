@@ -54,18 +54,21 @@ ci: add conventional commits PR title validation
   - Python (`heimdallpower-api-client` → PyPI): `python-v<MAJOR>.<MINOR>.<PATCH>[-(alpha|beta|rc).<N>]`, e.g. `python-v4.1.0`, `python-v4.2.0-rc.1` (the suffix must be valid PEP 440; `-test` is not)
 - The version lives **only in the tag**. `<Version>0.0.0</Version>` and `version = "0.0.0"` in the repo are placeholders that CI overrides; do not bump them.
 - A change that touches both SDKs gets **two releases**, one per tag.
-- The unprefixed `vX.Y.Z` format (up to `v4.0.0`) is retired. Pushing one now fails both publish workflows on purpose.
+- The unprefixed `vX.Y.Z` format (up to `v4.0.0`) is retired. Publishing a Release on a **newly created** `vX.Y.Z` tag now fails both publish workflows on purpose. Note that pushing such a tag by itself does nothing — the publish workflows trigger on Release *publication*, not on a tag push. And never re-publish a Release on one of the **pre-existing** `v*` tags (`v1.0.0`…`v4.0.0`): those commits predate the tag guard and still run the old, unsplit, unguarded publish workflows from that commit.
 
 ### Cutting a release
 
-1. Run the **Prepare release (draft)** workflow (Actions → *Prepare release (draft)* → *Run workflow*), choose the SDK, optionally type a version. It computes the baseline from the highest existing `<sdk>-v*` tag (falling back to the legacy `v*` tag before any prefixed tag exists) and diffs `HEAD` against it. If it finds no `feat`/`fix`/breaking commits for that SDK since the baseline, it prints its report and exits **without drafting anything** — pass a version override to force a release anyway.
+1. Run the **Prepare release (draft)** workflow (Actions → *Prepare release (draft)* → *Run workflow*), choose the SDK, optionally type a version. It computes the baseline from the highest existing `<sdk>-v*` tag (falling back to the legacy `v*` tag before any prefixed tag exists) and diffs `HEAD` against it. On success it creates a draft release with the proposed tag, `--target` pinned to the commit you dispatched from, and generated notes. If it finds no `feat`/`fix`/breaking commits for that SDK since the baseline, it prints its report and exits **without drafting anything** — pass a version override to force a release anyway.
    - The suggested bump is **advisory only**: it comes from conventional-commit **subject lines** (plus a `BREAKING CHANGE:`/`BREAKING-CHANGE:` footer) since the baseline tag — dependency-bump commit *bodies* that embed another project's changelog are ignored. A `chore:` that breaks consumers (as the .NET 10 upgrade did) is invisible to it. Decide the number yourself.
    - It also reports commits that touch files outside both SDKs' path sets (check whether they matter) and unreleased commits on the *other* SDK (so a paired change is not forgotten).
    - If the proposed tag **already exists**, it refuses to draft (`::error::`) — a published version can't be re-targeted this way.
    - If you pass a version override and there are no matching changes, it still drafts, but emits a `::warning::` and says so in the release notes body — check that this is really what you meant before publishing.
+   - Iterating a prerelease (e.g. `rc.1` → `rc.2`) needs a manual version override: the baseline always tracks the last *stable* tag by design, so the helper won't notice an existing prerelease on its own.
 2. Open the draft, review the notes and the version. **Do not click "Generate release notes"** — GitHub compares against the chronologically previous release, which under a split is often the *other* SDK's.
 3. Publish. Publishing creates the tag, which triggers `nuget-publish.yml` or `python-publish.yml`; the other one skips. Both use trusted publishing (OIDC) — no stored API tokens.
 4. Nothing published to NuGet or PyPI can be re-used: a wrong version number is permanent. Check twice.
+
+> **Never delete a release tag.** The tag is the only record that a version number has been burned — both the reuse refusal in step 1 and the version baseline it computes from read tags, so deleting one silently un-burns that version and the helper will happily re-propose it. For NuGet this is especially quiet: `nuget-publish.yml` pushes with `--skip-duplicate`, so re-publishing an already-shipped version exits 0 having uploaded nothing — a green workflow and release notes claiming a version shipped, with nothing actually new on nuget.org.
 
 > The **Latest** badge / `releases/latest` on the Releases page now alternates between whichever SDK shipped most recently. Link to explicit tags, never to `releases/latest`.
 

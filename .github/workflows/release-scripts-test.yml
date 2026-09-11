@@ -5,10 +5,16 @@ on:
     branches: [ main ]
     paths:
       - '.github/scripts/**'
+      - '.github/workflows/nuget-publish.yml'
+      - '.github/workflows/python-publish.yml'
+      - '.github/workflows/release-scripts-test.yml'
   pull_request:
     branches: [ main ]
     paths:
       - '.github/scripts/**'
+      - '.github/workflows/nuget-publish.yml'
+      - '.github/workflows/python-publish.yml'
+      - '.github/workflows/release-scripts-test.yml'
 
 permissions:
   contents: read
@@ -25,3 +31,24 @@ jobs:
 
       - name: Test prepare-release bump logic
         run: bash .github/scripts/prepare-release.test.sh
+
+      - name: Test prepare-release DRY_RUN smoke behaviour
+        run: bash .github/scripts/prepare-release.smoke.test.sh
+
+      - name: Assert publish workflows call the right guard
+        run: |
+          # The three-state design (own prefix -> publish, other SDK's prefix ->
+          # skip green, anything else -> fail red) only works if each publish
+          # workflow calls tag-guard.sh with ITS OWN sdk name. If either call
+          # site ever named the wrong SDK, both publish jobs would silently
+          # skip green on that SDK's tag: nothing would publish, nothing would
+          # go red, and no human would be told. Pin the wiring here so a typo
+          # in either workflow fails this job loudly instead.
+          grep -q 'tag-guard.sh dotnet' .github/workflows/nuget-publish.yml || {
+            echo "::error::nuget-publish.yml no longer calls 'tag-guard.sh dotnet' — the dotnet publish workflow would stop validating its own tags correctly."
+            exit 1
+          }
+          grep -q 'tag-guard.sh python' .github/workflows/python-publish.yml || {
+            echo "::error::python-publish.yml no longer calls 'tag-guard.sh python' — the python publish workflow would stop validating its own tags correctly."
+            exit 1
+          }

@@ -19,6 +19,10 @@ on:
 permissions:
   contents: write # gh release create (draft)
 
+concurrency:
+  group: prepare-release-${{ inputs.sdk }}
+  cancel-in-progress: false
+
 jobs:
   prepare:
     name: Draft ${{ inputs.sdk }} release
