@@ -7,6 +7,7 @@
 #   publish=true  version=<X.Y.Z[-pre]>   tag is this SDK's           -> exit 0
 #   publish=false                          tag is the other SDK's      -> exit 0 (skip)
 #   (nothing)                              anything else, incl. vX.Y.Z -> exit 1 (fail)
+#   (nothing)                              unknown <sdk> argument      -> exit 2 (usage error)
 #
 # Three states on purpose: the other SDK's tag must not show a red X on this
 # workflow, but a retired-format or malformed tag must fail loudly — if both
