@@ -44,10 +44,6 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
-      - name: Show version from tag
-        run: |
-          echo "Building and packing with version: $VERSION"
-
       - name: Restore dependencies
         run: dotnet restore
 

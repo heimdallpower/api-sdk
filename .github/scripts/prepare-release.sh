@@ -108,7 +108,7 @@ case "$suggested" in
   *)     next="" ;;
 esac
 version=${override:-$next}
-tag="$sdk-v$version"
+tag=${version:+$sdk-v$version}
 
 list() { if [[ -n "$1" ]]; then printf '%s\n' "$1" | sed 's/^/- /'; else echo "_none_"; fi; }
 report() {
@@ -116,7 +116,7 @@ report() {
   echo "- Package: \`$package\`"
   echo "- Baseline: \`$base\` → target \`${head_sha:0:7}\`"
   echo "- Suggested bump: **$suggested**${override:+ (overridden to \`$override\`)}"
-  echo "- Proposed tag: \`${version:+$tag}\`"
+  echo "- Proposed tag: \`${tag:-none}\`"
   echo; echo "### $sdk changes since $base"; list "$changes"
   echo; echo "### Commits also touching files outside both SDK path sets (review)"; list "$outside"
   echo; echo "### ⚠ Unreleased on $other since $other_base"; list "$other_changes"
@@ -139,6 +139,13 @@ fi
 # GITHUB_OUTPUT=/dev/null discards its key-value lines, which we don't use.
 GITHUB_OUTPUT=/dev/null bash "$here/tag-guard.sh" "$sdk" "$tag" 1>&2
 
+# Refuse to reuse a tag: `gh release create` on an existing tag succeeds but
+# ignores --target, so the draft would ship whatever that tag already points at.
+if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+  echo "::error::Tag $tag already exists — refusing to draft a release that would reuse a published version."
+  exit 1
+fi
+
 notes=$(mktemp)
 trap 'rm -f "$notes"' EXIT
 {
@@ -153,13 +160,6 @@ trap 'rm -f "$notes"' EXIT
   # is published, so a $tag-based link would 404 during review.
   echo "**Full changelog:** https://github.com/heimdallpower/api-sdk/compare/$base...$head_sha"
 } > "$notes"
-
-# Refuse to reuse a tag: `gh release create` on an existing tag succeeds but
-# ignores --target, so the draft would ship whatever that tag already points at.
-if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-  echo "::error::Tag $tag already exists — refusing to draft a release that would reuse a published version."
-  exit 1
-fi
 
 # --target pins the tag to THIS commit. Without it GitHub tags the default
 # branch's HEAD at publish time, and anything merged in between ships silently.
