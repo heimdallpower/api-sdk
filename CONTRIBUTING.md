@@ -83,8 +83,6 @@ This downloads the OpenAPI spec and writes the client to `python/heimdall_api_cl
 
 ## .NET
 
-Targets `net10.0` only.
-
 - `HeimdallPower.Api.Client` — core SDK library
 - `HeimdallPower.Api.Client.Extensions` — DI integration and resilience extensions
 - `tests/` — unit and integration tests
