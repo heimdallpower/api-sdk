@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
-# Table-driven tests for the PURE bump-suggestion logic in prepare-release.sh
-# (suggest_bump, has_breaking_footer, resolve_bump). Deliberately does not
-# touch the git/gh plumbing in the rest of the script.
-#
-# Extracts the three functions out of the script under test instead of
-# sourcing the whole file: sourcing would immediately run the script's own
-# arg-parsing, `cd`, and git/gh calls with whatever $1/$2 happen to be set.
+# Table-driven tests for the pure bump-suggestion logic in prepare-release.sh
+# (suggest_bump, has_breaking_footer, resolve_bump). The functions are
+# extracted rather than sourced — sourcing would run the script's own
+# arg-parsing and git/gh calls.
 #
 # Run: bash .github/scripts/prepare-release.test.sh
 set -uo pipefail
@@ -65,7 +62,7 @@ check_bump major "refactor!: rename DTOs"
 check_bump minor "fix: a" "feat: b" "fix: c"      # highest wins
 check_bump patch "chore: x" "fix: y" "chore: z"
 
-# --- resolve_bump: I2 regression (dependabot body must not poison the type) ---
+# --- resolve_bump: a dependabot body must not poison the type ---
 dependabot_body=$'Bumps [PyJWT](https://github.com/jpadilla/pyjwt) from 2.8.0 to 2.10.1.\n- feat: add minimum key length validation for HMAC and RSA\n- fix: reject tokens with invalid algorithm\n- fix: another upstream fix line'
 check_resolve none "chore(deps): bump the pip-dependencies group with 1 update" "$dependabot_body"
 

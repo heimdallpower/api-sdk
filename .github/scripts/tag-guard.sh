@@ -9,9 +9,8 @@
 #   (nothing)                              anything else, incl. vX.Y.Z -> exit 1 (fail)
 #   (nothing)                              unknown <sdk> argument      -> exit 2 (usage error)
 #
-# Three states on purpose: the other SDK's tag must not show a red X on this
-# workflow, but a retired-format or malformed tag must fail loudly — if both
-# workflows skipped green on it, nothing would publish and nothing would say so.
+# Three states on purpose: the other SDK's tag must not show a red X here, but
+# a malformed tag must fail loudly rather than have both workflows skip green.
 set -euo pipefail
 
 sdk=${1:-}

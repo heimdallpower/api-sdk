@@ -1,18 +1,11 @@
 #!/usr/bin/env bash
 # DRY_RUN smoke test for prepare-release.sh: pins the behaviours that carry a
-# real guarantee (draft-only, target pinned to a real commit, no tag reuse,
-# baseline chosen by version VALUE not tag-creation order or ancestry,
-# prerelease flag) so a plausible refactor can't silently drop --draft (or
-# similar) and still leave prepare-release.test.sh (pure bump-logic only)
-# green.
+# real guarantee — draft-only, target pinned to a real commit, no tag reuse,
+# baseline by version value, prerelease flag.
 #
-# Builds a throwaway fixture repo under mktemp, copies THIS repo's scripts
-# into it, creates fixture-only commits and tags, and runs the script under
-# test with DRY_RUN=1 hardcoded on every invocation (never parameterized) so
-# this test can never shell out to the real `gh` CLI or touch a real tag.
-# The fixture lives entirely outside this repo and is deleted on exit; this
-# test creates, deletes, and modifies NOTHING in the real repo's git history
-# or tags.
+# Runs against a throwaway fixture repo under mktemp, deleted on exit, with
+# DRY_RUN=1 hardcoded on every call. It never touches this repo's tags or
+# history and never shells out to the real `gh`.
 #
 # Run: bash .github/scripts/prepare-release.smoke.test.sh
 set -uo pipefail
@@ -43,30 +36,25 @@ commit() {
   git -C "$fixture" commit -q -m "$1"
 }
 
-# v1.0.0 is a legacy-format tag so last_tag_for("python") has a fallback
-# baseline (no python-v* tags exist in this fixture) — without it,
-# prepare-release.sh would abort computing the "unreleased on other SDK"
-# section before ever reaching the behaviour under test.
+# Legacy-format tag so last_tag_for("python") has a fallback baseline; without
+# it the script aborts before reaching the behaviour under test.
 commit "chore: initial"
 git -C "$fixture" tag v1.0.0
 git -C "$fixture" tag dotnet-v4.9.0
 
-# Deliberately tagged so a naive lexicographic/string sort would rank
-# "4.9.0" above "4.10.0" (since '9' > '1'); only a real SEMVER-VALUE sort
-# picks 4.10.0 as the higher baseline.
+# Tagged so a lexicographic sort would rank 4.9.0 above 4.10.0; only a
+# semver-value sort picks 4.10.0.
 commit "feat(dotnet): add widget"
 git -C "$fixture" tag dotnet-v4.10.0
 
-# A prerelease tag newer than the stable baseline must never be picked as
-# the baseline itself.
+# A prerelease tag newer than the stable baseline is never the baseline.
 commit "feat(dotnet): add gadget"
 git -C "$fixture" tag dotnet-v4.11.0-beta.1
 
 commit "fix(dotnet): correct widget bug"
 
 run() {
-  # Hardcoded DRY_RUN=1 on every call — this test must never exercise the
-  # real `gh release create` path or touch a real tag.
+  # DRY_RUN=1 is hardcoded: never exercise the real `gh release create`.
   ( cd "$fixture" && DRY_RUN=1 bash "$fixture/.github/scripts/prepare-release.sh" "$@" ) 2>&1
 }
 

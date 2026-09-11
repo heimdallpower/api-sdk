@@ -2,13 +2,10 @@
 
 What does this PR change and why?
 
-<!-- Breaking change? Mark it: add `!` after the type/scope in the PR title
-     (e.g. `feat(dotnet)!: ...`), or add a `BREAKING CHANGE:` footer below.
-     Counts as breaking: dropping a target framework or Python version,
-     renaming or removing public API, changing a default.
-     The release helper reads the title and that footer to suggest a version
-     bump — unmarked, a breaking change is suggested as a minor.
-     See CONTRIBUTING.md § Branching & Releases. -->
+<!-- Breaking change? Add `!` after the type/scope in the PR title
+     (`feat(dotnet)!: ...`) or a `BREAKING CHANGE:` footer below — the release
+     helper reads both to suggest the version bump. Dropping a target framework
+     or Python version, renaming public API, and changing a default all count. -->
 
 ## Jira
 

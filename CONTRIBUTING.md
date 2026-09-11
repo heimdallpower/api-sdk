@@ -42,7 +42,7 @@ The two SDKs are **versioned and released independently**, each from its own tag
 - The version lives **only in the tag**. The `0.0.0` values in the `.csproj` files and `pyproject.toml` are placeholders that CI overrides — don't bump them.
 - A change touching both SDKs gets **two releases**, one per tag.
 - Python prerelease suffixes must be valid PEP 440; `-test` and `-preview` are not.
-- The unprefixed `vX.Y.Z` format is retired. Publishing a release on a newly created one fails both publish workflows on purpose. Don't re-publish a release on one of the pre-existing `v1.0.0`–`v4.0.0` tags either: those commits predate the guard and still run the old, unsplit workflows.
+- The unprefixed `vX.Y.Z` format is retired — a release on a new one fails both publish workflows on purpose. Don't re-publish on the old `v1.0.0`–`v4.0.0` tags either: those commits predate the guard and still run the unsplit workflows.
 
 ### Cutting a release
 
@@ -53,8 +53,8 @@ The two SDKs are **versioned and released independently**, each from its own tag
 Before publishing:
 
 - **Don't click *Generate release notes*.** GitHub compares against the chronologically previous release, which under a split is usually the *other* SDK's.
-- **Never delete a release tag.** It's the only record that a version number is burned — the helper reads tags to refuse reuse. NuGet makes this especially quiet: it pushes with `--skip-duplicate`, so re-publishing an existing version exits 0 having uploaded nothing.
-- **A published version can never be reused** on NuGet or PyPI. Check the number twice.
+- **Never delete a release tag.** It's the only record that a version number is burned, and the helper reads tags to refuse reuse.
+- **A published version can never be reused** on NuGet or PyPI. Check the number twice — NuGet pushes with `--skip-duplicate`, so a repeat exits 0 having uploaded nothing.
 - Link to explicit tags, never `releases/latest` — it now alternates between the two SDKs.
 
 ## Python

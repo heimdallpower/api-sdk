@@ -22,9 +22,8 @@ case "$sdk" in
   *) echo "::error::unknown sdk '$sdk' (expected dotnet or python)"; exit 2 ;;
 esac
 
-# Path sets: the SDK directory PLUS its build/publish workflows. dcbefed (#151)
-# changed what ships in the .nupkg by editing only nuget-publish.yml and
-# python/pyproject.toml — a bare `-- dotnet/` filter would file it under Python.
+# Path sets: the SDK directory PLUS its build/publish workflows — a workflow
+# edit can change what ships in the package without touching the SDK directory.
 paths_for() {
   case "$1" in
     dotnet) printf '%s\n' dotnet .github/workflows/nuget-publish.yml '.github/workflows/dotnet-*.yml' ;;
@@ -34,27 +33,11 @@ paths_for() {
 mapfile -t paths       < <(paths_for "$sdk")
 mapfile -t other_paths < <(paths_for "$other")
 
-# Last stable tag with this SDK's prefix, ranked by SEMVER VALUE, not git
-# ancestry. `git describe --tags --abbrev=0` returns the nearest tag reachable
-# from HEAD — a release cut on a branch that isn't an ancestor of the dispatch
-# ref is invisible to it, so the baseline can be stale and the proposed tag
-# can collide with one that already exists. `git tag --list ... --sort=-v:refname`
-# ranks every tag matching the prefix by version, independent of reachability.
-# Before the first prefixed tag exists, fall back to the highest legacy v*
-# tag (v4.0.0 today) — same sort strategy on both branches, on purpose.
-#
-# Stable tags are matched with an ANCHORED regex (^prefix-vX.Y.Z$ / ^vX.Y.Z$),
-# not `grep -v -- '-'`: every "$prefix-v*" tag already contains a mandatory
-# dash between the prefix and "v" (e.g. "dotnet-v4.1.0"), so `grep -v -- '-'`
-# would exclude ALL of them, prefixed stable tags included, and always fall
-# through to the legacy branch. Verified against a scratch repo with
-# dotnet-v4.1.0/dotnet-v4.2.0 tags: `grep -v -- '-'` returned nothing for
-# either. The anchored-regex form correctly keeps only "no prerelease
-# suffix" tags on both branches.
-#
-# Each `... || true` neutralizes pipefail on an empty match (no tags yet) so
-# this function can fail LOUDLY of its own accord below, instead of silently
-# killing the caller via set -e with no output.
+# Highest stable tag with this SDK's prefix, ranked by SEMVER VALUE — not by
+# `git describe`, which only sees tags reachable from HEAD and so can propose
+# a version that already exists. Falls back to the legacy v* tags until the
+# first prefixed tag is cut. `|| true` keeps an empty match from tripping
+# pipefail, so the explicit error below is what the caller sees.
 last_tag_for() {
   local prefix=$1 tag
   tag=$(git tag --list "${prefix}-v*" --sort=-v:refname | grep -E "^${prefix}-v[0-9]+\.[0-9]+\.[0-9]+\$" | sed -n 1p || true)
@@ -76,18 +59,13 @@ other_changes=$(git log "$other_base..HEAD" --format='%h %s' -- "${other_paths[@
 outside=$(git log "$base..HEAD" --format='%h %s' -- . ':!dotnet' ':!python' \
   ':!.github/workflows/*publish.yml' ':!.github/workflows/dotnet-*.yml' ':!.github/workflows/python-*.yml')
 
-# Suggested bump from conventional-commit types, read from the SUBJECT line
-# only. ADVISORY ONLY: it reads what people wrote, not what they did — the
-# .NET 10 upgrade (8e518a0) was typed `chore:` and dropped net9.0 consumers;
-# this says "none" for it. A human decides.
+# Suggested bump from conventional-commit types on the SUBJECT line.
+# ADVISORY ONLY: it reads what people wrote, not what they did — a breaking
+# change typed `chore:` looks like "none" here. A human decides.
 suggest_bump() {
   local level=0 line
-  # Regexes are held in variables, not written inline in the [[ =~ ]] test:
-  # bash's conditional-expression parser cannot reliably tokenize an unquoted
-  # pattern containing a `(...)` group that itself ends in `)?!` — it raises
-  # "syntax error in conditional expression: unexpected token `)'" before the
-  # regex is ever evaluated. Routing through a variable (as tag-guard.sh
-  # already does for its own regex) sidesteps the parser, not the semantics.
+  # Regexes live in variables: bash's [[ =~ ]] parser chokes on an inline
+  # pattern with a `(...)` group before the regex is ever evaluated.
   local breaking_re='^[a-z]+(\([^)]*\))?!:'
   local feat_re='^feat(\([^)]*\))?:'
   local fix_re='^fix(\([^)]*\))?:'
@@ -100,22 +78,15 @@ suggest_bump() {
   case $level in 3) echo major ;; 2) echo minor ;; 1) echo patch ;; *) echo none ;; esac
 }
 
-# Per Conventional Commits, "BREAKING CHANGE" is a FOOTER: it must start its
-# own line ("BREAKING CHANGE:" or "BREAKING-CHANGE:"), not merely appear as a
-# substring anywhere in the message. A whole-body substring match would also
-# fire on other projects' conventional-commit text embedded in a dependency
-# bump's body (e.g. dependabot inlining an upstream changelog) — see
-# resolve_bump below.
+# "BREAKING CHANGE" is a footer: it must start its own line. A substring
+# match would also fire on changelogs quoted inside a dependabot body.
 has_breaking_footer() {
   grep -qE '^BREAKING[ -]CHANGE:' <<< "$1"
 }
 
-# Combines the two signals while keeping them separate on purpose: the TYPE
-# (feat/fix/!) comes only from subject lines, never from a commit's body —
-# a dependabot bump's body routinely embeds the *upstream* project's own
-# `feat:`/`fix:` changelog lines, which are not our changes and must not be
-# read as such. The breaking-footer check runs over bodies but only as a
-# line-anchored footer, not a substring search (see has_breaking_footer).
+# The type comes from subjects only — a dependabot body embeds the upstream
+# project's own feat:/fix: lines, which are not our changes. Bodies are read
+# only for a line-anchored breaking footer.
 resolve_bump() {
   local subjects=$1 bodies=$2 level
   level=$(printf '%s\n' "$subjects" | suggest_bump)
@@ -158,20 +129,14 @@ if [[ -z "$version" ]]; then
   exit 0
 fi
 
-# An override can force a release even with zero matching commits. That's
-# the override's purpose, but a burned registry version with an empty
-# changelog is a foot-gun done silently — make it loud instead.
+# An override can force a release with zero matching commits. That's its
+# purpose, but burning a registry version on an empty changelog should be loud.
 if [[ -z "$changes" ]]; then
   echo "::warning::No changes detected in $sdk since $base — drafting $tag anyway (version override given)."
 fi
 
-# Same guard the publish workflow uses. tag-guard.sh writes its own
-# ::notice::/::error:: lines to stdout by default; redirecting that to this
-# script's stderr just keeps the two streams separate — both still show up
-# in the Action log either way, so this is not what makes them "visible".
-# GITHUB_OUTPUT=/dev/null discards its publish=/version= key-value lines,
-# which this caller doesn't use. set -e aborts this script when tag-guard.sh
-# exits 1 (invalid tag for this sdk).
+# Same guard the publish workflow uses; set -e aborts here on an invalid tag.
+# GITHUB_OUTPUT=/dev/null discards its key-value lines, which we don't use.
 GITHUB_OUTPUT=/dev/null bash "$here/tag-guard.sh" "$sdk" "$tag" 1>&2
 
 notes=$(mktemp)
@@ -184,17 +149,13 @@ trap 'rm -f "$notes"' EXIT
     echo "No changes detected in $sdk since $base."
   fi
   echo
-  # Compares against the target SHA, not the tag: the tag doesn't exist yet
-  # (this draft hasn't been published), so a $tag-based link 404s during
-  # exactly the review step this whole design exists for.
+  # Compares against the target SHA: the tag doesn't exist until the draft
+  # is published, so a $tag-based link would 404 during review.
   echo "**Full changelog:** https://github.com/heimdallpower/api-sdk/compare/$base...$head_sha"
 } > "$notes"
 
-# Refuse to reuse a tag. Even with the version-sort baseline fix above, a tag
-# can still exist with its release deleted: `gh release create` on an
-# existing tag succeeds and GitHub will NOT move that tag, so --target is
-# silently ignored and the draft ships whatever the old tag already points
-# at instead of $head_sha.
+# Refuse to reuse a tag: `gh release create` on an existing tag succeeds but
+# ignores --target, so the draft would ship whatever that tag already points at.
 if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
   echo "::error::Tag $tag already exists — refusing to draft a release that would reuse a published version."
   exit 1
