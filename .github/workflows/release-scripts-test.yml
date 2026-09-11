@@ -22,3 +22,6 @@ jobs:
 
       - name: Test tag guard
         run: bash .github/scripts/tag-guard.test.sh
+
+      - name: Test prepare-release bump logic
+        run: bash .github/scripts/prepare-release.test.sh
