@@ -47,8 +47,8 @@ The two SDKs are **versioned and released independently**, each from its own tag
 ### Cutting a release
 
 1. **Actions → *Prepare release (draft)* → Run workflow.** Pick the SDK and leave the version blank to accept the suggestion. It creates a draft pinned to the commit you dispatched from, or exits without drafting if that SDK has nothing to release. Iterating a prerelease (`rc.1` → `rc.2`) needs an explicit version.
-2. **Review the draft.** The suggested bump is **advisory** — it reads commit subjects, so a breaking change typed `chore:` looks safe to it. You decide the number.
-3. **Publish.** That creates the tag and triggers `nuget-publish.yml` or `python-publish.yml`; the other skips. Both use trusted publishing (OIDC) — no stored API tokens.
+2. **Review the draft.** The suggested bump is **advisory** — it reads commit subjects, so a breaking change typed `chore:` looks safe to it. If the number is wrong, re-run step 1 with an explicit version and delete the superseded draft.
+3. **Publish the draft.** You don't create the tag yourself: the draft holds the tag name and the commit it points at, and GitHub creates the tag when you publish. That fires `nuget-publish.yml` or `python-publish.yml`; the other skips. Both use trusted publishing (OIDC) — no stored API tokens.
 
 Before publishing:
 
