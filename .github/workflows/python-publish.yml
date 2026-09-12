@@ -5,8 +5,26 @@ on:
     types: [published]
 
 jobs:
+  guard:
+    name: Check tag belongs to Python
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      publish: ${{ steps.guard.outputs.publish }}
+      version: ${{ steps.guard.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Validate tag format
+        id: guard
+        run: bash .github/scripts/tag-guard.sh python "$GITHUB_REF_NAME"
+
   publish:
     name: Publish
+    needs: guard
+    if: needs.guard.outputs.publish == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -15,6 +33,9 @@ jobs:
     permissions:
       contents: write # Required to upload release artifacts
       id-token: write # Enable GitHub OIDC token issuance for PyPI Trusted Publishing
+
+    env:
+      VERSION: ${{ needs.guard.outputs.version }}
 
     steps:
       - name: Checkout repository
@@ -29,19 +50,10 @@ jobs:
         run: |
           pip install poetry
 
-      - name: Validate tag format
-        run: |
-          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[a-z0-9\.]+)?$ ]]; then
-            echo "Invalid tag format: $GITHUB_REF_NAME"
-            echo "Expected: v<MAJOR>.<MINOR>.<PATCH> (e.g., v1.2.3 or v1.2.3-beta.1)"
-            exit 1
-          fi
-
       - name: Set version from tag
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
           echo "Setting poetry version to $VERSION"
-          poetry version $VERSION
+          poetry version "$VERSION"
 
       - name: Install dependencies
         run: poetry install --no-root

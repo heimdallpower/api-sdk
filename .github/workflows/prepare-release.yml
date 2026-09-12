@@ -1,0 +1,42 @@
+name: Prepare release (draft)
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdk:
+        description: Which SDK to draft a release for
+        type: choice
+        required: true
+        options:
+          - dotnet
+          - python
+      version:
+        description: 'Override the suggested version (e.g. 4.1.0 or 4.1.0-rc.1). Leave empty to use the suggestion.'
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: write # gh release create (draft)
+
+concurrency:
+  group: prepare-release-${{ inputs.sdk }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Draft ${{ inputs.sdk }} release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (full history and tags)
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # git describe / git log <tag>..HEAD need history
+          fetch-tags: true
+
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SDK: ${{ inputs.sdk }}
+          VERSION: ${{ inputs.version }}
+        run: bash .github/scripts/prepare-release.sh "$SDK" "$VERSION"
