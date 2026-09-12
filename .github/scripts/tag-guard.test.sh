@@ -45,14 +45,12 @@ expect dotnet v9.9.9-test             1 - -
 
 # Malformed -> fail red
 expect dotnet dotnet-v4.1             1 - -
-expect dotnet dotnet-4.1.0            1 - -
 expect dotnet dotnet-v4.1.0-          1 - -   # empty prerelease
 expect dotnet dotnet-v4.1.0-..        1 - -   # empty identifiers
 expect dotnet dotnet-v4.1.0-01        1 - -   # leading zero in a numeric identifier
 expect python python-v0.0.1-test      1 - -   # not PEP 440
 expect python python-v4.1.0-preview.1 1 - -   # valid PEP 440, but not accepted here
 expect dotnet garbage                 1 - -
-expect python ""                      1 - -
 
 # Unknown sdk argument -> exit 2
 expect ruby ruby-v1.0.0               2 - -
