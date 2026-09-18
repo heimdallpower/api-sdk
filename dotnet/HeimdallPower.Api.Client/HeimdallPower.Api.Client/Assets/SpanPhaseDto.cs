@@ -16,4 +16,9 @@ public record SpanPhaseDto
     /// </summary>
     /// <example>Phase A</example>
     public string? Name { get; init; }
+
+    /// <summary>
+    /// List of measurement points belonging to the span phase. Empty if no Neuron has been installed on the span phase.
+    /// </summary>
+    public required IReadOnlyCollection<MeasurementPointDto> MeasurementPoints { get; init; }
 }
