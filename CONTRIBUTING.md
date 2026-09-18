@@ -3,9 +3,9 @@
 This repo contains two independently released SDKs for the [Heimdall Power External API](https://developer.heimdallcloud.com/docs/welcome):
 
 | Folder | Package | Published to |
-|---|---|---|
-| `dotnet/` | `HeimdallPower.Api.Client` (+ `.Extensions`) | NuGet |
-| `python/` | `heimdallpower-api-client` | PyPI |
+| --- | --- | --- |
+| `dotnet/` | `HeimdallPower.Api.Client` (+ `.Extensions`) | [NuGet](https://www.nuget.org/profiles/heimdall_power) |
+| `python/` | `heimdallpower-api-client` | [PyPI](https://pypi.org/project/heimdallpower-api-client/) |
 
 Most changes touch only one of them.
 
@@ -35,7 +35,7 @@ PRs target `main` and need a review from a code owner — `@heimdallpower/backen
 The two SDKs are **versioned and released independently**, each from its own tag:
 
 | SDK | Tag format | Examples |
-|---|---|---|
+| --- | --- | --- |
 | .NET | `dotnet-v<MAJOR>.<MINOR>.<PATCH>[-prerelease]` | `dotnet-v4.1.0`, `dotnet-v4.2.0-beta.1` |
 | Python | `python-v<MAJOR>.<MINOR>.<PATCH>[-(alpha\|beta\|rc).<N>]` | `python-v4.1.0`, `python-v4.2.0-rc.1` |
 
