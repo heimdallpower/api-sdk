@@ -1,0 +1,59 @@
+name: Release scripts tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/scripts/**'
+      - '.github/workflows/nuget-publish.yml'
+      - '.github/workflows/python-publish.yml'
+      - '.github/workflows/release-scripts-test.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '.github/scripts/**'
+      - '.github/workflows/nuget-publish.yml'
+      - '.github/workflows/python-publish.yml'
+      - '.github/workflows/release-scripts-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Test tag guard
+        run: bash .github/scripts/tag-guard.test.sh
+
+      - name: Assert prepare-release still drafts safely
+        run: |
+          # Losing any of these is invisible in a draft that still looks correct.
+          grep -q -- '--draft' .github/scripts/prepare-release.sh || {
+            echo "::error::prepare-release.sh no longer passes --draft — it would publish the release immediately."
+            exit 1
+          }
+          grep -q -- '--target "$head_sha"' .github/scripts/prepare-release.sh || {
+            echo "::error::prepare-release.sh no longer pins --target to the dispatch commit."
+            exit 1
+          }
+          grep -q 'refs/tags/\$tag' .github/scripts/prepare-release.sh || {
+            echo "::error::prepare-release.sh no longer refuses to reuse an existing tag."
+            exit 1
+          }
+
+      - name: Assert publish workflows call the right guard
+        run: |
+          # If either workflow named the wrong SDK, both publish jobs would
+          # skip green on that SDK's tag — nothing published, nothing red.
+          grep -q 'tag-guard.sh dotnet' .github/workflows/nuget-publish.yml || {
+            echo "::error::nuget-publish.yml no longer calls 'tag-guard.sh dotnet' — the dotnet publish workflow would stop validating its own tags correctly."
+            exit 1
+          }
+          grep -q 'tag-guard.sh python' .github/workflows/python-publish.yml || {
+            echo "::error::python-publish.yml no longer calls 'tag-guard.sh python' — the python publish workflow would stop validating its own tags correctly."
+            exit 1
+          }
