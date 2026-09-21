@@ -83,10 +83,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest conductor temperature.</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
+    /// <param name="include">When measurement_points, additionally includes a per-measurement-point breakdown of the latest conductor temperature, organized by span and span phase.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric", CancellationToken cancellationToken = default)
+    public async Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric", string include = "", CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestConductorTemperatureUrl(lineId, unitSystem);
+        var url = UrlBuilder.BuildLatestConductorTemperatureUrl(lineId, unitSystem, include);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestConductorTemperatureResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -218,10 +219,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
+    /// <param name="include">When measurement_points, additionally includes a per-measurement-point breakdown of conductor temperature over the requested time range, organized by span and span phase.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default)
+    public async Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", string include = "", CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildConductorTemperaturesUrl(lineId, from, to, unitSystem);
+        var url = UrlBuilder.BuildConductorTemperaturesUrl(lineId, from, to, unitSystem, include);
         var response = await _heimdallApiClient.GetAsync<ApiResponse<ConductorTemperaturesResponse>>(url, cancellationToken);
         return response.Data;
     }

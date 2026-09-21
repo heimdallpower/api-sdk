@@ -20,4 +20,10 @@ public record LatestConductorTemperatureResponse
     /// The conductor temperature measurements containing timestamp and min/max values
     /// </summary>
     public required ConductorTemperatureDto ConductorTemperature { get; init; }
+
+    /// <summary>
+    /// Per-measurement-point breakdown of the latest conductor temperature, organized by span and span phase.
+    /// Only present when <c>include</c> is set to "measurement_points" in the request; otherwise null.
+    /// </summary>
+    public IReadOnlyList<SpanLatestConductorTemperatureDto>? MeasurementPointTemperatures { get; init; }
 }
