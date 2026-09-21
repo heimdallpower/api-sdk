@@ -3,23 +3,20 @@ using HeimdallPower.Api.Client.GridInsights.Lines;
 
 namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;
 
-/// <summary>Queries historical conductor temperature data for "Heimdall Power Line" (2026-01-01).</summary>
+/// <summary>Queries the most recent conductor temperature for "Heimdall Power Line".</summary>
 [Trait("Category", "Integration")]
-public class GetConductorTemperatures(GetConductorTemperatures.Scenario scenario) : IClassFixture<GetConductorTemperatures.Scenario>
+public class GetLatestConductorTemperature(GetLatestConductorTemperature.Scenario scenario) : IClassFixture<GetLatestConductorTemperature.Scenario>
 {
-    private static readonly DateTimeOffset From = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-    private static readonly DateTimeOffset To   = new(2026, 1, 2, 0, 0, 0, TimeSpan.Zero);
-
     public class Scenario : AuthenticatedHeimdallApiClient
     {
         // "Heimdall Power Line" – d67d2205-6629-4bbd-aa9f-436bf22842ad
         private static readonly Guid HeimdallPowerLineId = Guid.Parse("d67d2205-6629-4bbd-aa9f-436bf22842ad");
 
-        public ConductorTemperaturesResponse? Result { get; }
+        public LatestConductorTemperatureResponse? Result { get; }
 
         public Scenario()
         {
-            Result = Client.GetConductorTemperaturesAsync(HeimdallPowerLineId, From, To).GetAwaiter().GetResult();
+            Result = Client.GetLatestConductorTemperatureAsync(HeimdallPowerLineId).GetAwaiter().GetResult();
         }
     }
 
@@ -42,20 +39,14 @@ public class GetConductorTemperatures(GetConductorTemperatures.Scenario scenario
     }
 
     [Fact]
-    public void ResultShouldHaveConductorTemperaturesList()
+    public void MinShouldNotExceedMax_WhenPresent()
     {
-        // The API returns HTTP 200 with a (possibly empty) list – an empty list is valid.
-        Assert.NotNull(scenario.Result?.ConductorTemperatures);
-    }
-
-    [Fact]
-    public void AllReadingsShouldHaveTimestampsWithinRequestedRange()
-    {
-        Assert.All(scenario.Result!.ConductorTemperatures, ct =>
+        var conductorTemperature = scenario.Result!.ConductorTemperature;
+        if (conductorTemperature.Min is { } min)
         {
-            Assert.True(ct.Timestamp >= From, $"Timestamp {ct.Timestamp} is before {From}");
-            Assert.True(ct.Timestamp <= To,   $"Timestamp {ct.Timestamp} is after {To}");
-        });
+            Assert.True(min <= conductorTemperature.Max,
+                $"Min temperature {min} should not exceed max temperature {conductorTemperature.Max}");
+        }
     }
 
     [Fact]
@@ -66,29 +57,26 @@ public class GetConductorTemperatures(GetConductorTemperatures.Scenario scenario
 }
 
 /// <summary>
-/// Queries historical conductor temperature data for "Heimdall Power Line" with
+/// Queries the most recent conductor temperature for "Heimdall Power Line" with
 /// <c>include=measurement_points</c> and cross-checks the per-measurement-point breakdown
 /// against the real asset hierarchy returned by <see cref="HeimdallApiClient.GetAssetsAsync"/>.
 /// </summary>
 [Trait("Category", "Integration")]
-public class GetConductorTemperaturesWithMeasurementPoints(
-    GetConductorTemperaturesWithMeasurementPoints.Scenario scenario)
-    : IClassFixture<GetConductorTemperaturesWithMeasurementPoints.Scenario>
+public class GetLatestConductorTemperatureWithMeasurementPoints(
+    GetLatestConductorTemperatureWithMeasurementPoints.Scenario scenario)
+    : IClassFixture<GetLatestConductorTemperatureWithMeasurementPoints.Scenario>
 {
-    private static readonly DateTimeOffset From = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-    private static readonly DateTimeOffset To   = new(2026, 1, 2, 0, 0, 0, TimeSpan.Zero);
-
     public class Scenario : AuthenticatedHeimdallApiClient
     {
         // "Heimdall Power Line" – d67d2205-6629-4bbd-aa9f-436bf22842ad
         public static readonly Guid HeimdallPowerLineId = Guid.Parse("d67d2205-6629-4bbd-aa9f-436bf22842ad");
 
-        public ConductorTemperaturesResponse? Result { get; }
+        public LatestConductorTemperatureResponse? Result { get; }
         public AssetsResponse Assets { get; }
 
         public Scenario()
         {
-            Result = Client.GetConductorTemperaturesAsync(HeimdallPowerLineId, From, To, include: "measurement_points")
+            Result = Client.GetLatestConductorTemperatureAsync(HeimdallPowerLineId, include: "measurement_points")
                 .GetAwaiter().GetResult();
             Assets = Client.GetAssetsAsync().GetAwaiter().GetResult();
         }
@@ -97,7 +85,7 @@ public class GetConductorTemperaturesWithMeasurementPoints(
     [Fact]
     public void MeasurementPointTemperaturesShouldNotBeNull_WhenRequested()
     {
-        // The underlying list may be empty if no data exists for the period – that's valid.
+        // The underlying list may be empty if no recent data exists – that's valid.
         // Only the presence of the field itself (honoring `include`) is guaranteed.
         Assert.NotNull(scenario.Result?.MeasurementPointTemperatures);
     }
@@ -127,20 +115,5 @@ public class GetConductorTemperaturesWithMeasurementPoints(
                     Assert.Contains(measurementPoint.MeasurementPointId, knownMeasurementPointIds));
             });
         });
-    }
-
-    [Fact]
-    public void AllMeasurementPointReadingsShouldHaveTimestampsWithinRequestedRange()
-    {
-        var measurementPoints = scenario.Result!.MeasurementPointTemperatures!
-            .SelectMany(span => span.SpanPhases)
-            .SelectMany(spanPhase => spanPhase.MeasurementPoints);
-
-        Assert.All(measurementPoints, measurementPoint =>
-            Assert.All(measurementPoint.Temperatures, dataPoint =>
-            {
-                Assert.True(dataPoint.Timestamp >= From, $"Timestamp {dataPoint.Timestamp} is before {From}");
-                Assert.True(dataPoint.Timestamp <= To,   $"Timestamp {dataPoint.Timestamp} is after {To}");
-            }));
     }
 }
