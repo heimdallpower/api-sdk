@@ -83,7 +83,7 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest conductor temperature.</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
-    /// <param name="include">When measurement_points, additionally includes a per-measurement-point breakdown of the latest conductor temperature, organized by span and span phase.</param>
+    /// <param name="include">When set to "measurement_points", additionally includes a per-measurement-point breakdown of the latest conductor temperature, organized by span and span phase.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
     public async Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric", string include = "", CancellationToken cancellationToken = default)
     {
