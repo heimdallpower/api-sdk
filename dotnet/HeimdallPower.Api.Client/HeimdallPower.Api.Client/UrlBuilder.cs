@@ -45,8 +45,10 @@ internal static class UrlBuilder
     public static string BuildLatestConductorTemperatureUrl(Guid lineId, string unitSystem, string include = "")
     {
         var queryParams = new NameValueCollection()
-            .AddQueryParam("unit_system", unitSystem)
-            .AddQueryParam("include", include);
+            .AddQueryParam("unit_system", unitSystem);
+
+        if (!string.IsNullOrWhiteSpace(include))
+            queryParams.AddQueryParam("include", include);
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ConductorTemperatures, queryParams: queryParams);
     }
@@ -67,8 +69,10 @@ internal static class UrlBuilder
         var queryParams = new NameValueCollection()
             .AddQueryParam("from_timestamp", ToApiTimestamp(from))
             .AddQueryParam("to_timestamp", ToApiTimestamp(to))
-            .AddQueryParam("unit_system", unitSystem)
-            .AddQueryParam("include", include);
+            .AddQueryParam("unit_system", unitSystem);
+
+        if (!string.IsNullOrWhiteSpace(include))
+            queryParams.AddQueryParam("include", include);
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ConductorTemperaturesHistorical, queryParams: queryParams);
     }
