@@ -7,6 +7,9 @@ from uuid import UUID
 from heimdall_api_client._timestamps import as_zulu
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
 from heimdall_api_client.errors import HeimdallApiError, body_preview
+from heimdall_api_client.grid_insights_api_client.models.conductor_temperature_include import (
+    ConductorTemperatureInclude,
+)
 from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
 from heimdall_api_client.grid_insights_api_client.types import UNSET
 
@@ -48,16 +51,24 @@ def get_latest_conductor_temperature(
     line_id: UUID,
     region: str,
     since: datetime.datetime | None = None,
+    include: ConductorTemperatureInclude | str | None = None,
 ) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_conductor_temperature as get_latest_conductor_temperature,
     )
+
+    include_value = UNSET
+    if include is not None:
+        include_value = (
+            include if isinstance(include, ConductorTemperatureInclude) else ConductorTemperatureInclude(include)
+        )
 
     response = get_latest_conductor_temperature.sync_detailed(
         client=client,
         line_id=line_id,
         x_region=region,
         since=UNSET if since is None else as_zulu(since),
+        include=include_value,
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -344,6 +355,7 @@ def get_conductor_temperatures(
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
     unit_system: UnitSystem | str | None = None,
+    include: ConductorTemperatureInclude | str | None = None,
 ) -> GridInsightsV1LinesGetConductorTemperaturesResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_conductor_temperatures as _get_conductor_temperatures,
@@ -353,6 +365,12 @@ def get_conductor_temperatures(
     if unit_system is not None:
         unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
 
+    include_value = UNSET
+    if include is not None:
+        include_value = (
+            include if isinstance(include, ConductorTemperatureInclude) else ConductorTemperatureInclude(include)
+        )
+
     response = _get_conductor_temperatures.sync_detailed(
         client=client,
         line_id=line_id,
@@ -360,6 +378,7 @@ def get_conductor_temperatures(
         from_timestamp=as_zulu(from_timestamp),
         to_timestamp=as_zulu(to_timestamp),
         unit_system=unit_system_value,
+        include=include_value,
     )
     if response.status_code != 200:
         status = int(response.status_code)
