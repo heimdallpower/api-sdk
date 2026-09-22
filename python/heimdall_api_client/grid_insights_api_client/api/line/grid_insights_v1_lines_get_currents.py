@@ -8,6 +8,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.current_include import CurrentInclude
 from ...models.grid_insights_v1_lines_get_currents_response_200 import GridInsightsV1LinesGetCurrentsResponse200
 from ...models.grid_insights_v1_lines_get_currents_x_region import GridInsightsV1LinesGetCurrentsXRegion
 from ...models.problem_details import ProblemDetails
@@ -19,6 +20,7 @@ def _get_kwargs(
     *,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    include: CurrentInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetCurrentsXRegion | Unset = GridInsightsV1LinesGetCurrentsXRegion.EU,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
@@ -32,6 +34,12 @@ def _get_kwargs(
 
     json_to_timestamp = to_timestamp.isoformat()
     params["to_timestamp"] = json_to_timestamp
+
+    json_include: str | Unset = UNSET
+    if not isinstance(include, Unset):
+        json_include = include.value
+
+    params["include"] = json_include
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -101,6 +109,7 @@ def sync_detailed(
     client: AuthenticatedClient | Client,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    include: CurrentInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetCurrentsXRegion | Unset = GridInsightsV1LinesGetCurrentsXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetCurrentsResponse200 | ProblemDetails]:
     """Get currents
@@ -118,6 +127,9 @@ def sync_detailed(
         line_id (UUID):
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
+        include (CurrentInclude | Unset): Set to `measurement_points` to additionally include a
+            per-measurement-point breakdown of current (as unaggregated data), organized by span and
+            span phase.
         x_region (GridInsightsV1LinesGetCurrentsXRegion | Unset):  Default:
             GridInsightsV1LinesGetCurrentsXRegion.EU.
 
@@ -133,6 +145,7 @@ def sync_detailed(
         line_id=line_id,
         from_timestamp=from_timestamp,
         to_timestamp=to_timestamp,
+        include=include,
         x_region=x_region,
     )
 
@@ -149,6 +162,7 @@ def sync(
     client: AuthenticatedClient | Client,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    include: CurrentInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetCurrentsXRegion | Unset = GridInsightsV1LinesGetCurrentsXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetCurrentsResponse200 | ProblemDetails | None:
     """Get currents
@@ -166,6 +180,9 @@ def sync(
         line_id (UUID):
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
+        include (CurrentInclude | Unset): Set to `measurement_points` to additionally include a
+            per-measurement-point breakdown of current (as unaggregated data), organized by span and
+            span phase.
         x_region (GridInsightsV1LinesGetCurrentsXRegion | Unset):  Default:
             GridInsightsV1LinesGetCurrentsXRegion.EU.
 
@@ -182,6 +199,7 @@ def sync(
         client=client,
         from_timestamp=from_timestamp,
         to_timestamp=to_timestamp,
+        include=include,
         x_region=x_region,
     ).parsed
 
@@ -192,6 +210,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    include: CurrentInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetCurrentsXRegion | Unset = GridInsightsV1LinesGetCurrentsXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetCurrentsResponse200 | ProblemDetails]:
     """Get currents
@@ -209,6 +228,9 @@ async def asyncio_detailed(
         line_id (UUID):
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
+        include (CurrentInclude | Unset): Set to `measurement_points` to additionally include a
+            per-measurement-point breakdown of current (as unaggregated data), organized by span and
+            span phase.
         x_region (GridInsightsV1LinesGetCurrentsXRegion | Unset):  Default:
             GridInsightsV1LinesGetCurrentsXRegion.EU.
 
@@ -224,6 +246,7 @@ async def asyncio_detailed(
         line_id=line_id,
         from_timestamp=from_timestamp,
         to_timestamp=to_timestamp,
+        include=include,
         x_region=x_region,
     )
 
@@ -238,6 +261,7 @@ async def asyncio(
     client: AuthenticatedClient | Client,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    include: CurrentInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetCurrentsXRegion | Unset = GridInsightsV1LinesGetCurrentsXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetCurrentsResponse200 | ProblemDetails | None:
     """Get currents
@@ -255,6 +279,9 @@ async def asyncio(
         line_id (UUID):
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
+        include (CurrentInclude | Unset): Set to `measurement_points` to additionally include a
+            per-measurement-point breakdown of current (as unaggregated data), organized by span and
+            span phase.
         x_region (GridInsightsV1LinesGetCurrentsXRegion | Unset):  Default:
             GridInsightsV1LinesGetCurrentsXRegion.EU.
 
@@ -272,6 +299,7 @@ async def asyncio(
             client=client,
             from_timestamp=from_timestamp,
             to_timestamp=to_timestamp,
+            include=include,
             x_region=x_region,
         )
     ).parsed
