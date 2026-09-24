@@ -57,14 +57,26 @@ internal static class UrlBuilder
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ConductorTemperatures, queryParams: queryParams);
     }
 
-    public static string BuildLatestCurrentsUrl(Guid lineId)
-        => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: Currents);
+    public static string BuildLatestCurrentsUrl(Guid lineId, DateTimeOffset? since = null, CurrentInclude? include = null)
+    {
+        var queryParams = new NameValueCollection()
+            .AddSince(since);
 
-    public static string BuildCurrentsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to)
+        if (include.HasValue)
+            queryParams.AddQueryParam("include", include.Value.ToQueryValue());
+
+        return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: Currents, queryParams: queryParams);
+    }
+
+    public static string BuildCurrentsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, CurrentInclude? include = null)
     {
         var queryParams = new NameValueCollection()
             .AddQueryParam("from_timestamp", ToApiTimestamp(from))
             .AddQueryParam("to_timestamp", ToApiTimestamp(to));
+
+        if (include.HasValue)
+            queryParams.AddQueryParam("include", include.Value.ToQueryValue());
+
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: CurrentsHistorical, queryParams: queryParams);
     }
 
@@ -81,13 +93,13 @@ internal static class UrlBuilder
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ConductorTemperaturesHistorical, queryParams: queryParams);
     }
 
-    public static string BuildLatestHeimdallDlrUrl(Guid lineId, Quantity quantity = Quantity.Current)
+    public static string BuildLatestHeimdallDlrUrl(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlr,
-            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()).AddSince(since));
 
-    public static string BuildLatestHeimdallAarUrl(Guid lineId, Quantity quantity = Quantity.Current)
+    public static string BuildLatestHeimdallAarUrl(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallAar,
-            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()).AddSince(since));
 
     public static string BuildDlrForecastUrl(Guid lineId, Quantity quantity = Quantity.Current)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: HeimdallDlrForecast,
@@ -133,9 +145,9 @@ internal static class UrlBuilder
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingForecasts,
             queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
 
-    public static string BuildLatestCircuitRatingUrl(Guid facilityId, Quantity quantity = Quantity.Current)
+    public static string BuildLatestCircuitRatingUrl(Guid facilityId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null)
         => GetFullUrl(module: CapacityMonitoring, apiVersion: V1, resource: Facilities, resourceId: facilityId.ToString(), endpoint: CircuitRatingLatest,
-            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()));
+            queryParams: new NameValueCollection().AddQueryParam("quantity", quantity.ToQueryValue()).AddSince(since));
 
     public static string BuildLatestCircuitTransientRatingUrl(Guid facilityId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null)
     {
@@ -184,8 +196,9 @@ internal static class UrlBuilder
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: Icing, queryParams: queryParams);
     }
 
-    public static string BuildLatestApparentPowerUrl(Guid lineId)
-        => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPowerLatest);
+    public static string BuildLatestApparentPowerUrl(Guid lineId, DateTimeOffset? since = null)
+        => GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ApparentPowerLatest,
+            queryParams: new NameValueCollection().AddSince(since));
 
     public static string BuildApparentPowersUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to)
     {
@@ -201,7 +214,7 @@ internal static class UrlBuilder
             .AddQueryParam("unit_system", unitSystem);
 
         if (since.HasValue)
-            queryParams.AddQueryParam("since", since.Value.ToUniversalTime().ToString(""));
+            queryParams.AddQueryParam("since", ToApiTimestamp(since.Value));
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: SagAndClearanceLatest, queryParams: queryParams);
     }
@@ -214,6 +227,9 @@ internal static class UrlBuilder
             .AddQueryParam("unit_system", unitSystem);
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: SagAndClearance, queryParams: queryParams);
     }
+
+    private static NameValueCollection AddSince(this NameValueCollection queryParams, DateTimeOffset? since)
+        => since.HasValue ? queryParams.AddQueryParam("since", ToApiTimestamp(since.Value)) : queryParams;
 
     private static string ToApiTimestamp(DateTimeOffset timestamp)
         => timestamp.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'", CultureInfo.InvariantCulture);
