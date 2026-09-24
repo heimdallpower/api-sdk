@@ -88,7 +88,7 @@ public class GetConductorTemperaturesWithMeasurementPoints(
 
         public Scenario()
         {
-            Result = Client.GetConductorTemperaturesAsync(HeimdallPowerLineId, From, To, include: "measurement_points")
+            Result = Client.GetConductorTemperaturesAsync(HeimdallPowerLineId, From, To, include: ConductorTemperatureInclude.MeasurementPoints)
                 .GetAwaiter().GetResult();
             Assets = Client.GetAssetsAsync().GetAwaiter().GetResult();
         }

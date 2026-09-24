@@ -1,4 +1,4 @@
-using HeimdallPower.Api.Client.Assets;
+﻿using HeimdallPower.Api.Client.Assets;
 using HeimdallPower.Api.Client.CapacityMonitoring;
 using HeimdallPower.Api.Client.CapacityMonitoring.Facilities;
 using HeimdallPower.Api.Client.CapacityMonitoring.Lines;
@@ -64,10 +64,11 @@ public interface IHeimdallApiClient
     /// <summary>Get the most recent conductor temperature for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest conductor temperature.</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
-    /// <param name="include">When set to "measurement_points", additionally includes a per-measurement-point breakdown of the latest conductor temperature, organized by span and span phase.</param>
+    /// <param name="since">Optional cut-off time (UTC). If the latest conductor temperature is older than this value, the API returns 404 Not Found.</param>
+    /// <param name="include">Set to <see cref="ConductorTemperatureInclude.MeasurementPoints"/> to additionally include a per-measurement-point breakdown of the latest conductor temperature, organized by span and span phase. Omitted by default.</param>
     /// <param name="cancellationToken">Token to cancel the request.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric", string include = "", CancellationToken cancellationToken = default);
+    Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null, ConductorTemperatureInclude? include = null, CancellationToken cancellationToken = default);
 
     /// <summary>Get the most recent icing measurements for the line, including maximum values and per-span/phase metrics.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest icing measurements.</param>
@@ -155,10 +156,10 @@ public interface IHeimdallApiClient
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
     /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
-    /// <param name="include">When set to "measurement_points", additionally includes a per-measurement-point breakdown of conductor temperature over the requested time range, organized by span and span phase.</param>
+    /// <param name="include">Set to <see cref="ConductorTemperatureInclude.MeasurementPoints"/> to additionally include a per-measurement-point breakdown of conductor temperature over the requested time range, organized by span and span phase. Omitted by default.</param>
     /// <param name="cancellationToken">Token to cancel the request.</param>
     /// <exception cref="HeimdallApiException">Thrown on non-transient API errors.</exception>
-    Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", string include = "", CancellationToken cancellationToken = default);
+    Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", ConductorTemperatureInclude? include = null, CancellationToken cancellationToken = default);
 
     /// <summary>Get the most recent Heimdall Dynamic Line Rating (DLR) for the line.</summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>

@@ -31,7 +31,8 @@ public static class AssetsResponseExtensions
     }
 
     /// <summary>
-    /// Get all available measurement points
+    /// Get all measurement points across all lines, including retired ones
+    /// (those with a non-null <see cref="MeasurementPointDto.UnregisteredTimestamp"/>).
     /// </summary>
     /// <param name="response"></param>
     /// <returns></returns>
