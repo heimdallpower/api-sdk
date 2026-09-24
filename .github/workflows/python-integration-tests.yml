@@ -5,7 +5,23 @@ on:
     branches: [ main ]
     paths:
       - 'python/**'
+      - '.github/workflows/python-integration-tests.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'python/**'
+      - '.github/workflows/python-integration-tests.yml'
+  schedule:
+    # Weekday run against production to catch API or data drift between changes.
+    - cron: '0 5 * * 1-5'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   integration-tests:
@@ -13,7 +29,13 @@ jobs:
     defaults:
       run:
         working-directory: python
-    if: github.repository_owner == 'heimdallpower'
+    # Secrets are not available to fork or Dependabot pull requests; skip instead of failing.
+    # Those changes are still covered by the push-to-main and scheduled runs.
+    if: >-
+      github.repository_owner == 'heimdallpower' &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.head.repo.full_name == github.repository &&
+        github.actor != 'dependabot[bot]'))
 
     env:
       HEIMDALL_CLIENT_ID: ${{ secrets.HEIMDALL_CLIENT_ID }}
