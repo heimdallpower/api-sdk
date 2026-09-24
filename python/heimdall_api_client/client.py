@@ -392,6 +392,7 @@ class HeimdallApiClient:
         line_id: UUID,
         since: datetime.datetime | None = None,
         include: ConductorTemperatureInclude | str | None = None,
+        unit_system: UnitSystem | str | None = None,
     ) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
         """
         Returns the latest conductor temperature for a given line.
@@ -400,6 +401,8 @@ class HeimdallApiClient:
 
         `include="measurement_points"` additionally returns a per-measurement-point
         breakdown of conductor temperature, organized by span and span phase.
+
+        `unit_system` selects Celsius (`"metric"`, default) or Fahrenheit (`"imperial"`).
         """
         from heimdall_api_client.grid_insights import get_latest_conductor_temperature
 
@@ -410,6 +413,7 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 since=since,
                 include=include,
+                unit_system=unit_system,
             )
         )
 

@@ -52,10 +52,15 @@ def get_latest_conductor_temperature(
     region: str,
     since: datetime.datetime | None = None,
     include: ConductorTemperatureInclude | str | None = None,
+    unit_system: UnitSystem | str | None = None,
 ) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_conductor_temperature as get_latest_conductor_temperature,
     )
+
+    unit_system_value = UNSET
+    if unit_system is not None:
+        unit_system_value = unit_system if isinstance(unit_system, UnitSystem) else UnitSystem(unit_system)
 
     include_value = UNSET
     if include is not None:
@@ -67,6 +72,7 @@ def get_latest_conductor_temperature(
         client=client,
         line_id=line_id,
         x_region=region,
+        unit_system=unit_system_value,
         since=UNSET if since is None else as_zulu(since),
         include=include_value,
     )

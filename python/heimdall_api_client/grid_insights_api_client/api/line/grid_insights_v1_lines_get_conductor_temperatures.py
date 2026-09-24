@@ -129,7 +129,8 @@ def sync_detailed(
 ) -> Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -187,7 +188,8 @@ def sync(
 ) -> Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails | None:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -240,7 +242,8 @@ async def asyncio_detailed(
 ) -> Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -296,7 +299,8 @@ async def asyncio(
 ) -> Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails | None:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.

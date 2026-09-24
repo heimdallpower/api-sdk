@@ -126,7 +126,8 @@ def sync_detailed(
 ) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -179,7 +180,8 @@ def sync(
 ) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -227,7 +229,8 @@ async def asyncio_detailed(
 ) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -278,7 +281,8 @@ async def asyncio(
 ) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
