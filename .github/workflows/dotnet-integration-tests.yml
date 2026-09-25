@@ -5,7 +5,20 @@ on:
     branches: [ main ]
     paths:
       - 'dotnet/**'
+      - '.github/workflows/dotnet-integration-tests.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'dotnet/**'
+      - '.github/workflows/dotnet-integration-tests.yml'
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   integration-tests:
@@ -13,7 +26,13 @@ jobs:
     defaults:
       run:
         working-directory: dotnet
-    if: github.repository_owner == 'heimdallpower'
+    # Secrets are not available to fork or Dependabot pull requests; skip instead of failing.
+    # Those changes are still covered by the push-to-main run.
+    if: >-
+      github.repository_owner == 'heimdallpower' &&
+      (github.event_name != 'pull_request' ||
+       (github.event.pull_request.head.repo.full_name == github.repository &&
+        github.actor != 'dependabot[bot]'))
 
     steps:
       - name: Checkout repository
