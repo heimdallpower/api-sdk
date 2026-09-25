@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_transient_rating_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestTransientRatingResponse200,
     )
+    from heimdall_api_client.grid_insights_api_client.models.current_include import CurrentInclude
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_apparent_power_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetApparentPowerResponse200,
     )
@@ -248,12 +249,17 @@ class HeimdallApiClient:
         )
 
     def get_latest_heimdall_dlr(
-        self, line_id: UUID, since: datetime.datetime | None = None
+        self,
+        line_id: UUID,
+        since: datetime.datetime | None = None,
+        quantity: Quantity | str | None = None,
     ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
         """
         Returns the latest Heimdall DLR (Dynamic Line rating) data.
 
         `since` bounds how old the returned value may be.
+
+        `quantity` selects amperes (`"current"`, default) or MVA (`"apparent_power"`).
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_dlr(
@@ -261,16 +267,22 @@ class HeimdallApiClient:
                 line_id=line_id,
                 region=self._get_region(),
                 since=since,
+                quantity=quantity,
             )
         )
 
     def get_latest_heimdall_aar(
-        self, line_id: UUID, since: datetime.datetime | None = None
+        self,
+        line_id: UUID,
+        since: datetime.datetime | None = None,
+        quantity: Quantity | str | None = None,
     ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
         """
         Returns the latest Heimdall AAR (Available Ampacity Rating) data.
 
         `since` bounds how old the returned value may be.
+
+        `quantity` selects amperes (`"current"`, default) or MVA (`"apparent_power"`).
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_aar(
@@ -278,6 +290,7 @@ class HeimdallApiClient:
                 line_id=line_id,
                 region=self._get_region(),
                 since=since,
+                quantity=quantity,
             )
         )
 
@@ -305,36 +318,51 @@ class HeimdallApiClient:
         )
 
     def get_latest_heimdall_dlr_forecasts(
-        self, line_id: UUID
+        self, line_id: UUID, quantity: Quantity | str | None = None
     ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrForecastsResponse200:
         """
         Returns the latest Heimdall DLR forecasts.
+
+        `quantity` selects amperes (`"current"`, default) or MVA (`"apparent_power"`).
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_dlr_forecasts(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                quantity=quantity,
             )
         )
 
     def get_latest_heimdall_aar_forecasts(
-        self, line_id: UUID
+        self, line_id: UUID, quantity: Quantity | str | None = None
     ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarForecastsResponse200:
         """
         Returns the latest Heimdall AAR forecasts.
+
+        `quantity` selects amperes (`"current"`, default) or MVA (`"apparent_power"`).
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_arr_forecasts(
-                client=self._get_authenticated_client(), line_id=line_id, region=self._get_region()
+                client=self._get_authenticated_client(),
+                line_id=line_id,
+                region=self._get_region(),
+                quantity=quantity,
             )
         )
 
     def get_latest_circuit_rating(
-        self, facility_id: UUID, since: datetime.datetime | None = None
+        self,
+        facility_id: UUID,
+        since: datetime.datetime | None = None,
+        quantity: Quantity | str | None = None,
     ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200:
         """
         Returns the latest circuit rating for a given facility.
 
         `since` bounds how old the returned value may be.
+
+        `quantity` selects amperes (`"current"`, default) or MVA (`"apparent_power"`).
         """
         from heimdall_api_client.capacity_monitoring import get_latest_circuit_ratring
 
@@ -344,6 +372,7 @@ class HeimdallApiClient:
                 facility_id=facility_id,
                 x_region=self._get_region(),
                 since=since,
+                quantity=quantity,
             )
         )
 
@@ -374,16 +403,21 @@ class HeimdallApiClient:
         )
 
     def get_latest_circuit_rating_forecasts(
-        self, facility_id: UUID
+        self, facility_id: UUID, quantity: Quantity | str | None = None
     ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200:
         """
         Returns the latest circuit rating forecasts for a given facility.
+
+        `quantity` selects amperes (`"current"`, default) or MVA (`"apparent_power"`).
         """
         from heimdall_api_client.capacity_monitoring import get_latest_circuit_rating_forecasts
 
         return self._execute_with_retry(
             lambda: get_latest_circuit_rating_forecasts(
-                client=self._get_authenticated_client(), facility_id=facility_id, x_region=self._get_region()
+                client=self._get_authenticated_client(),
+                facility_id=facility_id,
+                x_region=self._get_region(),
+                quantity=quantity,
             )
         )
 
@@ -418,12 +452,18 @@ class HeimdallApiClient:
         )
 
     def get_latest_current(
-        self, line_id: UUID, since: datetime.datetime | None = None
+        self,
+        line_id: UUID,
+        since: datetime.datetime | None = None,
+        include: CurrentInclude | str | None = None,
     ) -> GridInsightsV1LinesGetLatestCurrentResponse200:
         """
         Returns the latest current for a given line.
 
         `since` bounds how old the returned measurement may be.
+
+        `include="measurement_points"` additionally returns a per-measurement-point
+        breakdown of current, organized by span and span phase.
         """
         from heimdall_api_client.grid_insights import get_latest_current
 
@@ -433,6 +473,7 @@ class HeimdallApiClient:
                 line_id=line_id,
                 region=self._get_region(),
                 since=since,
+                include=include,
             )
         )
 
@@ -483,9 +524,13 @@ class HeimdallApiClient:
         line_id: UUID,
         from_timestamp: datetime.datetime,
         to_timestamp: datetime.datetime,
+        include: CurrentInclude | str | None = None,
     ) -> GridInsightsV1LinesGetCurrentsResponse200:
         """
         Returns historical current measurements for a given line.
+
+        `include="measurement_points"` additionally returns a per-measurement-point
+        breakdown of current, organized by span and span phase.
         """
         from heimdall_api_client.grid_insights import get_currents
 
@@ -496,6 +541,7 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 from_timestamp=from_timestamp,
                 to_timestamp=to_timestamp,
+                include=include,
             )
         )
 

@@ -10,7 +10,7 @@ internal static class NameValueCollectionExtensions
     {
         var httpValueCollection = HttpUtility.ParseQueryString(string.Empty, Encoding.UTF8);
         httpValueCollection.Add(nameValueCollection);
-        return $"?{httpValueCollection}";
+        return httpValueCollection.Count == 0 ? string.Empty : $"?{httpValueCollection}";
     }
 
     public static NameValueCollection AddQueryParam(this NameValueCollection nameValueCollection, string key, string value)
