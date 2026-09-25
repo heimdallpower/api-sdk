@@ -1,16 +1,18 @@
 """
-Reproduces an inconsistency between the line-level current and the per-measurement-point
+Checks that the line-level current can be reconciled with the per-measurement-point
 breakdown returned in the same `get_currents(..., include="measurement_points")` response.
 
-The line current is documented as the maximum current measured on the line at a given
-timestamp. On a fixed, settled window the two series disagree:
+Observed behaviour, which the API documentation does not describe:
 
-- the line value at `t` often equals a measurement point's reading one sample (about
-  180 s) before `t`, while that measurement point's reading at `t` is different;
-- at other timestamps the line value is exactly twice a single measurement point's reading.
+- A line value at `t` is the maximum over the preceding five minutes, not the maximum at `t`.
+  A point is emitted only when that maximum changes, and it is stamped with the newest reading.
+- The line value is a phase current: each measurement point reading is multiplied by the
+  number of sub-conductors of its span phase. The breakdown returns the raw per-sub-conductor
+  reading, and the assets hierarchy does not expose the number of sub-conductors, so a client
+  cannot reproduce the line value from public data.
 
-The window is fixed in the past, so the response is identical on every run and the
-failures are deterministic.
+The window is fixed in the past, so the response is identical on every run and the result
+is deterministic.
 """
 
 import datetime
@@ -22,6 +24,7 @@ from heimdall_api_client.grid_insights_api_client.models.current_include import 
 
 # "Heimdall Power Line", the line the .NET integration tests use.
 _LINE_ID = UUID("d67d2205-6629-4bbd-aa9f-436bf22842ad")
+_LINE_CURRENT_WINDOW = datetime.timedelta(minutes=5)
 
 _WINDOWS = [
     pytest.param(
@@ -37,62 +40,49 @@ _WINDOWS = [
 ]
 
 
-def _fetch(api_client, from_timestamp, to_timestamp):
-    data = api_client.get_currents(
-        _LINE_ID, from_timestamp, to_timestamp, include=CurrentInclude.MEASUREMENT_POINTS
-    ).data
-    readings = {
-        mp.measurement_point_id: {point.timestamp: point.value for point in mp.currents}
-        for span in data.measurement_point_currents
-        for span_phase in span.span_phases
-        for mp in span_phase.measurement_points
-    }
-    if not data.currents:
-        pytest.skip(f"No current on line {_LINE_ID} in [{from_timestamp}, {to_timestamp}]")
-    return data.currents, readings
+def _number_of_sub_conductors(api_client):
+    """Number of sub-conductors per measurement point, as published by the assets endpoint."""
+    counts = {}
+    for grid_owner in api_client.get_assets().data.grid_owners:
+        for facility in grid_owner.facilities:
+            if not facility.line or facility.line.id != _LINE_ID:
+                continue
+            for span in facility.line.spans:
+                for span_phase in span.span_phases:
+                    for mp in span_phase.measurement_points:
+                        counts[mp.id] = mp.additional_properties.get("number_of_sub_conductors")
+    return counts
 
 
 @pytest.mark.integration
 @pytest.mark.parametrize(("from_timestamp", "to_timestamp"), _WINDOWS)
-def test_line_current_should_be_the_max_of_measurement_points_at_the_same_timestamp(
+def test_line_current_should_be_reconcilable_from_the_measurement_point_breakdown(
     api_client, from_timestamp, to_timestamp
 ):
-    line_currents, readings = _fetch(api_client, from_timestamp, to_timestamp)
+    sub_conductors = _number_of_sub_conductors(api_client)
+    missing = sorted(str(mp_id) for mp_id, count in sub_conductors.items() if count is None)
+    assert not missing, (
+        "assets expose no number_of_sub_conductors, but the line current multiplies each "
+        f"per-sub-conductor reading by it; measurement points without it: {missing}"
+    )
+
+    # Fetch five extra minutes so the first line points have their full window.
+    data = api_client.get_currents(
+        _LINE_ID, from_timestamp - _LINE_CURRENT_WINDOW, to_timestamp, include=CurrentInclude.MEASUREMENT_POINTS
+    ).data
+    phase_readings = [
+        (point.timestamp, point.value * sub_conductors[mp.measurement_point_id])
+        for span in data.measurement_point_currents
+        for span_phase in span.span_phases
+        for mp in span_phase.measurement_points
+        for point in mp.currents
+    ]
 
     mismatches = []
-    for point in line_currents:
-        at_t = [series[point.timestamp] for series in readings.values() if point.timestamp in series]
-        expected = max(at_t) if at_t else None
+    for point in (p for p in data.currents if p.timestamp >= from_timestamp):
+        window = [v for ts, v in phase_readings if point.timestamp - _LINE_CURRENT_WINDOW <= ts <= point.timestamp]
+        expected = max(window) if window else None
         if expected is None or point.value != pytest.approx(expected, abs=1e-6):
-            mismatches.append(
-                f"{point.timestamp.isoformat()}: line {point.value:.2f} A, max measurement point {expected}"
-            )
+            mismatches.append(f"{point.timestamp.isoformat()}: line {point.value:.2f} A, window max {expected}")
 
-    assert not mismatches, f"{len(mismatches)}/{len(line_currents)} line points differ:\n" + "\n".join(mismatches)
-
-
-@pytest.mark.integration
-@pytest.mark.parametrize(("from_timestamp", "to_timestamp"), _WINDOWS[:1])
-def test_line_current_should_not_repeat_the_previous_measurement_point_reading(
-    api_client, from_timestamp, to_timestamp
-):
-    line_currents, readings = _fetch(api_client, from_timestamp, to_timestamp)
-
-    lagging = []
-    for point in line_currents:
-        for mp_id, series in readings.items():
-            timestamps = sorted(series)
-            if point.timestamp not in series:
-                continue
-            index = timestamps.index(point.timestamp)
-            if index == 0:
-                continue
-            previous = series[timestamps[index - 1]]
-            current = series[point.timestamp]
-            if point.value == pytest.approx(previous, abs=1e-6) and point.value != pytest.approx(current, abs=1e-6):
-                lagging.append(
-                    f"{point.timestamp.isoformat()}: line {point.value:.2f} A equals measurement point {mp_id} "
-                    f"at {timestamps[index - 1].isoformat()}, but it reads {current:.2f} A at this timestamp"
-                )
-
-    assert not lagging, f"{len(lagging)}/{len(line_currents)} line points lag one sample:\n" + "\n".join(lagging)
+    assert not mismatches, "\n".join(mismatches)
