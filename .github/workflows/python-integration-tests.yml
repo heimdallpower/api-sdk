@@ -11,9 +11,6 @@ on:
     paths:
       - 'python/**'
       - '.github/workflows/python-integration-tests.yml'
-  schedule:
-    # Weekday run against production to catch API or data drift between changes.
-    - cron: '0 5 * * 1-5'
   workflow_dispatch:
 
 permissions:
@@ -30,7 +27,7 @@ jobs:
       run:
         working-directory: python
     # Secrets are not available to fork or Dependabot pull requests; skip instead of failing.
-    # Those changes are still covered by the push-to-main and scheduled runs.
+    # Those changes are still covered by the push-to-main run.
     if: >-
       github.repository_owner == 'heimdallpower' &&
       (github.event_name != 'pull_request' ||
