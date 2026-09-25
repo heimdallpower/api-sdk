@@ -13,7 +13,7 @@ Human-facing release steps: `CONTRIBUTING.md` → *Cutting a release*. This file
 | `pr-validation.yml`              | Every PR (title edits too)       | Conventional Commits check on the **PR title**              |
 | `dotnet-build-and-test.yml`      | PR/push touching `dotnet/**`     | restore, build, `dotnet test --filter Category=Unit`        |
 | `python-build.yml`               | PR/push touching `python/**`     | `poetry check`, lock sync, ruff lint/format, unit tests, build |
-| `dotnet-integration-tests.yml`, `python-integration-tests.yml` | Push to `main`, manual | Integration tests with repo secrets |
+| `dotnet-integration-tests.yml`, `python-integration-tests.yml` | PRs from this repo, push to `main`, manual | Integration tests with repo secrets |
 | `release-scripts-test.yml`       | Changes to `.github/scripts/**` or publish workflows | `tag-guard.test.sh` + grep safety asserts |
 | `prepare-release.yml`            | Manual, per SDK                  | `prepare-release.sh` → **draft** GitHub release             |
 | `nuget-publish.yml`, `python-publish.yml` | Release published       | `tag-guard.sh` → pack/build with tag version → OIDC publish |

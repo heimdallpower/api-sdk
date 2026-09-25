@@ -23,7 +23,7 @@ Integration tests hit the **production** API with a real client. A 200 or a non-
 
 ### Step 1 — Get credentials
 
-Integration tests require API client credentials in `HEIMDALL_CLIENT_ID` / `HEIMDALL_CLIENT_SECRET` (contact Heimdall Power for API access). Check tools and variables with `./scripts/check-prerequisites.sh` (or `.ps1`). Stale values from a shell profile override fresh ones — check which are set before debugging.
+Integration tests require API client credentials in `HEIMDALL_CLIENT_ID` / `HEIMDALL_CLIENT_SECRET` (contact Heimdall Power for API access). Stale values from a shell profile override fresh ones — check which are set before debugging.
 
 ### Step 2 — Discover data, don't hard-code it
 

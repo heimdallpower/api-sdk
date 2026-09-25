@@ -94,7 +94,7 @@ dotnet test --filter Category=Unit          # unit tests
 dotnet test --filter Category=Integration   # integration tests (needs credentials)
 ```
 
-Integration tests for both SDKs require API client credentials in `HEIMDALL_CLIENT_ID` and `HEIMDALL_CLIENT_SECRET`. `./scripts/check-prerequisites.sh` (or `.ps1`) checks the toolchain and whether they are set.
+Integration tests for both SDKs require API client credentials in `HEIMDALL_CLIENT_ID` and `HEIMDALL_CLIENT_SECRET`. CI runs them on pull requests from this repository and on push to `main`.
 
 ## Updating the SDK for API changes
 

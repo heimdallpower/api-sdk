@@ -37,7 +37,7 @@ Conventions only. For the workflow of adding API changes, see *Updating the SDK 
 | Kind        | Trait                          | Pattern                                                                 |
 | ----------- | ------------------------------ | ----------------------------------------------------------------------- |
 | Unit        | `[Trait("Category", "Unit")]`  | Public method via the recording fake transport in `Fakes/`; assert query string and deserialized fields |
-| Integration | `[Trait("Category", "Integration")]` | Real API, needs `HEIMDALL_CLIENT_ID`/`HEIMDALL_CLIENT_SECRET`; runs on `main` |
+| Integration | `[Trait("Category", "Integration")]` | Real API, needs `HEIMDALL_CLIENT_ID`/`HEIMDALL_CLIENT_SECRET`; runs on PRs and `main` |
 
 Commands: `dotnet test --filter Category=Unit` (CI) and `--filter Category=Integration` (credentials).
 

@@ -48,7 +48,7 @@ Language- and pipeline-specific rules live in the instruction files (Section 6).
     | .NET   | `dotnet restore && dotnet build --no-restore && dotnet test --no-build --filter Category=Unit`           |
     | Python | `poetry check && poetry lock && poetry install --with dev && poetry run ruff check . && poetry run ruff format --check . && poetry run pytest tests/unit -v && poetry build` |
 
-- **Write tests for all new code.** Every new endpoint, parameter, or response field gets a unit test in each SDK it touches. Integration tests require API client credentials in `HEIMDALL_CLIENT_ID`/`HEIMDALL_CLIENT_SECRET` and run in CI on `main` only; `scripts/check-prerequisites.sh` checks tools and credentials.
+- **Write tests for all new code.** Every new endpoint, parameter, or response field gets a unit test in each SDK it touches. Integration tests require API client credentials in `HEIMDALL_CLIENT_ID`/`HEIMDALL_CLIENT_SECRET` and run in CI on pull requests and on push to `main`.
 - **Keep commits focused.** Conventional Commits with an SDK scope: `feat(dotnet): …`, `fix(python): …`; `!` after the scope for breaking changes.
 - **Open PRs with the standard template** (`.github/PULL_REQUEST_TEMPLATE.md`); the PR title is validated by CI. PRs are squash-merged: title + body become the commit on `main`, so a breaking PR has `!` in the title and a body ending with a `BREAKING CHANGE: <summary>` line. Fill the optional *Release notes* section for user-visible changes.
 - **Respect teammates' PRs.** Add commits on top; never force-push or rewrite someone else's branch.

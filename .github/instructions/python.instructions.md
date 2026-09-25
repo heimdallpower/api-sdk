@@ -45,7 +45,7 @@ pwsh ./generate-module-client.ps1 -Module grid_insights   # assets | capacity_mo
 | ----------- | --------------------- | ------------------------------------------------------------------------ |
 | Unit        | `tests/unit/`         | Drive `HeimdallApiClient` over the recording transport in `_fake_transport.py`; assert query params and parsed models |
 | Wrapper guard | `tests/unit/test_endpoint_wrappers_resolve.py` | Add every new wrapper and client method to its lists |
-| Integration | `tests/integration/` (`@pytest.mark.integration`) | Real API, needs credentials; runs on `main` |
+| Integration | `tests/integration/` (`@pytest.mark.integration`) | Real API, needs credentials; runs on PRs and `main` |
 
 CI: `poetry check`, `poetry lock` sync check, `ruff check .`, `ruff format --check .`, `pytest tests/unit -v`, `poetry build`.
 
