@@ -20,6 +20,8 @@ Full API documentation is available at [developer.heimdallcloud.com](https://dev
 - `dotnet/`: [.NET SDK source and examples](dotnet/README.md)
 - `python/`: [Python SDK source and examples](python/README.md)
 
+AI agents: start with [AGENTS.md](AGENTS.md).
+
 ## Contributing
 
 Interested in contributing? See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
