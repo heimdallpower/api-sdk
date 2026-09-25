@@ -20,6 +20,20 @@ public record FacilityDto
     public required string Name { get; init; }
 
     /// <summary>
+    /// The facility's nominal (rated) phase-to-phase voltage in volts.
+    /// Used in apparent-power calculations as a fallback when <see cref="OperationalVoltage"/> is not set or not positive.
+    /// </summary>
+    /// <example>132000</example>
+    public double NominalVoltage { get; init; }
+
+    /// <summary>
+    /// The facility's operational phase-to-phase voltage in volts, if configured.
+    /// When set and positive, this value is preferred over <see cref="NominalVoltage"/> for apparent-power calculations.
+    /// </summary>
+    /// <example>130000</example>
+    public double? OperationalVoltage { get; init; }
+
+    /// <summary>
     /// Line associated with the facility, if available.
     /// </summary>
     public LineDto? Line { get; init; }

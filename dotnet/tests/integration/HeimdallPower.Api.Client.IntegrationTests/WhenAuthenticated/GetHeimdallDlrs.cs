@@ -19,7 +19,10 @@ public class GetHeimdallDlrs(GetHeimdallDlrs.Scenario scenario) : IClassFixture<
         public Scenario()
         {
             Result = Client.GetHeimdallDlrsAsync(HeimdallPowerLineId, From, To).GetAwaiter().GetResult();
+            Line = LineAssets.Resolve(Client.GetAssetsAsync().GetAwaiter().GetResult(), HeimdallPowerLineId);
         }
+
+        public LineAssets Line { get; }
     }
 
     [Fact]
@@ -62,6 +65,12 @@ public class GetHeimdallDlrs(GetHeimdallDlrs.Scenario scenario) : IClassFixture<
     {
         Assert.All(scenario.Result!.HeimdallDlrs, dlr =>
             Assert.True(dlr.Value > 0, $"DLR value {dlr.Value} at {dlr.Timestamp} should be positive"));
+    }
+
+    [Fact]
+    public void AllDlrsShouldBeLimitedAtASpanOnTheLine()
+    {
+        Assert.All(scenario.Result!.HeimdallDlrs, dlr => Assert.Contains(dlr.AtSpanId, scenario.Line.SpanIds));
     }
 }
 
