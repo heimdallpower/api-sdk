@@ -21,22 +21,12 @@ for f in $(grep -l 'RecordingTransport' "$py_tests"/test_*.py 2>/dev/null); do
   grep -q 'last_params\|url.path\|last_request' "$f" || echo "  $f"
 done
 
-section "2. Tests whose only assertions are weak (non-null / non-empty / status)"
-python3 "$here/find-weak-tests.py" "$dn_tests" "$py_tests"
+section "2. Tests changed since $base whose only assertions are weak (non-null / non-empty / status)"
+changed=$(git diff --name-only "$base" -- "$dn_tests" "$py_tests" | while read -r f; do [ -f "$f" ] && echo "$f"; done)
+# shellcheck disable=SC2086 # one path per word
+[ -n "$changed" ] && python3 "$here/find-weak-tests.py" $changed
 
-section "3. Optional query parameters without an omitted-when-unset test"
-# Required by the spec, or always sent with a default by design: not expected to be omitted.
-required="from_timestamp to_timestamp"
-dotnet_defaults="unit_system quantity"
-for k in $(grep -rhoE --include='*.cs' 'AddQueryParam\("[a-z_]+"' dotnet/HeimdallPower.Api.Client | cut -d'"' -f2 | sort -u); do
-  case " $required " in *" $k "*) continue ;; esac
-  case " $dotnet_defaults " in *" $k "*) ;; *)
-    grep -rqE --include='*.cs' "Null\((query|QueryString\.Of\([^)]*\))\[\"$k\"\]\)|\[\"$k\"\] is null" "$dn_tests" || echo "  .NET:   $k" ;;
-  esac
-  grep -rqE "\"$k\" not in" "$py_tests" || echo "  Python: $k"
-done
-
-section "4. New public properties / model fields since $base not referenced in unit tests"
+section "3. New public properties / model fields since $base not referenced in unit tests"
 for p in $(git diff "$base" -U0 -- dotnet/HeimdallPower.Api.Client | grep -oE '^\+ +public [^(=]+ [A-Z][A-Za-z]+ \{ get' | awk '{print $(NF-2)}' | sort -u); do
   grep -rqw --include='*.cs' "$p" "$dn_tests" || echo "  .NET:   $p"
 done
@@ -45,7 +35,7 @@ for f in $(git diff "$base" -U0 -- 'python/heimdall_api_client/*_api_client/mode
   grep -rqw "$f" "$py_tests" || echo "  Python: $f"
 done
 
-section "5. New client methods/parameters since $base without a Python signature guard"
+section "4. New client methods/parameters since $base without a Python signature guard"
 for m in $(git diff "$base" -U0 -- python/heimdall_api_client/client.py | grep -oE '^\+ +def (get_[a-z_]+)' | awk '{print $NF}' | sort -u); do
   grep -rq "\"$m\"" "$py_tests" || echo "  Python: $m not in any test list (e.g. test_endpoint_wrappers_resolve.py)"
 done

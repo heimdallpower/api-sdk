@@ -18,7 +18,7 @@ metadata:
 
 1. **Scope** — `git diff origin/main...HEAD --stat`; group files by SDK.
 2. **Checks** — run the unit-test self-review script, then apply each table below to the diff.
-3. **Report** — per [../_shared/report-format.md](../_shared/report-format.md).
+3. **Report** — see [Report format](#report-format).
 
 ### Spec conformance
 
@@ -40,8 +40,8 @@ metadata:
 
 | Check                                                              | Severity |
 | ------------------------------------------------------------------ | -------- |
-| Breaking change (see [references/breaking-changes.md](references/breaking-changes.md)) without `!` in PR title and `BREAKING CHANGE:` line in PR body | BLOCKING |
-| Non-breaking PR body has a line starting `BREAKING CHANGE:` | WARNING |
+| Breaking change (see [references/breaking-changes.md](references/breaking-changes.md)) not marked per [release conventions](../../instructions/release.instructions.md#versioning) | BLOCKING |
+| Non-breaking PR marked as breaking                                 | WARNING  |
 | Breaking change without migration note in PR body                  | WARNING  |
 | Version placeholder `0.0.0` changed                                | BLOCKING |
 
@@ -50,13 +50,26 @@ metadata:
 | Check                                                              | Severity |
 | ------------------------------------------------------------------ | -------- |
 | Hand edit in `python/heimdall_api_client/*_api_client/`            | BLOCKING |
-| Findings from `bash .github/skills/sdk-write-unit-tests/scripts/self-review.sh origin/main`, checks 1, 3, 4 (no request assertion, no omitted-when-unset test, untested new field) | BLOCKING |
-| Self-review check 2: test with only weak assertions                | WARNING  |
-| Self-review check 5: new Python method missing from test lists     | WARNING  |
+| Findings from `bash .github/skills/sdk-write-unit-tests/scripts/self-review.sh origin/main`, checks 1 and 3 (no request assertion, untested new field) | BLOCKING |
+| Optional query param without an omitted-when-unset test            | BLOCKING |
+| Self-review check 2: changed test with only weak assertions        | WARNING  |
+| Self-review check 4: new Python method missing from test lists     | WARNING  |
 | Scenario in one SDK's tests but not the other's                    | WARNING  |
 | Integration test with only weak assertions or a hard-coded production id (see `sdk-write-integration-tests`) | SUGGESTION |
 | Unit test missing `[Trait("Category", "Unit")]` (.NET)             | BLOCKING |
 | Public member without XML doc / docstring                          | SUGGESTION |
+
+## Report format
+
+| Severity   | Meaning                                                  |
+| ---------- | -------------------------------------------------------- |
+| BLOCKING   | Fix before merge: test failure, bug, wrong wire format   |
+| WARNING    | Likely unintended or fragile; needs human review         |
+| SUGGESTION | Safer or cleaner alternative exists                      |
+
+- One section per check table; "No violations" when clean.
+- Per finding: file, line, issue, concrete fix.
+- End with `[N] BLOCKING  [N] WARNING  [N] SUGGESTION`.
 
 ## Validation
 

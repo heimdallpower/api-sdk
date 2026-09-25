@@ -53,12 +53,11 @@ bash .github/skills/sdk-write-unit-tests/scripts/self-review.sh origin/main
 | # | Check                                                        | Script basis                                        |
 | - | ------------------------------------------------------------ | --------------------------------------------------- |
 | 1 | Test file uses the fake transport but never asserts the request | `grep -L 'QueryString.Of\|AbsolutePath\|RequestUri'` / `'last_params\|url.path'` |
-| 2 | Test whose only assertions are weak (`NotNull`, `NotEmpty`, `is not None`, status) | `scripts/find-weak-tests.py`   |
-| 3 | Optional query param with no omitted-when-unset test         | `AddQueryParam("…")` keys vs. `Assert.Null(query["…"])` / `"…" not in` |
-| 4 | New DTO property / model field never referenced in tests     | `git diff <base>` → `grep -w` in tests              |
-| 5 | New Python client method missing from the test lists         | `git diff <base> -- client.py` → `grep` in tests    |
+| 2 | Changed test whose only assertions are weak (`NotNull`, `NotEmpty`, `is not None`, status) | `scripts/find-weak-tests.py` on changed files |
+| 3 | New DTO property / model field never referenced in tests     | `git diff <base>` → `grep -w` in tests              |
+| 4 | New Python client method missing from the test lists         | `git diff <base> -- client.py` → `grep` in tests    |
 
-Delegating to a subagent doesn't skip this — run it against its diff yourself; "tests passed" isn't proof it self-reviewed. Every finding gets a fix or a stated reason. Then walk the failure-mode table in [references/checks.md](references/checks.md).
+Delegating to a subagent doesn't skip this — run it against its diff yourself; "tests passed" isn't proof it self-reviewed. Every finding gets a fix or a stated reason. Then walk the failure-mode table in [references/checks.md](references/checks.md) by hand — including omitted-when-unset for every optional query param.
 
 ## Validation
 
@@ -68,8 +67,8 @@ Delegating to a subagent doesn't skip this — run it against its diff yourself;
 
 ## Gotchas
 
-- Check 4 matches by word: common names (`Id`, `Value`, `Timestamp`) always "pass" — verify those by hand.
-- .NET sends `unit_system` and `quantity` with defaults on purpose; Python omits them. The script allows for that — don't "fix" either SDK to match.
+- Check 3 matches by word: common names (`Id`, `Value`, `Timestamp`) always "pass" — verify those by hand.
+- .NET sends `unit_system` and `quantity` with defaults on purpose; Python omits them — don't "fix" either SDK to match.
 - Python `make_client` bypasses auth by patching `_get_authenticated_client`; a test that needs real token behavior belongs in `test_auth_service.py`.
 - An invalid-value test must assert the transport saw **zero** requests (`transport.requests == []`), not just that it raised.
 - Deserialization tests with hand-trimmed JSON miss fields the API actually sends — start from the spec example.

@@ -30,7 +30,7 @@ fix(python): handle missing auth token gracefully
 docs: update contributing guidelines
 ```
 
-PRs target `main` and need a review from a code owner — `@heimdallpower/backend` is requested automatically. A squash merge builds the commit on `main` from the **PR title and body**, so a breaking PR needs `!` in the title and a body ending with a `BREAKING CHANGE: <summary>` line; branch-commit footers are lost (a rebase merge would keep them). Fill the optional *Release notes* section of the template for user-visible changes.
+PRs target `main` and need a review from a code owner — `@heimdallpower/backend` is requested automatically. PRs are squash-merged, so the PR title and body become the commit on `main`; see the [release conventions](.github/instructions/release.instructions.md#versioning) for marking breaking changes and filling *Release notes*.
 
 ## Branching & Releases
 
@@ -103,4 +103,4 @@ The public OpenAPI specs at `https://external-api.heimdallcloud.com/openapi/{mod
 1. Regenerate the affected Python module(s) from the spec (see *Python* above) and update the .NET DTOs, `UrlBuilder` and `IHeimdallApiClient` to match.
 2. Add unit tests in **both** SDKs for every new endpoint, parameter and field; add or update integration tests where behavior changed.
 3. Run the unit and integration tests locally, then confirm CI is green.
-4. Mark breaking changes: `!` in the PR title and a body ending with a `BREAKING CHANGE: <summary>` line; fill the template's *Release notes* section.
+4. Mark breaking changes and fill *Release notes* per the [release conventions](.github/instructions/release.instructions.md#versioning).

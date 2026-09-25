@@ -15,9 +15,9 @@ Integration tests hit the **production** API with a real client. A 200 or a non-
 
 | Flavor                        | .NET                                                                 | Python                                               |
 | ----------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------- |
-| One call, many assertions     | `IClassFixture<Scenario>`; `Scenario : AuthenticatedHeimdallApiClient` makes the call once | session fixtures in `conftest.py` (`api_client`, `line_id`, `facility_id`, `window`) |
+| One call, many assertions     | `IClassFixture<Scenario>`; `Scenario : AuthenticatedHeimdallApiClient` makes the call once | session fixtures in `conftest.py` (`api_client`, `live_line`, `window`) |
 | Many endpoints, same contract | one class per endpoint under `WhenAuthenticated/`                    | `@pytest.mark.parametrize("method_name", …)`         |
-| Cross-endpoint consistency    | e.g. `AllSpanPhaseAndMeasurementPointIdsShouldExistInAssets`         | resolve ids via `get_assets()` in the test           |
+| Cross-endpoint consistency    | `LineAssets.Resolve(assets, lineId)` → span/measurement point ids, voltage | `live_line.span_ids`, `.measurement_point_ids`, `.apparent_power_voltage` |
 
 ## Workflow
 
@@ -27,9 +27,9 @@ Integration tests require API client credentials in `HEIMDALL_CLIENT_ID` / `HEIM
 
 ### Step 2 — Discover data, don't hard-code it
 
-- Resolve line/facility/span ids from `GetAssetsAsync()` / `get_assets()` — `conftest.py` `line_id` is the pattern.
+- Resolve line/facility/span ids from `GetAssetsAsync()` / `get_assets()`. Python: `live_line` (first line with a current < 1 day old); `line_id` takes the first line, which may be idle and skip.
 - Data may legitimately be empty (no sensor data in the window). Python: `pytest.skip("<reason>")`. .NET (xunit 2, no runtime skip): assert invariants that hold for empty results (`Assert.All`), and only require non-empty where the contract guarantees it.
-- 404 means "no data" for this asset — skip with the reason (see `assert_endpoint_responds`), never pass silently.
+- 404 means "no data" for this asset — skip with the reason (`fetch_or_skip`, `assert_endpoint_responds`), never pass silently.
 
 ### Step 3 — Write semantic assertions
 
@@ -40,7 +40,7 @@ See [references/checks.md](references/checks.md). Minimum per endpoint: ids are 
 Tests passing doesn't prove this step happened:
 
 ```bash
-python3 .github/skills/sdk-write-unit-tests/scripts/find-weak-tests.py dotnet/tests/integration python/tests/integration
+python3 .github/skills/sdk-write-unit-tests/scripts/find-weak-tests.py $(git diff --name-only origin/main -- dotnet/tests/integration python/tests/integration)
 grep -rnE 'Guid\.Parse\("[0-9a-f-]{36}"\)|UUID\("[0-9a-f-]{36}"\)' dotnet/tests/integration python/tests/integration
 grep -rnE 'Console\.Write|ITestOutputHelper|print\(|logging\.' dotnet/tests/integration python/tests/integration
 ```
@@ -50,6 +50,7 @@ grep -rnE 'Console\.Write|ITestOutputHelper|print\(|logging\.' dotnet/tests/inte
 | 1 | Test with only weak assertions            | Add a semantic assertion from Step 3, or merge into a test that has one |
 | 2 | Hard-coded production id                  | Discover it from assets; if kept, justify (e.g. a dedicated test line) |
 | 3 | Output that could carry tokens, secrets, account or customer names | Remove; assert messages may name ids and endpoints only |
+| 4 | Semantic test never seen failing          | Break the expectation or drop the param in the SDK call, rerun, revert |
 
 Delegating to a subagent doesn't skip this — run it against its diff yourself.
 
@@ -57,7 +58,7 @@ Delegating to a subagent doesn't skip this — run it against its diff yourself.
 
 1. .NET single test: `cd dotnet && dotnet test --filter "Category=Integration&FullyQualifiedName~GetCurrents"`; all: `--filter Category=Integration`.
 2. Python single test: `cd python && poetry run pytest -m integration "tests/integration/test_when_fetching_latest_data.py::test_should_return_latest_line_data" -v`; all: `poetry run pytest -m integration`.
-3. CI: `dotnet-integration-tests.yml` / `python-integration-tests.yml` run on push to `main` (and manual dispatch) with the repo secrets `HEIMDALL_CLIENT_ID` / `HEIMDALL_CLIENT_SECRET`. They run **after** merge: a failure turns `main` red but blocks nothing — check the run after merging.
+3. CI: `dotnet-integration-tests.yml` / `python-integration-tests.yml` run on PRs from this repo, on push to `main` and on manual dispatch, with the repo secrets `HEIMDALL_CLIENT_ID` / `HEIMDALL_CLIENT_SECRET`. Fork and Dependabot PRs skip (no secrets); their changes run after merge.
 
 ## Gotchas
 
@@ -66,3 +67,6 @@ Delegating to a subagent doesn't skip this — run it against its diff yourself.
 - Several .NET suites hard-code one line id; a decommissioned line fails them all at once.
 - `poetry run pytest` without a path also collects `tests/integration`; use `tests/unit` for unit runs.
 - Never paste test output into PRs or issues without checking it for tokens, authentication error details and customer identifiers.
+- CI logs are public: assert messages may carry ids and values, never names.
+- Several .NET test files are CRLF; a script rewrite turns them LF and the diff into a full-file change — restore the line endings.
+- Line-level current doesn't always equal the max across measurement points (one-sample lag); don't assert that relation until the API is fixed.

@@ -38,7 +38,7 @@ When reviewing pull requests:
 
 ### Priority Areas (flag these)
 
-- Breaking public API without `!` in the PR title and a `BREAKING CHANGE:` line in the PR body (squash merge drops branch footers) — the release helper then under-bumps the version
+- Breaking public API not marked per the [release conventions](instructions/release.instructions.md#versioning) — the release helper then under-bumps the version
 - Optional parameters inserted before `cancellationToken` without a migration note
 - Endpoint, parameter, or field added to one SDK but not the other, with no stated reason
 - SDK behavior that contradicts the OpenAPI spec (names, types, required/nullable, enum values, timestamp format)

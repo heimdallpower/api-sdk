@@ -41,8 +41,4 @@ Non-breaking alternative: a new overload instead of a new optional param. Decide
 
 ## Marking
 
-PRs are squash-merged: the PR title and body become the commit on `main`.
-
-- PR title: `feat(dotnet)!: add since to latest endpoints`
-- PR body: *Release notes* → Breaking changes + Migration (before → after snippet, e.g. pass `cancellationToken: ct` by name).
-- Last line of the PR body: `BREAKING CHANGE: <old signature> → <new signature>; <migration>`
+See the [release conventions](../../../instructions/release.instructions.md#versioning). Migration note: before → after snippet (e.g. pass `cancellationToken: ct` by name).

@@ -10,12 +10,8 @@ What does this PR change and why?
 ## Release notes (optional)
 
 <!-- Optional. Fill in for user-visible SDK changes; delete for docs/CI/chore PRs.
-     The squash merge uses this PR body as the commit message, so these notes land
-     on main and the releaser copies them into the GitHub Release draft.
-
-     Breaking PR: also end the body with a line that starts with the words
-     "BREAKING CHANGE" followed by a colon and a one-line summary. That line is
-     what the release helper detects; keep it out of this comment. -->
+     Breaking PR: see .github/instructions/release.instructions.md (Changelog)
+     for the closing line the release helper detects. -->
 
 ### Breaking changes
 
