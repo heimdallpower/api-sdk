@@ -66,11 +66,13 @@ def get_latest_heimdall_dlr(
     line_id: UUID,
     region: str,
     since: datetime.datetime | None = None,
+    quantity: Quantity | str | None = None,
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
     response = get_latest_dlr.sync_detailed(
         client=client,
         line_id=line_id,
         x_region=region,
+        quantity=_quantity_value(quantity),
         since=UNSET if since is None else as_zulu(since),
     )
     if response.status_code != 200:
@@ -88,11 +90,13 @@ def get_latest_heimdall_aar(
     line_id: UUID,
     region: str,
     since: datetime.datetime | None = None,
+    quantity: Quantity | str | None = None,
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
     response = get_latest_aar.sync_detailed(
         client=client,
         line_id=line_id,
         x_region=region,
+        quantity=_quantity_value(quantity),
         since=UNSET if since is None else as_zulu(since),
     )
     if response.status_code != 200:
@@ -134,9 +138,11 @@ def get_latest_line_transient_rating(
 
 
 def get_latest_heimdall_dlr_forecasts(
-    client: AuthenticatedClient, line_id: UUID, region: str
+    client: AuthenticatedClient, line_id: UUID, region: str, quantity: Quantity | str | None = None
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrForecastsResponse200:
-    response = get_latest_dlr_forecasts.sync_detailed(client=client, line_id=line_id, x_region=region)
+    response = get_latest_dlr_forecasts.sync_detailed(
+        client=client, line_id=line_id, x_region=region, quantity=_quantity_value(quantity)
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
@@ -148,9 +154,11 @@ def get_latest_heimdall_dlr_forecasts(
 
 
 def get_latest_heimdall_arr_forecasts(
-    client: AuthenticatedClient, line_id: UUID, region: str
+    client: AuthenticatedClient, line_id: UUID, region: str, quantity: Quantity | str | None = None
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarForecastsResponse200:
-    response = get_latest_aar_forecasts.sync_detailed(client=client, line_id=line_id, x_region=region)
+    response = get_latest_aar_forecasts.sync_detailed(
+        client=client, line_id=line_id, x_region=region, quantity=_quantity_value(quantity)
+    )
     if response.status_code != 200:
         status = int(response.status_code)
         raise HeimdallApiError(
@@ -166,6 +174,7 @@ def get_latest_circuit_ratring(
     facility_id: UUID,
     x_region: str,
     since: datetime.datetime | None = None,
+    quantity: Quantity | str | None = None,
 ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitRatingResponse200:
     from heimdall_api_client.capacity_monitoring_api_client.api.facility import (
         capacity_monitoring_v1_facilities_get_latest_circuit_rating as get_latest_circuit_rating,
@@ -175,6 +184,7 @@ def get_latest_circuit_ratring(
         client=client,
         facility_id=facility_id,
         x_region=x_region,
+        quantity=_quantity_value(quantity),
         since=UNSET if since is None else as_zulu(since),
     )
     if response.status_code != 200:
@@ -220,14 +230,14 @@ def get_latest_circuit_transient_rating(
 
 
 def get_latest_circuit_rating_forecasts(
-    client: AuthenticatedClient, facility_id: UUID, x_region: str
+    client: AuthenticatedClient, facility_id: UUID, x_region: str, quantity: Quantity | str | None = None
 ) -> CapacityMonitoringV1FacilitiesGetLatestCircuitRatingForecastsResponse200:
     from heimdall_api_client.capacity_monitoring_api_client.api.facility import (
         capacity_monitoring_v1_facilities_get_latest_circuit_rating_forecasts as get_latest_circuit_rating_forecasts,
     )
 
     response = get_latest_circuit_rating_forecasts.sync_detailed(
-        client=client, facility_id=facility_id, x_region=x_region
+        client=client, facility_id=facility_id, x_region=x_region, quantity=_quantity_value(quantity)
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -337,3 +347,9 @@ def get_circuit_ratings(
             status_code=status,
         )
     return response.parsed
+
+
+def _quantity_value(quantity: Quantity | str | None):
+    if quantity is None:
+        return UNSET
+    return quantity if isinstance(quantity, Quantity) else Quantity(quantity)

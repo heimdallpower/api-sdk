@@ -14,6 +14,7 @@ from heimdall_api_client.grid_insights_api_client.models.unit_system import Unit
 from heimdall_api_client.grid_insights_api_client.types import UNSET
 
 if TYPE_CHECKING:
+    from heimdall_api_client.grid_insights_api_client.models.current_include import CurrentInclude
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_apparent_power_response_200 import (  # noqa: E501
         GridInsightsV1LinesGetApparentPowerResponse200,
     )
@@ -91,6 +92,7 @@ def get_latest_current(
     line_id: UUID,
     region: str,
     since: datetime.datetime | None = None,
+    include: CurrentInclude | str | None = None,
 ) -> GridInsightsV1LinesGetLatestCurrentResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_latest_current as get_latest_current,
@@ -101,6 +103,7 @@ def get_latest_current(
         line_id=line_id,
         x_region=region,
         since=UNSET if since is None else as_zulu(since),
+        include=_current_include_value(include),
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -278,6 +281,7 @@ def get_currents(
     region: str,
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
+    include: CurrentInclude | str | None = None,
 ) -> GridInsightsV1LinesGetCurrentsResponse200:
     from heimdall_api_client.grid_insights_api_client.api.line import (
         grid_insights_v1_lines_get_currents as _get_currents,
@@ -289,6 +293,7 @@ def get_currents(
         x_region=region,
         from_timestamp=as_zulu(from_timestamp),
         to_timestamp=as_zulu(to_timestamp),
+        include=_current_include_value(include),
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -394,3 +399,11 @@ def get_conductor_temperatures(
             status_code=status,
         )
     return response.parsed
+
+
+def _current_include_value(include: object):
+    from heimdall_api_client.grid_insights_api_client.models.current_include import CurrentInclude
+
+    if include is None:
+        return UNSET
+    return include if isinstance(include, CurrentInclude) else CurrentInclude(include)
