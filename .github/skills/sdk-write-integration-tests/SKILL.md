@@ -69,4 +69,4 @@ Delegating to a subagent doesn't skip this — run it against its diff yourself.
 - Never paste test output into PRs or issues without checking it for tokens, authentication error details and customer identifiers.
 - CI logs are public: assert messages may carry ids and values, never names.
 - Several .NET test files are CRLF; a script rewrite turns them LF and the diff into a full-file change — restore the line endings.
-- Line-level current doesn't always equal the max across measurement points (one-sample lag); don't assert that relation until the API is fixed.
+- Line current is the max phase current over the preceding 5 minutes; the measurement point breakdown is per sub-conductor and assets don't expose the sub-conductor count — don't assert line = max of breakdown.
