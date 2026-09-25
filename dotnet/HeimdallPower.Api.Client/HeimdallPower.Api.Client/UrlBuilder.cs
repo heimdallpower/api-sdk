@@ -1,6 +1,7 @@
 ﻿using System.Collections.Specialized;
 using System.Globalization;
 using HeimdallPower.Api.Client.CapacityMonitoring;
+using HeimdallPower.Api.Client.GridInsights.Lines;
 
 namespace HeimdallPower.Api.Client;
 
@@ -42,10 +43,16 @@ internal static class UrlBuilder
     private const string SagAndClearanceLatest = "sag_and_clearance/latest";
     private const string SagAndClearance = "sag_and_clearance";
 
-    public static string BuildLatestConductorTemperatureUrl(Guid lineId, string unitSystem)
+    public static string BuildLatestConductorTemperatureUrl(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null, ConductorTemperatureInclude? include = null)
     {
         var queryParams = new NameValueCollection()
             .AddQueryParam("unit_system", unitSystem);
+
+        if (since.HasValue)
+            queryParams.AddQueryParam("since", ToApiTimestamp(since.Value));
+
+        if (include.HasValue)
+            queryParams.AddQueryParam("include", include.Value.ToQueryValue());
 
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ConductorTemperatures, queryParams: queryParams);
     }
@@ -61,12 +68,16 @@ internal static class UrlBuilder
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: CurrentsHistorical, queryParams: queryParams);
     }
 
-    public static string BuildConductorTemperaturesUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric")
+    public static string BuildConductorTemperaturesUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", ConductorTemperatureInclude? include = null)
     {
         var queryParams = new NameValueCollection()
             .AddQueryParam("from_timestamp", ToApiTimestamp(from))
             .AddQueryParam("to_timestamp", ToApiTimestamp(to))
             .AddQueryParam("unit_system", unitSystem);
+
+        if (include.HasValue)
+            queryParams.AddQueryParam("include", include.Value.ToQueryValue());
+
         return GetFullUrl(module: GridInsight, apiVersion: V1, resource: Lines, resourceId: lineId.ToString(), endpoint: ConductorTemperaturesHistorical, queryParams: queryParams);
     }
 

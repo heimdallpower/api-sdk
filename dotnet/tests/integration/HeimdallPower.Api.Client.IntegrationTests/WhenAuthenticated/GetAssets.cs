@@ -38,4 +38,10 @@ public class GetAssets(GetAssets.Scenario scenario) : IClassFixture<GetAssets.Sc
     {
         Assert.NotEmpty(scenario.Result.AllFacilities());
     }
+
+    [Fact]
+    public void ResultShouldIncludeMeasurementPoints()
+    {
+        Assert.NotEmpty(scenario.Result.AllMeasurementPoints());
+    }
 }

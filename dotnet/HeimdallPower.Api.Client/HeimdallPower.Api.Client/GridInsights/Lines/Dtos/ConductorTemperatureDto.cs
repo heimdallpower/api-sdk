@@ -19,4 +19,16 @@ public record ConductorTemperatureDto
     /// </summary>
     /// <example>55.2</example>
     public double? Min { get; init; }
+
+    /// <summary>
+    /// The id of the span where the maximum conductor temperature was measured.
+    /// </summary>
+    /// <example>00000000-0000-0000-0000-000000000000</example>
+    public Guid MaxAtSpanId { get; init; }
+
+    /// <summary>
+    /// The id of the span where the minimum conductor temperature was measured. Null when no minimum is available.
+    /// </summary>
+    /// <example>00000000-0000-0000-0000-000000000000</example>
+    public Guid? MinAtSpanId { get; init; }
 }
