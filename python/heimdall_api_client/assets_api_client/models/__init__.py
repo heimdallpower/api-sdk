@@ -8,6 +8,7 @@ from .facility import Facility
 from .facility_component import FacilityComponent
 from .grid_owner import GridOwner
 from .line_type_0 import LineType0
+from .measurement_point import MeasurementPoint
 from .problem_details import ProblemDetails
 from .span import Span
 from .span_phase import SpanPhase
@@ -21,6 +22,7 @@ __all__ = (
     "FacilityComponent",
     "GridOwner",
     "LineType0",
+    "MeasurementPoint",
     "ProblemDetails",
     "Span",
     "SpanPhase",

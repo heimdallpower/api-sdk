@@ -8,6 +8,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.conductor_temperature_include import ConductorTemperatureInclude
 from ...models.grid_insights_v1_lines_get_latest_conductor_temperature_response_200 import (
     GridInsightsV1LinesGetLatestConductorTemperatureResponse200,
 )
@@ -24,6 +25,7 @@ def _get_kwargs(
     *,
     unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> dict[str, Any]:
@@ -43,6 +45,12 @@ def _get_kwargs(
     if not isinstance(since, Unset):
         json_since = since.isoformat()
     params["since"] = json_since
+
+    json_include: str | Unset = UNSET
+    if not isinstance(include, Unset):
+        json_include = include.value
+
+    params["include"] = json_include
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -112,12 +120,14 @@ def sync_detailed(
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -129,6 +139,9 @@ def sync_detailed(
         line_id (UUID):
         unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -144,6 +157,7 @@ def sync_detailed(
         line_id=line_id,
         unit_system=unit_system,
         since=since,
+        include=include,
         x_region=x_region,
     )
 
@@ -160,12 +174,14 @@ def sync(
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -177,6 +193,9 @@ def sync(
         line_id (UUID):
         unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -193,6 +212,7 @@ def sync(
         client=client,
         unit_system=unit_system,
         since=since,
+        include=include,
         x_region=x_region,
     ).parsed
 
@@ -203,12 +223,14 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails]:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -220,6 +242,9 @@ async def asyncio_detailed(
         line_id (UUID):
         unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -235,6 +260,7 @@ async def asyncio_detailed(
         line_id=line_id,
         unit_system=unit_system,
         since=since,
+        include=include,
         x_region=x_region,
     )
 
@@ -249,12 +275,14 @@ async def asyncio(
     client: AuthenticatedClient | Client,
     unit_system: UnitSystem | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetLatestConductorTemperatureXRegion
     | Unset = GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetLatestConductorTemperatureResponse200 | ProblemDetails | None:
     """Get latest conductor temperature
 
-     This endpoint returns the most recent conductor temperature for the line.
+     This endpoint returns the most recent conductor temperature for the line, alongside the Id of the
+    span it occurred at.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -266,6 +294,9 @@ async def asyncio(
         line_id (UUID):
         unit_system (UnitSystem | Unset):
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetLatestConductorTemperatureXRegion | Unset):  Default:
             GridInsightsV1LinesGetLatestConductorTemperatureXRegion.EU.
 
@@ -283,6 +314,7 @@ async def asyncio(
             client=client,
             unit_system=unit_system,
             since=since,
+            include=include,
             x_region=x_region,
         )
     ).parsed

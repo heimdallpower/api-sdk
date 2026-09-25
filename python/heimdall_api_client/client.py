@@ -25,6 +25,9 @@ from heimdall_api_client.capacity_monitoring import (
 )
 from heimdall_api_client.capacity_monitoring_api_client.models.quantity import Quantity
 from heimdall_api_client.errors import HeimdallApiError
+from heimdall_api_client.grid_insights_api_client.models.conductor_temperature_include import (
+    ConductorTemperatureInclude,
+)
 from heimdall_api_client.grid_insights_api_client.models.unit_system import UnitSystem
 
 _T = TypeVar("_T")
@@ -385,12 +388,21 @@ class HeimdallApiClient:
         )
 
     def get_latest_conductor_temperature(
-        self, line_id: UUID, since: datetime.datetime | None = None
+        self,
+        line_id: UUID,
+        since: datetime.datetime | None = None,
+        include: ConductorTemperatureInclude | str | None = None,
+        unit_system: UnitSystem | str | None = None,
     ) -> GridInsightsV1LinesGetLatestConductorTemperatureResponse200:
         """
         Returns the latest conductor temperature for a given line.
 
         `since` bounds how old the returned measurement may be.
+
+        `include="measurement_points"` additionally returns a per-measurement-point
+        breakdown of conductor temperature, organized by span and span phase.
+
+        `unit_system` selects Celsius (`"metric"`, default) or Fahrenheit (`"imperial"`).
         """
         from heimdall_api_client.grid_insights import get_latest_conductor_temperature
 
@@ -400,6 +412,8 @@ class HeimdallApiClient:
                 line_id=line_id,
                 region=self._get_region(),
                 since=since,
+                include=include,
+                unit_system=unit_system,
             )
         )
 
@@ -491,9 +505,13 @@ class HeimdallApiClient:
         from_timestamp: datetime.datetime,
         to_timestamp: datetime.datetime,
         unit_system: UnitSystem | str | None = None,
+        include: ConductorTemperatureInclude | str | None = None,
     ) -> GridInsightsV1LinesGetConductorTemperaturesResponse200:
         """
         Returns historical conductor temperature measurements for a given line.
+
+        `include="measurement_points"` additionally returns a per-measurement-point
+        breakdown of conductor temperature, organized by span and span phase.
         """
         from heimdall_api_client.grid_insights import get_conductor_temperatures
 
@@ -505,6 +523,7 @@ class HeimdallApiClient:
                 from_timestamp=from_timestamp,
                 to_timestamp=to_timestamp,
                 unit_system=unit_system,
+                include=include,
             )
         )
 

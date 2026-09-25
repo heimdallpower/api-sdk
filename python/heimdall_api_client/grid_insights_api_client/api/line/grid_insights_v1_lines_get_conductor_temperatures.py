@@ -8,6 +8,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.conductor_temperature_include import ConductorTemperatureInclude
 from ...models.grid_insights_v1_lines_get_conductor_temperatures_response_200 import (
     GridInsightsV1LinesGetConductorTemperaturesResponse200,
 )
@@ -25,6 +26,7 @@ def _get_kwargs(
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
     | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
 ) -> dict[str, Any]:
@@ -45,6 +47,12 @@ def _get_kwargs(
         json_unit_system = unit_system.value
 
     params["unit_system"] = json_unit_system
+
+    json_include: str | Unset = UNSET
+    if not isinstance(include, Unset):
+        json_include = include.value
+
+    params["include"] = json_include
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -115,12 +123,14 @@ def sync_detailed(
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
     | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -135,6 +145,9 @@ def sync_detailed(
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
             GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
@@ -151,6 +164,7 @@ def sync_detailed(
         from_timestamp=from_timestamp,
         to_timestamp=to_timestamp,
         unit_system=unit_system,
+        include=include,
         x_region=x_region,
     )
 
@@ -168,12 +182,14 @@ def sync(
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
     | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails | None:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -188,6 +204,9 @@ def sync(
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
             GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
@@ -205,6 +224,7 @@ def sync(
         from_timestamp=from_timestamp,
         to_timestamp=to_timestamp,
         unit_system=unit_system,
+        include=include,
         x_region=x_region,
     ).parsed
 
@@ -216,12 +236,14 @@ async def asyncio_detailed(
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
     | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
 ) -> Response[Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails]:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -236,6 +258,9 @@ async def asyncio_detailed(
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
             GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
@@ -252,6 +277,7 @@ async def asyncio_detailed(
         from_timestamp=from_timestamp,
         to_timestamp=to_timestamp,
         unit_system=unit_system,
+        include=include,
         x_region=x_region,
     )
 
@@ -267,12 +293,14 @@ async def asyncio(
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
     unit_system: UnitSystem | Unset = UNSET,
+    include: ConductorTemperatureInclude | Unset = UNSET,
     x_region: GridInsightsV1LinesGetConductorTemperaturesXRegion
     | Unset = GridInsightsV1LinesGetConductorTemperaturesXRegion.EU,
 ) -> Any | GridInsightsV1LinesGetConductorTemperaturesResponse200 | ProblemDetails | None:
     """Get conductor temperatures
 
-     This endpoint returns conductor temperatures for the line within a specified time range.
+     This endpoint returns conductor temperatures for the line within a specified time range, alongside
+    the Id of the span where each temperature measurement occurred.
 
     Conductor temperature is defined as the maximum and minimum temperature measured on the line at a
     given timestamp.
@@ -287,6 +315,9 @@ async def asyncio(
         from_timestamp (datetime.datetime):  Example: 2024-07-01 00:00:00+00:00.
         to_timestamp (datetime.datetime):  Example: 2024-07-02 00:00:00+00:00.
         unit_system (UnitSystem | Unset):
+        include (ConductorTemperatureInclude | Unset): Set to `measurement_points` to additionally
+            include a per-measurement-point breakdown of conductor temperature (as unaggregated data),
+            organized by span and span phase.
         x_region (GridInsightsV1LinesGetConductorTemperaturesXRegion | Unset):  Default:
             GridInsightsV1LinesGetConductorTemperaturesXRegion.EU.
 
@@ -305,6 +336,7 @@ async def asyncio(
             from_timestamp=from_timestamp,
             to_timestamp=to_timestamp,
             unit_system=unit_system,
+            include=include,
             x_region=x_region,
         )
     ).parsed

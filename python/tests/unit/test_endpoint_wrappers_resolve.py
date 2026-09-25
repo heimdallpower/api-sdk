@@ -96,3 +96,34 @@ def test_client_method_accepts_since(name: str):
     parameters = inspect.signature(getattr(HeimdallApiClient, name)).parameters
     assert "since" in parameters, f"HeimdallApiClient.{name} should accept since"
     assert parameters["since"].default is None, f"HeimdallApiClient.{name} should default since to None"
+
+
+# The API added `include=measurement_points` to these after the wrappers were
+# first written; the generated endpoints accept it, so the wrappers must not
+# silently drop it.
+_METHODS_ACCEPTING_INCLUDE = [
+    "get_conductor_temperatures",
+    "get_latest_conductor_temperature",
+]
+
+
+@pytest.mark.parametrize("name", _METHODS_ACCEPTING_INCLUDE)
+def test_client_method_accepts_include(name: str):
+    import inspect
+
+    from heimdall_api_client import HeimdallApiClient
+
+    parameters = inspect.signature(getattr(HeimdallApiClient, name)).parameters
+    assert "include" in parameters, f"HeimdallApiClient.{name} should accept include"
+    assert parameters["include"].default is None, f"HeimdallApiClient.{name} should default include to None"
+
+
+@pytest.mark.parametrize("name", ["get_latest_conductor_temperature"])
+def test_client_method_accepts_unit_system(name: str):
+    import inspect
+
+    from heimdall_api_client import HeimdallApiClient
+
+    parameters = inspect.signature(getattr(HeimdallApiClient, name)).parameters
+    assert "unit_system" in parameters, f"HeimdallApiClient.{name} should accept unit_system"
+    assert parameters["unit_system"].default is None, f"HeimdallApiClient.{name} should default unit_system to None"
