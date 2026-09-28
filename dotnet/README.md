@@ -158,24 +158,6 @@ var httpClient = new HttpClient
 var client = new HeimdallApiClient(clientId, clientSecret, new HeimdallApiClientSettings { HttpClient = httpClient });
 ```
 
-## Upgrading to v5
-
-v5 moves optional parameters into options records so that future API additions don't need another major version.
-
-| v4 | v5 |
-|---|---|
-| `GetLatestHeimdallDlrAsync(id, Quantity.ApparentPower)` | `GetLatestHeimdallDlrAsync(id, new() { Quantity = Quantity.ApparentPower })` |
-| `GetLatestCurrentAsync(id, since: t)` | `GetLatestCurrentAsync(id, new() { Since = t })` |
-| `GetIcingsAsync(id, from, to, "imperial")` | `GetIcingsAsync(id, from, to, new() { UnitSystem = UnitSystem.Imperial })` |
-| `new HeimdallApiClient(id, secret, httpClient, metadata, proxyHandler)` | `new HeimdallApiClient(id, secret, new HeimdallApiClientSettings { HttpClient = httpClient, ClientMetadata = metadata, TokenProxyHandler = proxyHandler })` |
-| `GetLinesAsync()` returns `List<LineDto?>` | returns `IReadOnlyList<LineDto>` (facilities without a line are skipped) |
-| `ex.Data["Title"]` on `HeimdallApiException` | `ex.Title` (`Data` is still populated) |
-
-Other changes:
-- `unitSystem` is now the `UnitSystem` enum instead of a string.
-- Response collections are `IReadOnlyList<T>` / `IReadOnlyCollection<T>`.
-- `ApiResponse<T>` and `ProblemDetails` are now internal.
-
 ## License
 
 This SDK is licensed under the [Apache License 2.0](../LICENSE).
