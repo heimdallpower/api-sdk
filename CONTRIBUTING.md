@@ -100,7 +100,7 @@ Integration tests for both SDKs require API client credentials in `HEIMDALL_CLIE
 
 The public OpenAPI specs at `https://external-api.heimdallcloud.com/openapi/{module}/v1/openapi.yaml` are the source of truth.
 
-1. Regenerate the affected Python module(s) from the spec (see *Python* above) and update the .NET DTOs, `UrlBuilder` and `IHeimdallApiClient` to match.
+1. Regenerate the affected Python module(s) from the spec (see *Python* above) and update the .NET DTOs, options records, `UrlBuilder` and `IHeimdallApiClient` to match. New optional query parameters go on the method's options record.
 2. Add unit tests in **both** SDKs for every new endpoint, parameter and field; add or update integration tests where behavior changed.
 3. Run the unit and integration tests locally, then confirm CI is green.
 4. Mark breaking changes and fill *Release notes* per the [release conventions](.github/instructions/release.instructions.md#versioning).

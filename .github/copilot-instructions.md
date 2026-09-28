@@ -39,7 +39,7 @@ When reviewing pull requests:
 ### Priority Areas (flag these)
 
 - Breaking public API not marked per the [release conventions](instructions/release.instructions.md#versioning) — the release helper then under-bumps the version
-- Optional parameters inserted before `cancellationToken` without a migration note
+- Optional .NET parameters added as positional method parameters instead of properties on the method's options record
 - Endpoint, parameter, or field added to one SDK but not the other, with no stated reason
 - SDK behavior that contradicts the OpenAPI spec (names, types, required/nullable, enum values, timestamp format)
 - Hand edits inside `python/heimdall_api_client/*_api_client/`
