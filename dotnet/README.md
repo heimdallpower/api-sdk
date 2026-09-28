@@ -136,4 +136,4 @@ var client = new HeimdallApiClient(clientId, clientSecret, httpClient: httpClien
 
 ## License
 
-This SDK is licensed under the [MIT License](LICENSE).
+This SDK is licensed under the [Apache License 2.0](../LICENSE).

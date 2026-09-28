@@ -112,3 +112,6 @@ client = HeimdallApiClient(
 > Use `timeout` to bound how long each request may take.
 > `httpx.TimeoutException` is raised if the timeout is exceeded.
 
+## License
+
+This SDK is licensed under the [Apache License 2.0](../LICENSE).
