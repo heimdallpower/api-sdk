@@ -24,7 +24,7 @@ public class GetLatestCircuitRating(GetLatestCircuitRating.Scenario scenario) : 
             for (var attempt = 0; ; attempt++)
             {
                 Amperes = Client.GetLatestCircuitRatingAsync(Line.FacilityId).GetAwaiter().GetResult();
-                Mva = Client.GetLatestCircuitRatingAsync(Line.FacilityId, Quantity.ApparentPower).GetAwaiter().GetResult();
+                Mva = Client.GetLatestCircuitRatingAsync(Line.FacilityId, new() { Quantity = Quantity.ApparentPower }).GetAwaiter().GetResult();
                 if (Amperes.CircuitRating.Timestamp == Mva.CircuitRating.Timestamp || attempt == 2)
                     break;
             }

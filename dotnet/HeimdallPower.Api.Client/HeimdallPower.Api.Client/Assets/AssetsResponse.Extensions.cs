@@ -7,13 +7,13 @@ public static class AssetsResponseExtensions
     /// </summary>
     /// <param name="response"></param>
     /// <returns></returns>
-    public static List<LineDto?> AllLines(this AssetsResponse response)
+    public static IReadOnlyList<LineDto> AllLines(this AssetsResponse response)
     {
         return response.GridOwners
             .Where(go => go?.Facilities is { Count: > 0 })
             .SelectMany(go => go.Facilities
                 .Where(facility => facility?.Line != null)
-                .Select(facility => facility.Line))
+                .Select(facility => facility.Line!))
             .ToList();
     }
 
@@ -22,7 +22,7 @@ public static class AssetsResponseExtensions
     /// </summary>
     /// <param name="response"></param>
     /// <returns></returns>
-    public static List<FacilityDto> AllFacilities(this AssetsResponse response)
+    public static IReadOnlyList<FacilityDto> AllFacilities(this AssetsResponse response)
     {
         return response.GridOwners
             .Where(go => go?.Facilities is { Count: > 0 })
@@ -36,7 +36,7 @@ public static class AssetsResponseExtensions
     /// </summary>
     /// <param name="response"></param>
     /// <returns></returns>
-    public static List<MeasurementPointDto> AllMeasurementPoints(this AssetsResponse response)
+    public static IReadOnlyList<MeasurementPointDto> AllMeasurementPoints(this AssetsResponse response)
     {
         return response.GridOwners
             .Where(go => go?.Facilities is { Count: > 0 })

@@ -84,7 +84,7 @@ public class GetCurrentsWithMeasurementPoints(GetCurrentsWithMeasurementPoints.S
         {
             To = DateTimeOffset.UtcNow;
             From = To.AddHours(-6);
-            Result = Client.GetCurrentsAsync(LineAssets.HeimdallPowerLineId, From, To, CurrentInclude.MeasurementPoints)
+            Result = Client.GetCurrentsAsync(LineAssets.HeimdallPowerLineId, From, To, new() { Include = CurrentInclude.MeasurementPoints })
                 .GetAwaiter().GetResult();
             Line = LineAssets.Resolve(Client.GetAssetsAsync().GetAwaiter().GetResult(), LineAssets.HeimdallPowerLineId);
         }

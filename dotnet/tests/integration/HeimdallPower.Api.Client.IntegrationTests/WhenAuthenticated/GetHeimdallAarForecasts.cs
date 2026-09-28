@@ -24,7 +24,7 @@ public class GetHeimdallAarForecasts(GetHeimdallAarForecasts.Scenario scenario) 
             for (var attempt = 0; ; attempt++)
             {
                 Amperes = Client.GetHeimdallAarForecastsAsync(Line.LineId).GetAwaiter().GetResult();
-                Mva = Client.GetHeimdallAarForecastsAsync(Line.LineId, Quantity.ApparentPower).GetAwaiter().GetResult();
+                Mva = Client.GetHeimdallAarForecastsAsync(Line.LineId, new() { Quantity = Quantity.ApparentPower }).GetAwaiter().GetResult();
                 if (Amperes.UpdatedTimestamp == Mva.UpdatedTimestamp || attempt == 2)
                     break;
             }

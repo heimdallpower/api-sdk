@@ -8,7 +8,7 @@ namespace HeimdallPower.Api.Client;
 internal class HeimdallApiHttpClient(
     IAccessTokenProvider accessTokenProvider,
     HttpClient httpClient,
-    Dictionary<string, string>? clientMetadata = null)
+    IReadOnlyDictionary<string, string>? clientMetadata = null)
 {
     private HttpClient HttpClient { get; } = httpClient;
 

@@ -53,6 +53,22 @@ var heimdallApiClient = provider.GetRequiredService<HeimdallApiClient>();
 
 You can also inject `IHeimdallApiClient` for the abstraction.
 
+### Optional parameters
+
+Required inputs (ids and time ranges) are positional. Everything optional goes in a per-method options record,
+named after the method (`GetLatestCurrentAsync` takes `GetLatestCurrentOptions`, and so on). Pass `null` or leave
+it out to use the defaults.
+
+```csharp
+using HeimdallPower.Api.Client.CapacityMonitoring;
+using HeimdallPower.Api.Client.GridInsights.Lines;
+
+var dlr = await client.GetLatestHeimdallDlrAsync(lineId, new() { Quantity = Quantity.ApparentPower, Since = DateTimeOffset.UtcNow.AddMinutes(-15) });
+var temperatures = await client.GetConductorTemperaturesAsync(lineId, from, to, new() { UnitSystem = UnitSystem.Imperial, Include = ConductorTemperatureInclude.MeasurementPoints });
+```
+
+New optional API parameters are added as new properties on these records, so they don't break existing code.
+
 More examples can be seen in the [examples folder](examples).
 
 ### Proxy Configuration
@@ -98,7 +114,7 @@ var dlr = await client.GetLatestHeimdallDlrAsync(lineId);
 
 | Exception | When |
 |---|---|
-| `HeimdallApiException` | Non-success HTTP error (400, 403, 404, 500, 502, …). Check `StatusCode` for the HTTP status. |
+| `HeimdallApiException` | Non-success HTTP error (400, 403, 404, 500, 502, …). Check `StatusCode` for the HTTP status; `Title`, `Detail`, `Type`, `Instance` and `Errors` carry the API's problem details when it returns them, and `RequestUrl` the failing request. |
 | `UnauthorizedAccessException` | Authentication failed after a token-refresh attempt. |
 | `OperationCanceledException` | The provided `CancellationToken` was cancelled. |
 
@@ -110,6 +126,10 @@ try
 catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
 {
     // Line not found
+}
+catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
+{
+    // Validation error, e.g. ex.Errors["since"]
 }
 catch (HeimdallApiException ex)
 {
@@ -127,12 +147,34 @@ using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 var dlr = await client.GetLatestHeimdallDlrAsync(lineId, cancellationToken: cts.Token);
 ```
 
-To set a per-request HTTP timeout, configure `HttpClient.Timeout` and pass it to the constructor:
+To set a per-request HTTP timeout, configure `HttpClient.Timeout` and pass it through `HeimdallApiClientSettings`:
 
 ```csharp
-var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
-var client = new HeimdallApiClient(clientId, clientSecret, httpClient: httpClient);
+var httpClient = new HttpClient
+{
+    BaseAddress = new Uri("https://external-api.heimdallcloud.com"),
+    Timeout = TimeSpan.FromSeconds(5),
+};
+var client = new HeimdallApiClient(clientId, clientSecret, new HeimdallApiClientSettings { HttpClient = httpClient });
 ```
+
+## Upgrading to v5
+
+v5 moves optional parameters into options records so that future API additions don't need another major version.
+
+| v4 | v5 |
+|---|---|
+| `GetLatestHeimdallDlrAsync(id, Quantity.ApparentPower)` | `GetLatestHeimdallDlrAsync(id, new() { Quantity = Quantity.ApparentPower })` |
+| `GetLatestCurrentAsync(id, since: t)` | `GetLatestCurrentAsync(id, new() { Since = t })` |
+| `GetIcingsAsync(id, from, to, "imperial")` | `GetIcingsAsync(id, from, to, new() { UnitSystem = UnitSystem.Imperial })` |
+| `new HeimdallApiClient(id, secret, httpClient, metadata, proxyHandler)` | `new HeimdallApiClient(id, secret, new HeimdallApiClientSettings { HttpClient = httpClient, ClientMetadata = metadata, TokenProxyHandler = proxyHandler })` |
+| `GetLinesAsync()` returns `List<LineDto?>` | returns `IReadOnlyList<LineDto>` (facilities without a line are skipped) |
+| `ex.Data["Title"]` on `HeimdallApiException` | `ex.Title` (`Data` is still populated) |
+
+Other changes:
+- `unitSystem` is now the `UnitSystem` enum instead of a string.
+- Response collections are `IReadOnlyList<T>` / `IReadOnlyCollection<T>`.
+- `ApiResponse<T>` and `ProblemDetails` are now internal.
 
 ## License
 

@@ -18,5 +18,5 @@ public record CircuitRatingsResponse
     /// <summary>
     /// List of circuit ratings within the requested time range.
     /// </summary>
-    public required List<CircuitRatingDto> CircuitRatings { get; init; }
+    public required IReadOnlyList<CircuitRatingDto> CircuitRatings { get; init; }
 }

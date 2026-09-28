@@ -87,7 +87,7 @@ public class GetConductorTemperatures
         var handler = new RecordingHttpMessageHandler(WithMeasurementPointsJson);
 
         await HeimdallApiClientFactory.Create(handler).GetConductorTemperaturesAsync(
-            LineId, From, To, include: ConductorTemperatureInclude.MeasurementPoints);
+            LineId, From, To, new() { Include = ConductorTemperatureInclude.MeasurementPoints });
 
         Assert.Equal("measurement_points", QueryString.Of(handler.LastRequest)["include"]);
     }
@@ -111,7 +111,7 @@ public class GetConductorTemperatures
         var handler = new RecordingHttpMessageHandler(WithMeasurementPointsJson);
 
         var result = await HeimdallApiClientFactory.Create(handler).GetConductorTemperaturesAsync(
-            LineId, From, To, include: ConductorTemperatureInclude.MeasurementPoints);
+            LineId, From, To, new() { Include = ConductorTemperatureInclude.MeasurementPoints });
 
         Assert.Empty(result.ConductorTemperatures);
         var span = Assert.Single(result.MeasurementPointTemperatures!);

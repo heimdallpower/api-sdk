@@ -18,5 +18,5 @@ public record HeimdallAarsResponse
     /// <summary>
     /// List of Heimdall AAR values within the requested time range. May be empty if no data exists for the period.
     /// </summary>
-    public required List<HeimdallAarDto> HeimdallAars { get; init; }
+    public required IReadOnlyList<HeimdallAarDto> HeimdallAars { get; init; }
 }

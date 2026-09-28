@@ -24,7 +24,7 @@ public class GetCircuitRatingForecasts(GetCircuitRatingForecasts.Scenario scenar
             for (var attempt = 0; ; attempt++)
             {
                 Amperes = Client.GetCircuitRatingForecastsAsync(Line.FacilityId).GetAwaiter().GetResult();
-                Mva = Client.GetCircuitRatingForecastsAsync(Line.FacilityId, Quantity.ApparentPower).GetAwaiter().GetResult();
+                Mva = Client.GetCircuitRatingForecastsAsync(Line.FacilityId, new() { Quantity = Quantity.ApparentPower }).GetAwaiter().GetResult();
                 if (Amperes.UpdatedTimestamp == Mva.UpdatedTimestamp || attempt == 2)
                     break;
             }
