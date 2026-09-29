@@ -18,7 +18,7 @@ Unit tests call the **public client** end to end; only the HTTP transport is fak
 | Request (path, query) + parsing    | `Fakes/RecordingHttpMessageHandler` + `HeimdallApiClientFactory.Create(handler)`, `QueryString.Of(request)` | `_fake_transport.RecordingTransport(body)` + `make_client(transport)`, `transport.last_params` |
 | Same scenario across many endpoints | `[Theory]` + `TheoryData` of `(name, json, call)` — see `WhenRequestingLatestValues/SinceParameter.cs` | `@pytest.mark.parametrize` over `_CASES` — see `test_quantity_on_latest_endpoints.py` |
 | Error handling, retry, proxy       | `WhenHandlingErrorResponses/`, `WhenUsingResilienceExtensions/` | `test_retry_behavior.py`                        |
-| Public signature compatibility     | Compiler + migration note (breaking by design)              | `inspect.signature` guard — `test_new_parameters_are_appended_as_optional_keywords` |
+| Public signature compatibility     | Compiler — new options are `init` properties on the options record | `inspect.signature` guard — `test_new_parameters_are_appended_as_optional_keywords` |
 | Wrapper wiring                     | —                                                           | `test_endpoint_wrappers_resolve.py` lists       |
 
 ## Workflow

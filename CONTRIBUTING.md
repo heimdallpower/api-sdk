@@ -22,7 +22,7 @@ type(scope): description
 - **Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`, `build`, `style`, `perf`
 - **Scope** (optional): use when the change is module-specific — `python`, `dotnet`
 - **Description:** imperative, lowercase, no trailing period. Include the Jira ticket if there is one.
-- Mark breaking changes with `!` (`feat(dotnet)!: ...`) or a `BREAKING CHANGE:` footer.
+- Mark breaking changes with `!` (`feat(dotnet)!: ...`) and end the PR body with a `BREAKING CHANGE:` line.
 
 ```
 feat(dotnet): POWER-4075 add proxy configuration for API client
@@ -49,7 +49,7 @@ The two SDKs are **versioned and released independently**, each from its own tag
 ### Cutting a release
 
 1. **Actions → *Prepare release (draft)* → Run workflow.** Pick the SDK and leave the version blank to accept the suggestion. It creates a draft pinned to the commit you dispatched from, or exits without drafting if that SDK has nothing to release. Iterating a prerelease (`rc.1` → `rc.2`) needs an explicit version.
-2. **Review the draft.** The suggested bump is **advisory** — it reads commit subjects, so a breaking change typed `chore:` looks safe to it. If the number is wrong, re-run step 1 with an explicit version and delete the superseded draft. Paste the *Release notes* sections of the merged PRs (the squash-commit bodies) into the draft.
+2. **Review the draft.** The suggested bump is **advisory** — it reads commit subjects, so a breaking change typed `chore:` looks safe to it. If the number is wrong, re-run step 1 with an explicit version and delete the superseded draft. Paste the *Release notes* sections of the merged PRs into the draft.
 3. **Publish the draft.** You don't create the tag yourself: the draft holds the tag name and the commit it points at, and GitHub creates the tag when you publish. That fires `nuget-publish.yml` or `python-publish.yml`; the other skips. Both use trusted publishing (OIDC) — no stored API tokens.
 
 Before publishing:
@@ -100,7 +100,7 @@ Integration tests for both SDKs require API client credentials in `HEIMDALL_CLIE
 
 The public OpenAPI specs at `https://external-api.heimdallcloud.com/openapi/{module}/v1/openapi.yaml` are the source of truth.
 
-1. Regenerate the affected Python module(s) from the spec (see *Python* above) and update the .NET DTOs, options records, `UrlBuilder` and `IHeimdallApiClient` to match. New optional query parameters go on the method's options record.
+1. Regenerate the affected Python module(s) from the spec (see *Python* above) and update the .NET DTOs, options records, `UrlBuilder` and `IHeimdallApiClient` to match. New optional query parameters go on the .NET method's options record and are appended last, with a default, in Python.
 2. Add unit tests in **both** SDKs for every new endpoint, parameter and field; add or update integration tests where behavior changed.
 3. Run the unit and integration tests locally, then confirm CI is green.
 4. Mark breaking changes and fill *Release notes* per the [release conventions](.github/instructions/release.instructions.md#versioning).

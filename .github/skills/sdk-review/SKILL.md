@@ -41,6 +41,8 @@ metadata:
 | Check                                                              | Severity |
 | ------------------------------------------------------------------ | -------- |
 | Breaking change (see [references/breaking-changes.md](references/breaking-changes.md)) not marked per [release conventions](../../instructions/release.instructions.md#versioning) | BLOCKING |
+| .NET optional param added as a method parameter, not an options-record property | BLOCKING |
+| Python param inserted before existing ones or without a default    | BLOCKING |
 | Non-breaking PR marked as breaking                                 | WARNING  |
 | Breaking change without migration note in PR body                  | WARNING  |
 | Version placeholder `0.0.0` changed                                | BLOCKING |

@@ -23,9 +23,9 @@ Human-facing release steps: `CONTRIBUTING.md` → *Cutting a release*. This file
 | Rule                                                              | Why                                             |
 | ----------------------------------------------------------------- | ----------------------------------------------- |
 | Version = tag only: `dotnet-vX.Y.Z[-pre]`, `python-vX.Y.Z[-(alpha\|beta\|rc).N]` | `0.0.0` placeholders are overridden in CI |
-| Suggested bump comes from commit **subjects** since the last tag of that SDK | Type the commit honestly                  |
-| Squash merge: commit on `main` = PR title + PR body               | Branch-commit messages never reach `main`       |
-| `!` in the PR title, or a body line starting `BREAKING CHANGE:` → major | Otherwise a breaking change ships as minor |
+| Suggested bump comes from commit **subjects** since the last stable tag of that SDK (prereleases skipped) | Type the commit honestly |
+| Squash merge: commit on `main` = PR title + PR body (the merger can edit it) | Branch-commit messages never reach `main` |
+| Breaking PR: `!` in the title **and** a closing `BREAKING CHANGE:` body line → major | The title always reaches `main`; the body only if kept |
 | `feat` → minor, `fix` → patch, others → no release                | `docs`/`chore`/`test` alone draft nothing       |
 | Several PRs → one release per SDK; tag after the last one merges  | Avoid burning versions mid-series               |
 | Never delete a tag or reuse a version                             | Registries reject reuse; tags record burned versions |
@@ -34,7 +34,7 @@ Human-facing release steps: `CONTRIBUTING.md` → *Cutting a release*. This file
 
 - No `CHANGELOG.md`; the changelog is the GitHub release for each tag (`pyproject.toml` links to Releases).
 - `prepare-release.sh` lists commit subjects since the last tag — write subjects as release notes.
-- Fill the optional *Release notes* section of the PR template (Breaking changes / Migration / Added / Fixed); it becomes the squash-commit body and the releaser pastes it into the draft.
+- Fill the optional *Release notes* section of the PR template (Breaking changes / Migration / Added / Fixed); the releaser pastes it from each merged PR into the draft.
 - Breaking PR: end the body with `BREAKING CHANGE: <summary>`. Never start a line with that phrase in a non-breaking body — `prepare-release.sh` would suggest a major.
 - Don't click *Generate release notes* — it compares against the other SDK's release.
 

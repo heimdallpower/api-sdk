@@ -3,8 +3,8 @@
 What does this PR change and why?
 
 <!-- Breaking change? Add `!` after the type/scope in the PR title
-     (`feat(dotnet)!: ...`) or a `BREAKING CHANGE:` footer below — the release
-     helper reads both to suggest the version bump. Dropping a target framework
+     (`feat(dotnet)!: ...`) and end this body with a `BREAKING CHANGE:` line — the
+     release helper reads both to suggest the version bump. Dropping a target framework
      or Python version, renaming public API, and changing a default all count. -->
 
 ## Release notes (optional)

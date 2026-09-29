@@ -10,6 +10,8 @@
 | New `required` property on a DTO                          | Yes       | Object initializers break             |
 | Renamed/removed method, param, DTO, or property           | Yes       | Source + binary break                 |
 | Changed property type or nullability (e.g. `T` → `T?`)    | Yes       | Callers must handle null              |
+| Changed return or collection type (e.g. `List<T>` → `IReadOnlyList<T>`) | Yes | Code using the old type stops compiling |
+| Public type or member made `internal`                     | Yes       | Same as removal                       |
 | New optional DTO property, new DTO, new enum              | No        | Additive                              |
 | New optional `init` property on an options record         | No        | Additive; how optional query params are added |
 | Bug fix in wire format (e.g. timestamp format)            | No (`fix`) | Callers unchanged                    |
@@ -43,4 +45,4 @@ New optional query params go on the method's options record (e.g. `GetLatestCurr
 
 ## Marking
 
-See the [release conventions](../../../instructions/release.instructions.md#versioning). Migration note: before → after snippet (e.g. `GetLatestHeimdallDlrAsync(id, Quantity.ApparentPower)` → `GetLatestHeimdallDlrAsync(id, new() { Quantity = Quantity.ApparentPower })`).
+`!` in the PR title and a closing `BREAKING CHANGE:` line — see the [release conventions](../../../instructions/release.instructions.md#versioning). Migration note: before → after snippet (e.g. `GetLatestHeimdallDlrAsync(id, Quantity.ApparentPower)` → `GetLatestHeimdallDlrAsync(id, new() { Quantity = Quantity.ApparentPower })`).

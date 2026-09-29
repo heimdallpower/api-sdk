@@ -30,7 +30,7 @@ The repo holds two independently released SDKs for the Heimdall Power External A
 ## 3. Working Within Existing Conventions
 
 - **Never hand-edit generated code.** `python/heimdall_api_client/*_api_client/` is regenerated with `python/scripts/generate-module-client.ps1`.
-- **Public API is a contract.** Renaming, reordering parameters, or adding interface members is breaking — see [breaking-change rules](.github/skills/sdk-review/references/breaking-changes.md).
+- **Public API is a contract.** Renaming, reordering parameters, or adding interface members is breaking — see [breaking-change rules](.github/skills/sdk-review/references/breaking-changes.md). New optional params: a property on the .NET options record; an appended kwarg with a default in Python.
 - **Versions live only in release tags.** Don't bump the `0.0.0` placeholders in `.csproj` or `pyproject.toml`.
 - **Cap search results.** Pass `-m 20` to `grep`/`rg`; raise the limit explicitly when needed.
 
