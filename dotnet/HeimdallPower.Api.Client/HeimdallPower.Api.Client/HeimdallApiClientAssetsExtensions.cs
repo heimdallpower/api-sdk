@@ -1,4 +1,6 @@
-namespace HeimdallPower.Api.Client.Assets;
+using HeimdallPower.Api.Client.Assets;
+
+namespace HeimdallPower.Api.Client;
 
 /// <summary>
 /// Asset helpers for <see cref="IHeimdallApiClient"/>.

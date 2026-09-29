@@ -55,8 +55,6 @@ Data endpoints return 404 or no data for lines without active measurement points
 `GetInstrumentedLinesAsync` returns only lines with at least one active measurement point, with their facility.
 
 ```csharp
-using HeimdallPower.Api.Client.Assets;
-
 foreach (var instrumented in await client.GetInstrumentedLinesAsync())
 {
     var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
