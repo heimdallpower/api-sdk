@@ -28,6 +28,7 @@ Conventions only. For the workflow of adding API changes, see *Updating the SDK 
 | New optional param → new `init` property on the options record (not `required`, no positional ctor) | Additive; a new positional param breaks callers |
 | Defaults live on the options record; `UrlBuilder` takes the record    | One source of truth for defaults                 |
 | Add to `IHeimdallApiClient` and `HeimdallApiClient` together         | Interface is the mockable contract               |
+| Convenience helper → extension method (e.g. `GetInstrumentedLinesAsync`), not an interface member | Implementations and mocks keep compiling |
 | Query params added only when set (no `include=`, no bare `?`)        | Unset means "server default", not empty         |
 | Timestamps via `UrlBuilder.ToApiTimestamp` (UTC, `Z`)                | Never `ToString()` — culture-dependent           |
 | Enum query values as dedicated enums (e.g. `CurrentInclude`)         | Typed, discoverable options                      |

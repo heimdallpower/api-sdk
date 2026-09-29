@@ -13,6 +13,7 @@ Heimdall Power monitors overhead power lines with sensors ("Neurons") mounted on
 | Grid owner            | Utility that owns the lines; the API scopes all data to it             |
 | Line / span / span phase | Line between substations → section between towers → one conductor phase |
 | Measurement point     | Neuron location on a span phase; `include=measurement_points` breaks data down to it |
+| Instrumented line     | Line with an active measurement point; list via `GetInstrumentedLinesAsync` / `get_instrumented_lines` |
 | Facility              | Substation or similar; circuit ratings are per facility                |
 | Heimdall DLR / AAR    | Dynamic line rating / ambient-adjusted rating (capacity)               |
 | Transient rating      | Short-term emergency rating                                            |
