@@ -22,7 +22,7 @@ public class InspectHeaders(InspectHeaders.Scenario scenario) : IClassFixture<In
             var clientId = Environment.GetEnvironmentVariable("HEIMDALL_CLIENT_ID")
                 ?? throw new InvalidOperationException("HEIMDALL_CLIENT_ID environment variable is not set.");
 
-            var client = new HeimdallApiClient(clientId, clientSecret, httpClient);
+            var client = new HeimdallApiClient(clientId, clientSecret, new HeimdallApiClientSettings { HttpClient = httpClient });
 
             try
             {

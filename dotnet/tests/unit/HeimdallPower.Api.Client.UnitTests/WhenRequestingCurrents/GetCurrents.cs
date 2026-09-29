@@ -62,7 +62,7 @@ public class GetCurrents
     {
         var handler = new RecordingHttpMessageHandler(Json);
 
-        await HeimdallApiClientFactory.Create(handler).GetCurrentsAsync(LineId, From, To, include: CurrentInclude.MeasurementPoints);
+        await HeimdallApiClientFactory.Create(handler).GetCurrentsAsync(LineId, From, To, new() { Include = CurrentInclude.MeasurementPoints });
 
         Assert.Equal("measurement_points", QueryString.Of(handler.LastRequest)["include"]);
     }
@@ -72,7 +72,7 @@ public class GetCurrents
     {
         var handler = new RecordingHttpMessageHandler(Json);
 
-        var result = await HeimdallApiClientFactory.Create(handler).GetCurrentsAsync(LineId, From, To, include: CurrentInclude.MeasurementPoints);
+        var result = await HeimdallApiClientFactory.Create(handler).GetCurrentsAsync(LineId, From, To, new() { Include = CurrentInclude.MeasurementPoints });
 
         var measurementPoint = Assert.Single(Assert.Single(Assert.Single(result.MeasurementPointCurrents!).SpanPhases).MeasurementPoints);
         Assert.Equal(MeasurementPointId, measurementPoint.MeasurementPointId);

@@ -70,7 +70,7 @@ public class GetLatestCurrent
         var since = new DateTimeOffset(2026, 1, 1, 13, 30, 0, TimeSpan.FromHours(1));
 
         await HeimdallApiClientFactory.Create(handler).GetLatestCurrentAsync(
-            LineId, since: since, include: CurrentInclude.MeasurementPoints);
+            LineId, new() { Since = since, Include = CurrentInclude.MeasurementPoints });
 
         var query = QueryString.Of(handler.LastRequest);
         Assert.Equal("2026-01-01T12:30:00.0000000Z", query["since"]);
@@ -94,7 +94,7 @@ public class GetLatestCurrent
         var handler = new RecordingHttpMessageHandler(WithMeasurementPointsJson);
 
         var result = await HeimdallApiClientFactory.Create(handler).GetLatestCurrentAsync(
-            LineId, include: CurrentInclude.MeasurementPoints);
+            LineId, new() { Include = CurrentInclude.MeasurementPoints });
 
         var span = Assert.Single(result.MeasurementPointCurrents!);
         Assert.Equal(SpanId, span.SpanId);

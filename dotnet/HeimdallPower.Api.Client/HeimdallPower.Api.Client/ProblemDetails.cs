@@ -1,6 +1,6 @@
 ﻿namespace HeimdallPower.Api.Client;
 
-public class ProblemDetails
+internal class ProblemDetails
 {
     public string? Title { get; init; }
     public string? Detail { get; init; }

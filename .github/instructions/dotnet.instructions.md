@@ -24,8 +24,9 @@ Conventions only. For the workflow of adding API changes, see *Updating the SDK 
 | -------------------------------------------------------------------- | ------------------------------------------------ |
 | No code generation — DTOs mirror the spec by hand                    | Drift is only caught by review and tests         |
 | PascalCase DTO properties; `HeimdallApiHttpClient` uses `SnakeCaseLower` | Maps to the `snake_case` wire contract        |
-| Method shape: `(id, …required, …optional, CancellationToken cancellationToken = default)` | Existing style across the interface |
-| New optional params go before `cancellationToken` → breaking (`!`)   | Positional tokens and implementers break         |
+| Method shape: `(id, …required, {Method}Options? options = null, CancellationToken cancellationToken = default)` | Required inputs positional, optional ones in a per-method options record |
+| New optional param → new `init` property on the options record (not `required`, no positional ctor) | Additive; a new positional param breaks callers |
+| Defaults live on the options record; `UrlBuilder` takes the record    | One source of truth for defaults                 |
 | Add to `IHeimdallApiClient` and `HeimdallApiClient` together         | Interface is the mockable contract               |
 | Query params added only when set (no `include=`, no bare `?`)        | Unset means "server default", not empty         |
 | Timestamps via `UrlBuilder.ToApiTimestamp` (UTC, `Z`)                | Never `ToString()` — culture-dependent           |

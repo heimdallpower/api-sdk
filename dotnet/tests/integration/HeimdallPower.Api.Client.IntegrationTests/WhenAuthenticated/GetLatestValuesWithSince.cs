@@ -23,11 +23,11 @@ public class GetLatestValuesWithSince(GetLatestValuesWithSince.Scenario scenario
         {
             var line = LineAssets.Resolve(Client.GetAssetsAsync().GetAwaiter().GetResult(), LineAssets.HeimdallPowerLineId);
 
-            CurrentTimestamp = Client.GetLatestCurrentAsync(line.LineId, Since).GetAwaiter().GetResult().Current.Timestamp;
-            ApparentPowerTimestamp = Client.GetLatestApparentPowerAsync(line.LineId, Since).GetAwaiter().GetResult().ApparentPower.Timestamp;
-            HeimdallDlrTimestamp = Client.GetLatestHeimdallDlrAsync(line.LineId, since: Since).GetAwaiter().GetResult().HeimdallDlr.Timestamp;
-            HeimdallAarTimestamp = Client.GetLatestHeimdallAarAsync(line.LineId, since: Since).GetAwaiter().GetResult().HeimdallAar.Timestamp;
-            CircuitRatingTimestamp = Client.GetLatestCircuitRatingAsync(line.FacilityId, since: Since).GetAwaiter().GetResult().CircuitRating.Timestamp;
+            CurrentTimestamp = Client.GetLatestCurrentAsync(line.LineId, new() { Since = Since }).GetAwaiter().GetResult().Current.Timestamp;
+            ApparentPowerTimestamp = Client.GetLatestApparentPowerAsync(line.LineId, new() { Since = Since }).GetAwaiter().GetResult().ApparentPower.Timestamp;
+            HeimdallDlrTimestamp = Client.GetLatestHeimdallDlrAsync(line.LineId, new() { Since = Since }).GetAwaiter().GetResult().HeimdallDlr.Timestamp;
+            HeimdallAarTimestamp = Client.GetLatestHeimdallAarAsync(line.LineId, new() { Since = Since }).GetAwaiter().GetResult().HeimdallAar.Timestamp;
+            CircuitRatingTimestamp = Client.GetLatestCircuitRatingAsync(line.FacilityId, new() { Since = Since }).GetAwaiter().GetResult().CircuitRating.Timestamp;
         }
     }
 
@@ -71,11 +71,11 @@ public class GetLatestValuesWithFutureSince(GetLatestValuesWithFutureSince.Scena
         {
             var line = LineAssets.Resolve(Client.GetAssetsAsync().GetAwaiter().GetResult(), LineAssets.HeimdallPowerLineId);
 
-            Current = StatusOf(() => Client.GetLatestCurrentAsync(line.LineId, Since));
-            ApparentPower = StatusOf(() => Client.GetLatestApparentPowerAsync(line.LineId, Since));
-            HeimdallDlr = StatusOf(() => Client.GetLatestHeimdallDlrAsync(line.LineId, Quantity.Current, Since));
-            HeimdallAar = StatusOf(() => Client.GetLatestHeimdallAarAsync(line.LineId, Quantity.Current, Since));
-            CircuitRating = StatusOf(() => Client.GetLatestCircuitRatingAsync(line.FacilityId, Quantity.Current, Since));
+            Current = StatusOf(() => Client.GetLatestCurrentAsync(line.LineId, new() { Since = Since }));
+            ApparentPower = StatusOf(() => Client.GetLatestApparentPowerAsync(line.LineId, new() { Since = Since }));
+            HeimdallDlr = StatusOf(() => Client.GetLatestHeimdallDlrAsync(line.LineId, new() { Quantity = Quantity.Current, Since = Since }));
+            HeimdallAar = StatusOf(() => Client.GetLatestHeimdallAarAsync(line.LineId, new() { Quantity = Quantity.Current, Since = Since }));
+            CircuitRating = StatusOf(() => Client.GetLatestCircuitRatingAsync(line.FacilityId, new() { Quantity = Quantity.Current, Since = Since }));
         }
 
         /// <summary>The error status of the call, or null when it succeeded.</summary>

@@ -4,15 +4,17 @@
 
 | Change                                                    | Breaking? | Why                                   |
 | --------------------------------------------------------- | --------- | ------------------------------------- |
-| New optional param **before** `cancellationToken`         | Yes       | Positional token calls stop compiling |
+| New or reordered positional param on a client method      | Yes       | Positional calls stop compiling       |
+| New `required` property or positional ctor on an options record | Yes | `new() { … }` call sites break        |
 | New member on `IHeimdallApiClient`                        | Yes       | Custom implementations/mocks break    |
 | New `required` property on a DTO                          | Yes       | Object initializers break             |
 | Renamed/removed method, param, DTO, or property           | Yes       | Source + binary break                 |
 | Changed property type or nullability (e.g. `T` → `T?`)    | Yes       | Callers must handle null              |
 | New optional DTO property, new DTO, new enum              | No        | Additive                              |
+| New optional `init` property on an options record         | No        | Additive; how optional query params are added |
 | Bug fix in wire format (e.g. timestamp format)            | No (`fix`) | Callers unchanged                    |
 
-Non-breaking alternative: a new overload instead of a new optional param. Decide with the user; the existing SDK style accepts the break and documents it.
+New optional query params go on the method's options record (e.g. `GetLatestCurrentOptions`), which is non-breaking.
 
 ## Python
 
@@ -41,4 +43,4 @@ Non-breaking alternative: a new overload instead of a new optional param. Decide
 
 ## Marking
 
-See the [release conventions](../../../instructions/release.instructions.md#versioning). Migration note: before → after snippet (e.g. pass `cancellationToken: ct` by name).
+See the [release conventions](../../../instructions/release.instructions.md#versioning). Migration note: before → after snippet (e.g. `GetLatestHeimdallDlrAsync(id, Quantity.ApparentPower)` → `GetLatestHeimdallDlrAsync(id, new() { Quantity = Quantity.ApparentPower })`).

@@ -15,5 +15,5 @@ public record LineTransientRatingDto
     /// <summary>
     /// The line transient rating for each calculated duration at the given timestamp. Ordered by duration ascending.
     /// </summary>
-    public required List<LineTransientRatingValueDto> Ratings { get; init; }
+    public required IReadOnlyList<LineTransientRatingValueDto> Ratings { get; init; }
 }

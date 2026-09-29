@@ -86,7 +86,7 @@ public class GetLatestConductorTemperature
         var since = new DateTimeOffset(2026, 1, 1, 13, 30, 0, TimeSpan.FromHours(1));
 
         await HeimdallApiClientFactory.Create(handler).GetLatestConductorTemperatureAsync(
-            LineId, unitSystem: "imperial", since: since, include: ConductorTemperatureInclude.MeasurementPoints);
+            LineId, new() { UnitSystem = UnitSystem.Imperial, Since = since, Include = ConductorTemperatureInclude.MeasurementPoints });
 
         var query = QueryString.Of(handler.LastRequest);
         Assert.Equal("imperial", query["unit_system"]);
@@ -121,7 +121,7 @@ public class GetLatestConductorTemperature
         var handler = new RecordingHttpMessageHandler(WithMeasurementPointsJson);
 
         var result = await HeimdallApiClientFactory.Create(handler).GetLatestConductorTemperatureAsync(
-            LineId, include: ConductorTemperatureInclude.MeasurementPoints);
+            LineId, new() { Include = ConductorTemperatureInclude.MeasurementPoints });
 
         Assert.Null(result.ConductorTemperature.Min);
         Assert.Null(result.ConductorTemperature.MinAtSpanId);

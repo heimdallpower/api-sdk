@@ -41,7 +41,12 @@ public static class HeimdallApiClientExtensions
             var httpClient = httpClientFactory.CreateClient(clientName);
             var proxyHandler = ProxyHandlerFactory.CreateHandler(options.Proxy);
 
-            return new HeimdallApiClient(options.ClientId, options.ClientSecret, httpClient, options.ClientMetadata, proxyHandler);
+            return new HeimdallApiClient(options.ClientId, options.ClientSecret, new HeimdallApiClientSettings
+            {
+                HttpClient = httpClient,
+                ClientMetadata = options.ClientMetadata,
+                TokenProxyHandler = proxyHandler,
+            });
         });
 
         services.AddSingleton<IHeimdallApiClient>(sp => sp.GetRequiredService<HeimdallApiClient>());

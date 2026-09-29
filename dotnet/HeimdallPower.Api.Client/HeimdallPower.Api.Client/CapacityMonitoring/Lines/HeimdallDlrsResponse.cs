@@ -18,5 +18,5 @@ public record HeimdallDlrsResponse
     /// <summary>
     /// List of Heimdall DLR values within the requested time range. May be empty if no data exists for the period.
     /// </summary>
-    public required List<HeimdallDlrDto> HeimdallDlrs { get; init; }
+    public required IReadOnlyList<HeimdallDlrDto> HeimdallDlrs { get; init; }
 }

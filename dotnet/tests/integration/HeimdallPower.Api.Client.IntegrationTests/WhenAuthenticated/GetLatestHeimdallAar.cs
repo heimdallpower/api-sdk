@@ -24,7 +24,7 @@ public class GetLatestHeimdallAar(GetLatestHeimdallAar.Scenario scenario) : ICla
             for (var attempt = 0; ; attempt++)
             {
                 Amperes = Client.GetLatestHeimdallAarAsync(Line.LineId).GetAwaiter().GetResult();
-                Mva = Client.GetLatestHeimdallAarAsync(Line.LineId, Quantity.ApparentPower).GetAwaiter().GetResult();
+                Mva = Client.GetLatestHeimdallAarAsync(Line.LineId, new() { Quantity = Quantity.ApparentPower }).GetAwaiter().GetResult();
                 if (Amperes.HeimdallAar.Timestamp == Mva.HeimdallAar.Timestamp || attempt == 2)
                     break;
             }

@@ -21,27 +21,27 @@ public class SinceParameter
     {
         {
             "current", $$"""{ "data": { "metric": "Current", "unit": "Ampere", "current": {{ValueJson}} } }""",
-            (client, since) => client.GetLatestCurrentAsync(Id, since: since)
+            (client, since) => client.GetLatestCurrentAsync(Id, new() { Since = since })
         },
         {
             "apparent power", $$"""{ "data": { "metric": "Apparent power", "unit": "MVA", "apparent_power": {{ValueJson}} } }""",
-            (client, since) => client.GetLatestApparentPowerAsync(Id, since: since)
+            (client, since) => client.GetLatestApparentPowerAsync(Id, new() { Since = since })
         },
         {
             "Heimdall DLR", """{ "data": { "metric": "Heimdall DLR", "unit": "Ampere", "heimdall_dlr": { "timestamp": "2026-01-01T12:00:00Z", "value": 1.0, "at_span_id": "11111111-1111-1111-1111-111111111111", "is_fallback": false } } }""",
-            (client, since) => client.GetLatestHeimdallDlrAsync(Id, since: since)
+            (client, since) => client.GetLatestHeimdallDlrAsync(Id, new() { Since = since })
         },
         {
             "Heimdall AAR", $$"""{ "data": { "metric": "Heimdall AAR", "unit": "Ampere", "heimdall_aar": {{ValueJson}} } }""",
-            (client, since) => client.GetLatestHeimdallAarAsync(Id, since: since)
+            (client, since) => client.GetLatestHeimdallAarAsync(Id, new() { Since = since })
         },
         {
             "circuit rating", """{ "data": { "metric": "Circuit rating", "unit": "Ampere", "circuit_rating": { "timestamp": "2026-01-01T12:00:00Z", "value": 1.0, "is_fallback": false } } }""",
-            (client, since) => client.GetLatestCircuitRatingAsync(Id, Quantity.ApparentPower, since)
+            (client, since) => client.GetLatestCircuitRatingAsync(Id, new() { Quantity = Quantity.ApparentPower, Since = since })
         },
         {
             "sag and clearance", """{ "data": { "metric": "SagAndClearance", "unit": "Multiple", "sag_and_clearance": { "max_sag": { "timestamp": "2026-01-01T12:00:00Z", "span_phase_id": "33333333-3333-3333-3333-333333333333", "value": 8.1, "unit": "m" }, "min_clearance": null, "spans": [] } } }""",
-            (client, since) => client.GetLatestSagAndClearanceAsync(Id, since: since)
+            (client, since) => client.GetLatestSagAndClearanceAsync(Id, new() { Since = since })
         },
     };
 
@@ -72,7 +72,7 @@ public class SinceParameter
     {
         var handler = new RecordingHttpMessageHandler("""{ "data": { "metric": "Circuit rating", "unit": "MVA", "circuit_rating": { "timestamp": "2026-01-01T12:00:00Z", "value": 1.0, "is_fallback": false } } }""");
 
-        await HeimdallApiClientFactory.Create(handler).GetLatestCircuitRatingAsync(Id, Quantity.ApparentPower, Since);
+        await HeimdallApiClientFactory.Create(handler).GetLatestCircuitRatingAsync(Id, new() { Quantity = Quantity.ApparentPower, Since = Since });
 
         Assert.Equal("apparent_power", QueryString.Of(handler.LastRequest)["quantity"]);
     }

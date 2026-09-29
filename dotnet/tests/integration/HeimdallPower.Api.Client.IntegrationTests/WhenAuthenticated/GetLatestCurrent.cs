@@ -51,7 +51,7 @@ public class GetLatestCurrentWithMeasurementPoints(GetLatestCurrentWithMeasureme
 
         public Scenario()
         {
-            Result = Client.GetLatestCurrentAsync(LineAssets.HeimdallPowerLineId, include: CurrentInclude.MeasurementPoints)
+            Result = Client.GetLatestCurrentAsync(LineAssets.HeimdallPowerLineId, new() { Include = CurrentInclude.MeasurementPoints })
                 .GetAwaiter().GetResult();
             Line = LineAssets.Resolve(Client.GetAssetsAsync().GetAwaiter().GetResult(), LineAssets.HeimdallPowerLineId);
         }

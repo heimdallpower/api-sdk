@@ -25,10 +25,14 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// A client that lets you consume the Heimdall Power API.
     /// Throws <see cref="HeimdallApiException"/> on errors.
     /// </summary>
-    public HeimdallApiClient(string clientId, string clientSecret, HttpClient? httpClient = null, Dictionary<string, string>? clientMetadata = null, HttpMessageHandler? proxyHandler = null)
+    /// <param name="clientId">The client ID issued by Heimdall Power.</param>
+    /// <param name="clientSecret">The client secret issued by Heimdall Power.</param>
+    /// <param name="settings">Optional settings, see <see cref="HeimdallApiClientSettings"/>. Defaults apply when null.</param>
+    public HeimdallApiClient(string clientId, string clientSecret, HeimdallApiClientSettings? settings = null)
     {
-        var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, Authority, Scope, proxyHandler);
-        _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, httpClient ?? new HttpClient { BaseAddress = new Uri(ApiUrl) }, clientMetadata);
+        settings ??= new();
+        var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, Authority, Scope, settings.TokenProxyHandler);
+        _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, settings.HttpClient ?? new HttpClient { BaseAddress = new Uri(ApiUrl) }, settings.ClientMetadata);
     }
 
     /// <summary>
@@ -54,7 +58,7 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <summary>
     /// Get a list of all lines associated with the grid owner.
     /// </summary>
-    public async Task<List<LineDto?>> GetLinesAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<LineDto>> GetLinesAsync(CancellationToken cancellationToken = default)
     {
         var url = UrlBuilder.BuildAssetsUrl();
         var response = await _heimdallApiClient.GetAsync<ApiResponse<AssetsResponse>>(url, cancellationToken);
@@ -64,7 +68,7 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <summary>
     /// Get a list of facilities associated with the grid owner.
     /// </summary>
-    public async Task<List<FacilityDto>> GetFacilitiesAsync(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<FacilityDto>> GetFacilitiesAsync(CancellationToken cancellationToken = default)
     {
         var url = UrlBuilder.BuildAssetsUrl();
         var response = await _heimdallApiClient.GetAsync<ApiResponse<AssetsResponse>>(url, cancellationToken);
@@ -77,12 +81,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// The current is aggregated across the entire line using a 5-minute sliding window, where the maximum value is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest current.</param>
-    /// <param name="since">Optional cut-off time (UTC). If the latest current is older than this value, the API returns 404 Not Found.</param>
-    /// <param name="include">Set to <see cref="CurrentInclude.MeasurementPoints"/> to additionally include a per-measurement-point breakdown of the latest current, organized by span and span phase. Omitted by default.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestCurrentOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestCurrentResponse> GetLatestCurrentAsync(Guid lineId, DateTimeOffset? since = null, CurrentInclude? include = null, CancellationToken cancellationToken = default)
+    public async Task<LatestCurrentResponse> GetLatestCurrentAsync(Guid lineId, GetLatestCurrentOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestCurrentsUrl(lineId, since, include);
+        var url = UrlBuilder.BuildLatestCurrentsUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCurrentResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -93,13 +96,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// The conductor temperature is aggregated across the entire line using a 5-minute sliding window, where the maximum and minimum values are calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest conductor temperature.</param>
-    /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
-    /// <param name="since">Optional cut-off time (UTC). If the latest conductor temperature is older than this value, the API returns 404 Not Found.</param>
-    /// <param name="include">Set to <see cref="ConductorTemperatureInclude.MeasurementPoints"/> to additionally include a per-measurement-point breakdown of the latest conductor temperature, organized by span and span phase. Omitted by default.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestConductorTemperatureOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null, ConductorTemperatureInclude? include = null, CancellationToken cancellationToken = default)
+    public async Task<LatestConductorTemperatureResponse> GetLatestConductorTemperatureAsync(Guid lineId, GetLatestConductorTemperatureOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestConductorTemperatureUrl(lineId, unitSystem, since, include);
+        var url = UrlBuilder.BuildLatestConductorTemperatureUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestConductorTemperatureResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -108,12 +109,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Get the most recent icing measurements for the line, including maximum values and per-span/phase metrics.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest icing measurements.</param>
-    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
-    /// <param name="since">Optional cutoff time (UTC). Only measurements at or after this instant are considered. Older data for a span phase is excluded. If omitted, defaults to 30 min ago.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestIcingOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestIcingResponse> GetLatestIcingAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestIcingResponse> GetLatestIcingAsync(Guid lineId, GetLatestIcingOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestIcingUrl(lineId, unitSystem, since);
+        var url = UrlBuilder.BuildLatestIcingUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestIcingResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -122,12 +122,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Get the most recent sag and clearance measurements for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest sag and clearance measurements.</param>
-    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
-    /// <param name="since">Optional cutoff time (UTC). Only measurements at or after this instant are considered. Older data for a span phase is excluded. If omitted, defaults to 30 min ago.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestSagAndClearanceOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestLineSagAndClearanceResponse> GetLatestSagAndClearanceAsync(Guid lineId, string unitSystem = "metric", DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestLineSagAndClearanceResponse> GetLatestSagAndClearanceAsync(Guid lineId, GetLatestSagAndClearanceOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestSagAndClearanceUrl(lineId, unitSystem, since);
+        var url = UrlBuilder.BuildLatestSagAndClearanceUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestLineSagAndClearanceResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -139,11 +138,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
-    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetSagAndClearancesOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default)
+    public async Task<LineSagAndClearancesResponse> GetSagAndClearancesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetSagAndClearancesOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildSagAndClearanceUrl(lineId, from, to, unitSystem);
+        var url = UrlBuilder.BuildSagAndClearanceUrl(lineId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LineSagAndClearancesResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -155,11 +154,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
-    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, N, %, while "imperial" uses lb/ft, lbf, %.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetIcingsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LineIcingsResponse> GetIcingsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", CancellationToken cancellationToken = default)
+    public async Task<LineIcingsResponse> GetIcingsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetIcingsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildIcingUrl(lineId, from, to, unitSystem);
+        var url = UrlBuilder.BuildIcingUrl(lineId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LineIcingsResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -168,11 +167,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Get icing forecasts for the line. Covers 72 hours in 30-minute intervals.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve icing forecasts.</param>
-    /// <param name="unitSystem">The unit system for the measurements. "metric" uses kg/m, "imperial" uses lb/ft. Defaults to metric.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetIcingForecastOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<IcingForecastResponse> GetIcingForecastAsync(Guid lineId, string unitSystem = "metric", CancellationToken cancellationToken = default)
+    public async Task<IcingForecastResponse> GetIcingForecastAsync(Guid lineId, GetIcingForecastOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildIcingForecastUrl(lineId, unitSystem);
+        var url = UrlBuilder.BuildIcingForecastUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<IcingForecastResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -181,11 +180,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Get the most recent apparent power measurement for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest apparent power.</param>
-    /// <param name="since">Optional cut-off time (UTC). If the latest apparent power is older than this value, the API returns 404 Not Found.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestApparentPowerOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestApparentPowerResponse> GetLatestApparentPowerAsync(Guid lineId, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestApparentPowerResponse> GetLatestApparentPowerAsync(Guid lineId, GetLatestApparentPowerOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestApparentPowerUrl(lineId, since);
+        var url = UrlBuilder.BuildLatestApparentPowerUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestApparentPowerResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -197,10 +196,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetApparentPowersOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<ApparentPowersResponse> GetApparentPowersAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, CancellationToken cancellationToken = default)
+    public async Task<ApparentPowersResponse> GetApparentPowersAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetApparentPowersOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildApparentPowersUrl(lineId, from, to);
+        var url = UrlBuilder.BuildApparentPowersUrl(lineId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<ApparentPowersResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -214,11 +214,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
-    /// <param name="include">Set to <see cref="CurrentInclude.MeasurementPoints"/> to additionally include a per-measurement-point breakdown of current over the requested time range, organized by span and span phase. Omitted by default.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetCurrentsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<CurrentsResponse> GetCurrentsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, CurrentInclude? include = null, CancellationToken cancellationToken = default)
+    public async Task<CurrentsResponse> GetCurrentsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetCurrentsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildCurrentsUrl(lineId, from, to, include);
+        var url = UrlBuilder.BuildCurrentsUrl(lineId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<CurrentsResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -232,12 +232,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
-    /// <param name="unitSystem">The unit system for response values. "metric" gives values in Celsius (C), while "imperial" gives values in Fahrenheit (F). Defaults to metric if not specified.</param>
-    /// <param name="include">Set to <see cref="ConductorTemperatureInclude.MeasurementPoints"/> to additionally include a per-measurement-point breakdown of conductor temperature over the requested time range, organized by span and span phase. Omitted by default.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetConductorTemperaturesOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, string unitSystem = "metric", ConductorTemperatureInclude? include = null, CancellationToken cancellationToken = default)
+    public async Task<ConductorTemperaturesResponse> GetConductorTemperaturesAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetConductorTemperaturesOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildConductorTemperaturesUrl(lineId, from, to, unitSystem, include);
+        var url = UrlBuilder.BuildConductorTemperaturesUrl(lineId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<ConductorTemperaturesResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -249,12 +248,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Heimdall DLR is aggregated over the entire line. Using a 5-minute sliding window, the minimum ampacity is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall DLR.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
-    /// <param name="since">Optional cut-off time (UTC). If the latest Heimdall DLR is older than this value, the API returns 404 Not Found.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestHeimdallDlrOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestHeimdallDlrResponse> GetLatestHeimdallDlrAsync(Guid lineId, GetLatestHeimdallDlrOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestHeimdallDlrUrl(lineId, quantity, since);
+        var url = UrlBuilder.BuildLatestHeimdallDlrUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallDlrResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -266,12 +264,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Heimdall AAR is aggregated over the entire line. Using a 5-minute sliding window, the minimum ampacity is calculated for each window.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest Heimdall AAR.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
-    /// <param name="since">Optional cut-off time (UTC). If the latest Heimdall AAR is older than this value, the API returns 404 Not Found.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestHeimdallAarOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestHeimdallAarResponse> GetLatestHeimdallAarAsync(Guid lineId, GetLatestHeimdallAarOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestHeimdallAarUrl(lineId, quantity, since);
+        var url = UrlBuilder.BuildLatestHeimdallAarUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestHeimdallAarResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -284,12 +281,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// The endpoint returns real-time data and can be polled at short intervals (for example every 3–5 minutes).
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve the latest line transient rating.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
-    /// <param name="since">Optional cutoff time (UTC). If the latest line transient rating is older than this instant, the API responds with 404.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestLineTransientRatingOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestLineTransientRatingResponse> GetLatestLineTransientRatingAsync(Guid lineId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestLineTransientRatingResponse> GetLatestLineTransientRatingAsync(Guid lineId, GetLatestLineTransientRatingOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestLineTransientRatingUrl(lineId, quantity, since);
+        var url = UrlBuilder.BuildLatestLineTransientRatingUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestLineTransientRatingResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -301,11 +297,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall DLR forecasts.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetHeimdallDlrForecastsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default)
+    public async Task<HeimdallDlrForecastResponse> GetHeimdallDlrForecastsAsync(Guid lineId, GetHeimdallDlrForecastsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildDlrForecastUrl(lineId, quantity);
+        var url = UrlBuilder.BuildDlrForecastUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallDlrForecastResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -317,11 +313,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// For each unique timestamp and confidence level, we pick the value from the span which has the lowest ampacity value as this will be the dimensioning value for the line.
     /// </summary>
     /// <param name="lineId">Id of the line for which to retrieve Heimdall AAR forecasts.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetHeimdallAarForecastsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default)
+    public async Task<HeimdallAarForecastResponse> GetHeimdallAarForecastsAsync(Guid lineId, GetHeimdallAarForecastsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildAarForecastUrl(lineId, quantity);
+        var url = UrlBuilder.BuildAarForecastUrl(lineId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallAarForecastResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -333,11 +329,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetHeimdallDlrsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<HeimdallDlrsResponse> GetHeimdallDlrsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default)
+    public async Task<HeimdallDlrsResponse> GetHeimdallDlrsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetHeimdallDlrsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildHeimdallDlrsUrl(lineId, from, to, quantity);
+        var url = UrlBuilder.BuildHeimdallDlrsUrl(lineId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallDlrsResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -349,11 +345,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="lineId">Id of the line.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetHeimdallAarsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<HeimdallAarsResponse> GetHeimdallAarsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default)
+    public async Task<HeimdallAarsResponse> GetHeimdallAarsAsync(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetHeimdallAarsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildHeimdallAarsUrl(lineId, from, to, quantity);
+        var url = UrlBuilder.BuildHeimdallAarsUrl(lineId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<HeimdallAarsResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -364,11 +360,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// and are provided in 1-hour intervals.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve circuit rating forecasts.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetCircuitRatingForecastsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default)
+    public async Task<CircuitRatingForecastResponse> GetCircuitRatingForecastsAsync(Guid facilityId, GetCircuitRatingForecastsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildCircuitRatingForecastUrl(facilityId, quantity);
+        var url = UrlBuilder.BuildCircuitRatingForecastUrl(facilityId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingForecastResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -377,12 +373,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// Get the most recent circuit rating for a specified facility.
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit rating.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
-    /// <param name="since">Optional cut-off time (UTC). If the latest circuit rating is older than this value, the API returns 404 Not Found.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestCircuitRatingOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestCircuitRatingResponse> GetLatestCircuitRatingAsync(Guid facilityId, GetLatestCircuitRatingOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestCircuitRatingUrl(facilityId, quantity, since);
+        var url = UrlBuilder.BuildLatestCircuitRatingUrl(facilityId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCircuitRatingResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -394,11 +389,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="facilityId">Id of the facility.</param>
     /// <param name="from">Start of the time range (inclusive).</param>
     /// <param name="to">End of the time range (inclusive).</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetCircuitRatingsOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<CircuitRatingsResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset from, DateTimeOffset to, Quantity quantity = Quantity.Current, CancellationToken cancellationToken = default)
+    public async Task<CircuitRatingsResponse> GetCircuitRatingsAsync(Guid facilityId, DateTimeOffset from, DateTimeOffset to, GetCircuitRatingsOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildCircuitRatingsUrl(facilityId, from, to, quantity);
+        var url = UrlBuilder.BuildCircuitRatingsUrl(facilityId, from, to, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<CircuitRatingsResponse>>(url, cancellationToken);
         return response.Data;
     }
@@ -411,12 +406,11 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// The endpoint returns real-time data and can be polled at short intervals (for example every 3–5 minutes).
     /// </summary>
     /// <param name="facilityId">Id of the facility for which to retrieve the latest circuit transient rating.</param>
-    /// <param name="quantity">The quantity to return. Defaults to current (amperes). Use ApparentPower for MVA.</param>
-    /// <param name="since">Optional cutoff time (UTC). If the latest circuit transient rating is older than this instant, the API responds with 404.</param>
+    /// <param name="options">Optional query parameters, see <see cref="GetLatestCircuitTransientRatingOptions"/>. Defaults apply when null.</param>
     /// <param name="cancellationToken">Token to cancel the request and any retry delays.</param>
-    public async Task<LatestCircuitTransientRatingResponse> GetLatestCircuitTransientRatingAsync(Guid facilityId, Quantity quantity = Quantity.Current, DateTimeOffset? since = null, CancellationToken cancellationToken = default)
+    public async Task<LatestCircuitTransientRatingResponse> GetLatestCircuitTransientRatingAsync(Guid facilityId, GetLatestCircuitTransientRatingOptions? options = null, CancellationToken cancellationToken = default)
     {
-        var url = UrlBuilder.BuildLatestCircuitTransientRatingUrl(facilityId, quantity, since);
+        var url = UrlBuilder.BuildLatestCircuitTransientRatingUrl(facilityId, options ?? new());
         var response = await _heimdallApiClient.GetAsync<ApiResponse<LatestCircuitTransientRatingResponse>>(url, cancellationToken);
         return response.Data;
     }

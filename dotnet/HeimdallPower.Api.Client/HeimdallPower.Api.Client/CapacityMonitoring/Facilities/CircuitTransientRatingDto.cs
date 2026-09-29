@@ -16,5 +16,5 @@ public record CircuitTransientRatingDto
     /// <summary>
     /// The circuit transient rating for each calculated duration at the given timestamp. Ordered by duration ascending.
     /// </summary>
-    public required List<CircuitTransientRatingValueDto> Ratings { get; init; }
+    public required IReadOnlyList<CircuitTransientRatingValueDto> Ratings { get; init; }
 }
