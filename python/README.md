@@ -1,79 +1,71 @@
 # Heimdall API SDK for Python
 
-The official Python SDK for accessing the [Heimdall Power External API](https://developer.heimdallcloud.com/docs/welcome).
+Official Python SDK for the Heimdall Power External API.
 
-## Getting Started
+## Documentation
 
-### Requirements
+- [Getting started](https://developer.heimdallcloud.com/docs/welcome) and [authentication](https://developer.heimdallcloud.com/docs/authentication)
+- [Concepts](https://developer.heimdallcloud.com/docs/concepts): assets, measurement points and API modules.
+- [Use cases](https://developer.heimdallcloud.com/docs/use-cases): integration flows, [aggregation](https://developer.heimdallcloud.com/docs/use-cases#aggregation) and polling cadence.
+- [User Guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/4095541249) (customer login required): DLR and fallback rating details.
+- [Examples](https://github.com/heimdallpower/api-sdk/tree/main/python/examples)
 
-- Python 3.11+
-- [Poetry](https://python-poetry.org/docs/#installation)
+## Installation
 
-Install dependencies:
-
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
-poetry install
-```
-
-### Installing the SDK
-
-The package is published to [PyPI](https://pypi.org/project/heimdallpower-api-client/):
+Requires Python 3.11+.
 
 ```bash
 pip install heimdallpower-api-client
 ```
 
-Alternatively, it can be downloaded and installed using the GitHub release artifacts:
+Wheels are also attached to each [GitHub release](https://github.com/heimdallpower/api-sdk/releases), e.g.:
 
 ```bash
 pip install https://github.com/heimdallpower/api-sdk/releases/download/python-v1.2.3/heimdallpower_api_client-1.2.3-py3-none-any.whl
 ```
 
-> Replace the version and filename with the latest from [Releases](https://github.com/heimdallpower/api-sdk/releases)
-
-### Usage Example
+## Quick start
 
 ```python
 from heimdall_api_client import HeimdallApiClient
-import logging
-import pprint
 
-logging.basicConfig(level=logging.INFO)
-
-client = HeimdallApiClient(
-    client_id="your_client_id",
-    client_secret="your_client_secret",
-)
-
+client = HeimdallApiClient(client_id="your_client_id", client_secret="your_client_secret")
 assets = client.get_assets()
-pprint.pprint(assets)
 ```
 
-More examples can be seen in the [examples folder](examples).
+## Iterate over instrumented lines
 
-## Error Handling and Retry
+Not every line has Neurons installed.
+Data endpoints return 404 or no data for lines without active measurement points.
+`get_instrumented_lines()` returns only lines with at least one active measurement point, with their facility.
 
-The SDK handles transient infrastructure errors automatically so your application does not have to.
+```python
+for instrumented in client.get_instrumented_lines():
+    current = client.get_latest_current(instrumented.line.id)
+    print(instrumented.facility.name, instrumented.line.name, current.data.current.value, current.data.unit)
+```
+
+Already have the assets? Use `instrumented_lines(assets.data)` from `heimdall_api_client.assets`.
+
+## Error handling and retry
 
 ### Automatic retry
 
-All methods on `HeimdallApiClient` retry **up to 3 times** with **exponential backoff** (1 s → 2 s → 4 s) on the following transient conditions:
+All methods retry **up to 3 times** with exponential backoff (1 s → 2 s → 4 s) on these transient errors:
 
 | Condition | Description |
 |---|---|
-| `502 Bad Gateway` | Reverse proxy / Application Gateway could not reach the upstream server |
+| `502 Bad Gateway` | The gateway could not reach the upstream server |
 | `503 Service Unavailable` | Server temporarily unavailable |
 | `504 Gateway Timeout` | Upstream server did not respond in time |
 
-A `WARNING` log line is emitted for each retry attempt.
-If all 3 retry attempts are exhausted, a `HeimdallApiError` is raised with the status code of the last failed response.
-
-> **Note:** `500 Internal Server Error` is **not** retried as it typically indicates a permanent application-level error.
+- Each retry logs a `WARNING`.
+- After 3 failed retries, the last `HeimdallApiError` is raised.
+- `500 Internal Server Error` is not retried.
 
 ### Exceptions
 
-All methods raise `HeimdallApiError` on non-transient errors. The `status_code` attribute holds the HTTP status code.
+All methods raise `HeimdallApiError` on non-transient errors. `status_code` holds the HTTP status.
 
 ```python
 from heimdall_api_client import HeimdallApiClient, HeimdallApiError
@@ -84,14 +76,14 @@ try:
     dlr = client.get_latest_heimdall_dlr(line_id=line_id)
 except HeimdallApiError as e:
     if e.status_code == 404:
-        print("Line not found")
+        print("No data for the line in the requested window, or unknown line")
     else:
         print(f"API error {e.status_code}: {e}")
 ```
 
 ### Timeouts
 
-Pass a `timeout` (in seconds) to the constructor. It applies to every request, including each retry attempt.
+Pass `timeout` (seconds) to the constructor. It applies to every request and each retry.
 
 ```python
 import httpx
@@ -108,10 +100,9 @@ client = HeimdallApiClient(
 )
 ```
 
-> **Note:** Python synchronous code has no native cancellation equivalent to .NET's `CancellationToken`.
-> Use `timeout` to bound how long each request may take.
-> `httpx.TimeoutException` is raised if the timeout is exceeded.
+- There is no cancellation token; use `timeout` to bound each request.
+- `httpx.TimeoutException` is raised when the timeout is exceeded.
 
 ## License
 
-This SDK is licensed under the [Apache License 2.0](../LICENSE).
+This SDK is licensed under the [Apache License 2.0](https://github.com/heimdallpower/api-sdk/blob/main/LICENSE).

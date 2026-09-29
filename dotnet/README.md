@@ -1,38 +1,37 @@
 # Heimdall API SDK for .NET
 
-This folder contains the official .NET SDK for accessing the [Heimdall Power External API](https://developer.heimdallcloud.com/docs/welcome).
+Official .NET SDK for the Heimdall Power External API.
 
-The SDK simplifies authentication and interaction with the External API using strongly-typed C# clients.
+## Documentation
 
----
+- [Getting started](https://developer.heimdallcloud.com/docs/welcome) and [authentication](https://developer.heimdallcloud.com/docs/authentication)
+- [Concepts](https://developer.heimdallcloud.com/docs/concepts): assets, measurement points and API modules.
+- [Use cases](https://developer.heimdallcloud.com/docs/use-cases): integration flows, [aggregation](https://developer.heimdallcloud.com/docs/use-cases#aggregation) and polling cadence.
+- [User Guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/4095541249) (customer login required): DLR and fallback rating details.
+- [Examples](examples)
 
 ## Installation
-
-The package is available on [NuGet](https://www.nuget.org/profiles/heimdall_power):
 
 ```bash
 dotnet add package HeimdallPower.Api.Client
 ```
 
-If you want DI integration and built-in resiliency (including retry), also install the Extensions package:
+For DI registration and built-in retry, also add the Extensions package:
 
 ```bash
 dotnet add package HeimdallPower.Api.Client.Extensions
 ```
 
-### Usage Example
+## Quick start
 
 ```csharp
 using HeimdallPower.Api.Client;
 
-var clientId = "your-client-id";
-var clientSecret = "your-client-secret";
-
-var heimdallApiClient = new HeimdallApiClient(clientId, clientSecret);
-
+var client = new HeimdallApiClient("your-client-id", "your-client-secret");
+var assets = await client.GetAssetsAsync();
 ```
 
-Using the optional HeimdallPower.Api.Client.Extensions package:
+With the Extensions package:
 
 ```csharp
 using HeimdallPower.Api.Client;
@@ -40,26 +39,42 @@ using HeimdallPower.Api.Client.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 var services = new ServiceCollection();
-
 services.AddHeimdallPowerApiClient(options =>
 {
     options.ClientId = "your-client-id";
     options.ClientSecret = "your-client-secret";
 });
 
-var provider = services.BuildServiceProvider();
-var heimdallApiClient = provider.GetRequiredService<HeimdallApiClient>();
+var client = services.BuildServiceProvider().GetRequiredService<IHeimdallApiClient>();
 ```
 
-You can also inject `IHeimdallApiClient` for the abstraction.
+## Iterate over instrumented lines
 
-### Optional parameters
-
-Required inputs (ids and time ranges) are positional. Everything optional goes in a per-method options record,
-named after the method (`GetLatestCurrentAsync` takes `GetLatestCurrentOptions`, and so on). Pass `null` or leave
-it out to use the defaults.
+Not every line has Neurons installed.
+Data endpoints return 404 or no data for lines without active measurement points.
+`GetInstrumentedLinesAsync` returns only lines with at least one active measurement point, with their facility.
 
 ```csharp
+using HeimdallPower.Api.Client.Assets;
+
+foreach (var instrumented in await client.GetInstrumentedLinesAsync())
+{
+    var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
+    Console.WriteLine($"{instrumented.Facility.Name} / {instrumented.Line.Name}: {current.Current.Value} {current.Unit}");
+}
+```
+
+Already have the assets? Use `assets.InstrumentedLines()`.
+
+## Optional parameters
+
+- Required inputs (ids, time ranges) are positional.
+- Optional inputs go in a per-method options record, e.g. `GetLatestCurrentAsync` takes `GetLatestCurrentOptions`.
+- Pass `null` or leave it out for the defaults.
+- New optional API parameters become new properties, so existing code keeps compiling.
+
+```csharp
+using HeimdallPower.Api.Client;
 using HeimdallPower.Api.Client.CapacityMonitoring;
 using HeimdallPower.Api.Client.GridInsights.Lines;
 
@@ -67,11 +82,7 @@ var dlr = await client.GetLatestHeimdallDlrAsync(lineId, new() { Quantity = Quan
 var temperatures = await client.GetConductorTemperaturesAsync(lineId, from, to, new() { UnitSystem = UnitSystem.Imperial, Include = ConductorTemperatureInclude.MeasurementPoints });
 ```
 
-New optional API parameters are added as new properties on these records, so they don't break existing code.
-
-More examples can be seen in the [examples folder](examples).
-
-### Proxy Configuration
+## Proxy configuration
 
 Configure an outbound HTTP proxy via `ProxyOptions`:
 
@@ -89,15 +100,15 @@ services.AddHeimdallPowerApiClient(options =>
 });
 ```
 
-When no explicit `Address` is set, the SDK falls back to `HTTPS_PROXY`/`HTTP_PROXY`/`NO_PROXY` environment variables. The proxy applies to both API calls and token acquisition.
+- Without an explicit `Address`, the SDK uses the `HTTPS_PROXY`/`HTTP_PROXY`/`NO_PROXY` environment variables.
+- The proxy applies to both API calls and token acquisition.
 
-## Error Handling
+## Error handling
 
 ### Resilience and retry
 
-**`HeimdallPower.Api.Client` (core package) does not retry automatically.** If you instantiate `HeimdallApiClient` directly (without DI), transient gateway errors such as 502/503/504 are thrown immediately as `HeimdallApiException`. Your application is responsible for any retry logic.
-
-**`HeimdallPower.Api.Client.Extensions` (DI package) adds full resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience) from `Microsoft.Extensions.Http.Resilience`. When you register the client with `AddHeimdallPowerApiClient`, the following pipeline is active automatically:
+- **The core package does not retry.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`.
+- **The Extensions package adds resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience). `AddHeimdallPowerApiClient` enables this pipeline:
 
 | Layer | Behaviour |
 |---|---|
@@ -105,27 +116,24 @@ When no explicit `Address` is set, the SDK falls back to `HTTPS_PROXY`/`HTTP_PRO
 | Circuit breaker | Opens after sustained failures to avoid hammering an unavailable service |
 | Total request timeout | Caps the total time including retries |
 
-```csharp
-// Retries are handled automatically — no extra code needed.
-var dlr = await client.GetLatestHeimdallDlrAsync(lineId);
-```
-
 ### Exceptions
 
 | Exception | When |
 |---|---|
-| `HeimdallApiException` | Non-success HTTP error (400, 403, 404, 500, 502, …). Check `StatusCode` for the HTTP status; `Title`, `Detail`, `Type`, `Instance` and `Errors` carry the API's problem details when it returns them, and `RequestUrl` the failing request. |
+| `HeimdallApiException` | Non-success HTTP status. `StatusCode` holds the status, `RequestUrl` the request, and `Title`, `Detail` and `Errors` the problem details. |
 | `UnauthorizedAccessException` | Authentication failed after a token-refresh attempt. |
 | `OperationCanceledException` | The provided `CancellationToken` was cancelled. |
 
 ```csharp
+using System.Net;
+
 try
 {
     var dlr = await client.GetLatestHeimdallDlrAsync(lineId);
 }
 catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
 {
-    // Line not found
+    // No data for the line in the requested window, or unknown line
 }
 catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.BadRequest)
 {
@@ -139,7 +147,7 @@ catch (HeimdallApiException ex)
 
 ### Cancellation and timeouts
 
-Every method accepts an optional `CancellationToken`. Cancellation is respected during the HTTP request.
+Every method accepts an optional `CancellationToken`.
 
 ```csharp
 // Cancel after 10 seconds total
@@ -147,7 +155,7 @@ using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 var dlr = await client.GetLatestHeimdallDlrAsync(lineId, cancellationToken: cts.Token);
 ```
 
-To set a per-request HTTP timeout, configure `HttpClient.Timeout` and pass it through `HeimdallApiClientSettings`:
+For a per-request timeout, pass an `HttpClient` with `Timeout` set via `HeimdallApiClientSettings`:
 
 ```csharp
 var httpClient = new HttpClient
