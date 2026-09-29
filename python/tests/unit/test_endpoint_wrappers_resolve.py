@@ -39,6 +39,7 @@ _CAPACITY_MONITORING_WRAPPERS = [
 
 _CLIENT_METHODS = [
     "get_assets",
+    "get_instrumented_lines",
     "get_currents",
     "get_conductor_temperatures",
     "get_icing",
