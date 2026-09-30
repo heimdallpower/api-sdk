@@ -40,6 +40,7 @@ When reviewing pull requests:
 
 - Breaking public API not marked per the [release conventions](instructions/release.instructions.md#versioning) — the release helper then under-bumps the version
 - Optional .NET parameters added as positional method parameters instead of properties on the method's options record
+- Python parameters inserted before existing ones, or added without a default
 - Endpoint, parameter, or field added to one SDK but not the other, with no stated reason
 - SDK behavior that contradicts the OpenAPI spec (names, types, required/nullable, enum values, timestamp format)
 - Hand edits inside `python/heimdall_api_client/*_api_client/`
