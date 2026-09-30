@@ -28,6 +28,7 @@ Integration tests require API client credentials in `HEIMDALL_CLIENT_ID` / `HEIM
 ### Step 2 — Discover data, don't hard-code it
 
 - Resolve line/facility/span ids from `GetAssetsAsync()` / `get_assets()`. Python: `live_line` (first line with a current < 1 day old); `line_id` takes the first line, which may be idle and skip.
+- Looping over lines: use `GetInstrumentedLinesAsync()` / `get_instrumented_lines()`. Lines without active measurement points have no data.
 - Data may legitimately be empty (no sensor data in the window). Python: `pytest.skip("<reason>")`. .NET (xunit 2, no runtime skip): assert invariants that hold for empty results (`Assert.All`), and only require non-empty where the contract guarantees it.
 - 404 means "no data" for this asset — skip with the reason (`fetch_or_skip`, `assert_endpoint_responds`), never pass silently.
 

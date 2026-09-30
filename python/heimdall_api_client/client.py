@@ -10,7 +10,7 @@ from uuid import UUID
 
 import httpx
 
-from heimdall_api_client.assets import get_assets
+from heimdall_api_client.assets import InstrumentedLine, get_assets, instrumented_lines
 from heimdall_api_client.assets_api_client.client import AuthenticatedClient
 from heimdall_api_client.auth import AuthService
 from heimdall_api_client.capacity_monitoring import (
@@ -247,6 +247,23 @@ class HeimdallApiClient:
         return self._execute_with_retry(
             lambda: get_assets(client=self._get_authenticated_client(), x_region=self._get_region())
         )
+
+    def get_instrumented_lines(self) -> list[InstrumentedLine]:
+        """
+        Returns the lines that have at least one active measurement point, with their facility.
+
+        Use this instead of looping over every line from `get_assets()` when fetching data:
+        lines with no measurement points, or only retired ones, return 404 or no data and are
+        left out. A measurement point is active while its `unregistered_timestamp` is unset or
+        in the future.
+
+        Example::
+
+            for instrumented in client.get_instrumented_lines():
+                current = client.get_latest_current(instrumented.line.id)
+                print(instrumented.facility.name, instrumented.line.name, current.data.current.value)
+        """
+        return instrumented_lines(self.get_assets().data)
 
     def get_latest_heimdall_dlr(
         self,

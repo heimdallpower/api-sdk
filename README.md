@@ -1,27 +1,24 @@
 # Heimdall Power API SDK
 
-This repository contains official SDKs and example clients for interacting with the Heimdall Power External API.
-
-Full API documentation is available at [developer.heimdallcloud.com](https://developer.heimdallcloud.com/docs/welcome).
+Official .NET and Python SDKs for the Heimdall Power External API.
 
 ## SDKs
 
-- **.NET SDK**
-- **Python SDK**
+| SDK | Package | Docs |
+| --- | ------- | ---- |
+| .NET | [`HeimdallPower.Api.Client`](https://www.nuget.org/packages/HeimdallPower.Api.Client) | [dotnet/README.md](dotnet/README.md) |
+| Python | [`heimdallpower-api-client`](https://pypi.org/project/heimdallpower-api-client/) | [python/README.md](python/README.md) |
 
-## Features
+Both SDKs handle authentication and return typed responses.
 
-- Simple and idiomatic access to Heimdall Power's API
-- Built-in support for authentication flows
-- Example client applications to help you get started quickly
+## Documentation
 
-## Repository Structure
-
-- `dotnet/`: [.NET SDK source and examples](dotnet/README.md)
-- `python/`: [Python SDK source and examples](python/README.md)
-
-AI agents: start with [AGENTS.md](AGENTS.md).
+- [Getting started](https://developer.heimdallcloud.com/docs/welcome)
+- [Authentication](https://developer.heimdallcloud.com/docs/authentication)
+- [Concepts](https://developer.heimdallcloud.com/docs/concepts): assets, measurement points and API modules.
+- [Use cases](https://developer.heimdallcloud.com/docs/use-cases): integration flows, [aggregation](https://developer.heimdallcloud.com/docs/use-cases#aggregation) and polling cadence.
+- [User Guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/4095541249) (customer login required): DLR and fallback rating details.
 
 ## Contributing
 
-Interested in contributing? See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md). AI agents: start with [AGENTS.md](AGENTS.md).

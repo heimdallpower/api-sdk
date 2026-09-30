@@ -12,14 +12,16 @@ Console.WriteLine("Initiating Heimdall API client");
 // Use HeimdallPower.Api.Client.Extensions (AddHeimdallPowerApiClient) for built-in resilience.
 var api = new HeimdallApiClient(clientId, clientSecret);
 
-// Fetch Lines data
+// Fetch a line with active measurement points; other lines return 404 or no data
 var assets = await api.GetAssetsAsync();
-var line = assets.AllLines().FirstOrDefault();
-if (line == null)
+var instrumented = assets.InstrumentedLines().FirstOrDefault();
+if (instrumented == null)
 {
-    Console.WriteLine("No lines found");
+    Console.WriteLine("No instrumented lines found");
     return;
 }
+
+var line = instrumented.Line;
 
 Console.WriteLine($"Using line: {line.Name} (ID: {line.Id})");
 
@@ -69,8 +71,7 @@ var lineTransientRatings = string.Join(", ", lineTransientRating.LineTransientRa
 Console.WriteLine($"- Line Transient Rating at {lineTransientRating.LineTransientRating.Timestamp}: {lineTransientRatings}");
 
 // Fetch Circuit Rating data
-var facilities = assets.AllFacilities();
-var facility = facilities.First(f => f.Line != null && f.Line.Name.Equals(line.Name));
+var facility = instrumented.Facility;
 
 var circuitRating = await api.GetLatestCircuitRatingAsync(facility.Id);
 var circuitRatingForecast = await api.GetCircuitRatingForecastsAsync(facility.Id);

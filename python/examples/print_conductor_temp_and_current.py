@@ -9,19 +9,11 @@ client = HeimdallApiClient(
     client_secret="your_client_secret",
 )
 
-assets = client.get_assets()
-grid_owner = assets.data.grid_owners[0]
+# Only lines with active measurement points; other lines return 404 or no data.
+for instrumented in client.get_instrumented_lines():
+    line_id = instrumented.line.id
 
-print(f"\nGrid Owner: {grid_owner.name}\n")
-
-for facility in grid_owner.facilities:
-    line = facility.line
-    if not line:
-        print(f"Facility: {facility.name} has no lines.\n")
-        continue
-    line_id = line.id
-
-    print(f"Line: {line.name} (ID: {line_id})")
+    print(f"Facility: {instrumented.facility.name}, Line: {instrumented.line.name} (ID: {line_id})")
 
     latest_conductor_temperature_response = client.get_latest_conductor_temperature(line_id=line_id)
     latest_conductor_temp = latest_conductor_temperature_response.data.conductor_temperature
