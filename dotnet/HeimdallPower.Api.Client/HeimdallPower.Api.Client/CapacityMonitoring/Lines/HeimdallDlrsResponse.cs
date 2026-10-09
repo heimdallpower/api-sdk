@@ -19,4 +19,10 @@ public record HeimdallDlrsResponse
     /// List of Heimdall DLR values within the requested time range. May be empty if no data exists for the period.
     /// </summary>
     public required IReadOnlyList<HeimdallDlrDto> HeimdallDlrs { get; init; }
+
+    /// <summary>
+    /// Per-span breakdown of Heimdall DLR over the requested time range. Spans without any Heimdall DLR in the period are omitted.
+    /// Only present when <see cref="HeimdallDlrInclude.Spans"/> is requested; otherwise null.
+    /// </summary>
+    public IReadOnlyList<HeimdallSpanDlrSeriesDto>? HeimdallSpanDlrs { get; init; }
 }

@@ -15,4 +15,9 @@ public sealed record GetLatestHeimdallDlrOptions
     /// Optional cut-off time (UTC). If the latest Heimdall DLR is older than this value, the API returns 404 Not Found.
     /// </summary>
     public DateTimeOffset? Since { get; init; }
+
+    /// <summary>
+    /// Set to <see cref="HeimdallDlrInclude.Spans"/> to additionally include a per-span breakdown of the latest Heimdall DLR, calculated at the same timestamp as the line value. Omitted by default.
+    /// </summary>
+    public HeimdallDlrInclude? Include { get; init; }
 }
