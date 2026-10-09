@@ -94,7 +94,7 @@ internal static class UrlBuilder
     // Capacity monitoring: lines
 
     public static string BuildLatestHeimdallDlrUrl(Guid lineId, GetLatestHeimdallDlrOptions options)
-        => LineUrl(CapacityMonitoring, lineId, HeimdallDlr, Query().AddQuantity(options.Quantity).AddSince(options.Since));
+        => LineUrl(CapacityMonitoring, lineId, HeimdallDlr, Query().AddQuantity(options.Quantity).AddSince(options.Since).AddInclude(options.Include?.ToQueryValue()));
 
     public static string BuildLatestHeimdallAarUrl(Guid lineId, GetLatestHeimdallAarOptions options)
         => LineUrl(CapacityMonitoring, lineId, HeimdallAar, Query().AddQuantity(options.Quantity).AddSince(options.Since));
@@ -109,7 +109,7 @@ internal static class UrlBuilder
         => LineUrl(CapacityMonitoring, lineId, HeimdallAarForecast, Query().AddQuantity(options.Quantity));
 
     public static string BuildHeimdallDlrsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetHeimdallDlrsOptions options)
-        => LineUrl(CapacityMonitoring, lineId, HeimdallDlrs, Query(from, to).AddQuantity(options.Quantity));
+        => LineUrl(CapacityMonitoring, lineId, HeimdallDlrs, Query(from, to).AddQuantity(options.Quantity).AddInclude(options.Include?.ToQueryValue()));
 
     public static string BuildHeimdallAarsUrl(Guid lineId, DateTimeOffset from, DateTimeOffset to, GetHeimdallAarsOptions options)
         => LineUrl(CapacityMonitoring, lineId, HeimdallAars, Query(from, to).AddQuantity(options.Quantity));

@@ -59,6 +59,7 @@ if TYPE_CHECKING:
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_transient_rating_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestTransientRatingResponse200,
     )
+    from heimdall_api_client.capacity_monitoring_api_client.models.heimdall_dlr_include import HeimdallDlrInclude
 
 
 def get_latest_heimdall_dlr(
@@ -67,6 +68,7 @@ def get_latest_heimdall_dlr(
     region: str,
     since: datetime.datetime | None = None,
     quantity: Quantity | str | None = None,
+    include: HeimdallDlrInclude | str | None = None,
 ) -> CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200:
     response = get_latest_dlr.sync_detailed(
         client=client,
@@ -74,6 +76,7 @@ def get_latest_heimdall_dlr(
         x_region=region,
         quantity=_quantity_value(quantity),
         since=UNSET if since is None else as_zulu(since),
+        include=_heimdall_dlr_include_value(include),
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -256,6 +259,7 @@ def get_heimdall_dlrs(
     from_timestamp: datetime.datetime,
     to_timestamp: datetime.datetime,
     quantity: Quantity | str | None = None,
+    include: HeimdallDlrInclude | str | None = None,
 ) -> CapacityMonitoringV1LinesGetHeimdallDlrsResponse200:
     from heimdall_api_client.capacity_monitoring_api_client.api.line import (
         capacity_monitoring_v1_lines_get_heimdall_dlrs as _get_heimdall_dlrs,
@@ -272,6 +276,7 @@ def get_heimdall_dlrs(
         from_timestamp=as_zulu(from_timestamp),
         to_timestamp=as_zulu(to_timestamp),
         quantity=quantity_value,
+        include=_heimdall_dlr_include_value(include),
     )
     if response.status_code != 200:
         status = int(response.status_code)
@@ -353,3 +358,11 @@ def _quantity_value(quantity: Quantity | str | None):
     if quantity is None:
         return UNSET
     return quantity if isinstance(quantity, Quantity) else Quantity(quantity)
+
+
+def _heimdall_dlr_include_value(include: object):
+    from heimdall_api_client.capacity_monitoring_api_client.models.heimdall_dlr_include import HeimdallDlrInclude
+
+    if include is None:
+        return UNSET
+    return include if isinstance(include, HeimdallDlrInclude) else HeimdallDlrInclude(include)

@@ -63,4 +63,56 @@ public class GetLatestHeimdallDlr(GetLatestHeimdallDlr.Scenario scenario) : ICla
     {
         Assert.Equal(scenario.Amperes.HeimdallDlr.AtSpanId, scenario.Mva.HeimdallDlr.AtSpanId);
     }
+
+    [Fact]
+    public void HeimdallSpanDlrsShouldBeNull_WhenNotRequested()
+    {
+        Assert.Null(scenario.Amperes.HeimdallSpanDlrs);
+    }
+}
+
+/// <summary>
+/// Queries the latest Heimdall DLR for "Heimdall Power Line" with <c>include=spans</c> and cross-checks the
+/// per-span breakdown against the asset hierarchy and the line-level timestamp.
+/// </summary>
+[Trait("Category", "Integration")]
+public class GetLatestHeimdallDlrWithSpans(GetLatestHeimdallDlrWithSpans.Scenario scenario)
+    : IClassFixture<GetLatestHeimdallDlrWithSpans.Scenario>
+{
+    public class Scenario : AuthenticatedHeimdallApiClient
+    {
+        public LatestHeimdallDlrResponse Result { get; }
+        public LineAssets Line { get; }
+
+        public Scenario()
+        {
+            Line = LineAssets.Resolve(Client.GetAssetsAsync().GetAwaiter().GetResult(), LineAssets.HeimdallPowerLineId);
+            Result = Client.GetLatestHeimdallDlrAsync(Line.LineId, new() { Include = HeimdallDlrInclude.Spans }).GetAwaiter().GetResult();
+        }
+    }
+
+    [Fact]
+    public void HeimdallSpanDlrsShouldBePresentWithSpanIdsFromAssets_WhenRequested()
+    {
+        // The list may be empty: per-span values are only persisted by the fallback-enabled calculation path.
+        Assert.NotNull(scenario.Result.HeimdallSpanDlrs);
+        Assert.All(scenario.Result.HeimdallSpanDlrs!, span => Assert.Contains(span.SpanId, scenario.Line.SpanIds));
+    }
+
+    [Fact]
+    public void HeimdallSpanDlrsShouldBeCalculatedAtTheLineTimestampWithPositiveValues()
+    {
+        Assert.All(scenario.Result.HeimdallSpanDlrs!, span =>
+        {
+            Assert.Equal(scenario.Result.HeimdallDlr.Timestamp, span.HeimdallDlr.Timestamp);
+            Assert.True(span.HeimdallDlr.Value > 0, $"Span DLR {span.HeimdallDlr.Value} on span {span.SpanId} should be positive");
+        });
+    }
+
+    [Fact]
+    public void HeimdallSpanDlrsShouldListEachSpanOnce()
+    {
+        var spanIds = scenario.Result.HeimdallSpanDlrs!.Select(span => span.SpanId).ToList();
+        Assert.Equal(spanIds.Count, spanIds.Distinct().Count());
+    }
 }
