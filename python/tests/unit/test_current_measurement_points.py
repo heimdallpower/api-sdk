@@ -21,7 +21,7 @@ _LATEST = {
     "data": {
         "metric": "Current",
         "unit": "Ampere",
-        "current": {"timestamp": "2026-01-01T12:00:00Z", "value": 452.3},
+        "current": {"timestamp": "2026-01-01T12:00:00Z", "value": 452.3, "at_span_id": str(SPAN_ID)},
         "measurement_point_currents": [
             {
                 "span_id": str(SPAN_ID),
@@ -51,7 +51,7 @@ _LATEST_AGGREGATE_ONLY = {
     "data": {
         "metric": "Current",
         "unit": "Ampere",
-        "current": {"timestamp": "2026-01-01T12:00:00Z", "value": 452.3},
+        "current": {"timestamp": "2026-01-01T12:00:00Z", "value": 452.3, "at_span_id": str(SPAN_ID)},
         "measurement_point_currents": None,
     }
 }
@@ -60,7 +60,7 @@ _HISTORICAL = {
     "data": {
         "metric": "Current",
         "unit": "Ampere",
-        "currents": [{"timestamp": "2026-01-01T12:00:00Z", "value": 452.3}],
+        "currents": [{"timestamp": "2026-01-01T12:00:00Z", "value": 452.3, "at_span_id": str(SPAN_ID)}],
         "measurement_point_currents": [
             {
                 "span_id": str(SPAN_ID),
