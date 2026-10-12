@@ -14,6 +14,7 @@ from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_response_200
 from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_dlr_x_region import (
     CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion,
 )
+from ...models.heimdall_dlr_include import HeimdallDlrInclude
 from ...models.problem_details import ProblemDetails
 from ...models.quantity import Quantity
 from ...types import UNSET, Response, Unset
@@ -24,6 +25,7 @@ def _get_kwargs(
     *,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallDlrInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> dict[str, Any]:
@@ -43,6 +45,12 @@ def _get_kwargs(
     if not isinstance(since, Unset):
         json_since = since.isoformat()
     params["since"] = json_since
+
+    json_include: str | Unset = UNSET
+    if not isinstance(include, Unset):
+        json_include = include.value
+
+    params["include"] = json_include
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -112,6 +120,7 @@ def sync_detailed(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallDlrInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
@@ -140,12 +149,20 @@ def sync_detailed(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall DLR calculated
+    for each span on the line at the same timestamp as the line value.
+    Per-span values are persisted only by the fallback-enabled calculation path. If a line rating was
+    calculated using the legacy path, this breakdown may be empty even when the line has a rating.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallDlrInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall DLR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -161,6 +178,7 @@ def sync_detailed(
         line_id=line_id,
         quantity=quantity,
         since=since,
+        include=include,
         x_region=x_region,
     )
 
@@ -177,6 +195,7 @@ def sync(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallDlrInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
@@ -205,12 +224,20 @@ def sync(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall DLR calculated
+    for each span on the line at the same timestamp as the line value.
+    Per-span values are persisted only by the fallback-enabled calculation path. If a line rating was
+    calculated using the legacy path, this breakdown may be empty even when the line has a rating.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallDlrInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall DLR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -227,6 +254,7 @@ def sync(
         client=client,
         quantity=quantity,
         since=since,
+        include=include,
         x_region=x_region,
     ).parsed
 
@@ -237,6 +265,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallDlrInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails]:
@@ -265,12 +294,20 @@ async def asyncio_detailed(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall DLR calculated
+    for each span on the line at the same timestamp as the line value.
+    Per-span values are persisted only by the fallback-enabled calculation path. If a line rating was
+    calculated using the legacy path, this breakdown may be empty even when the line has a rating.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallDlrInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall DLR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -286,6 +323,7 @@ async def asyncio_detailed(
         line_id=line_id,
         quantity=quantity,
         since=since,
+        include=include,
         x_region=x_region,
     )
 
@@ -300,6 +338,7 @@ async def asyncio(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallDlrInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallDlrResponse200 | ProblemDetails | None:
@@ -328,12 +367,20 @@ async def asyncio(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall DLR calculated
+    for each span on the line at the same timestamp as the line value.
+    Per-span values are persisted only by the fallback-enabled calculation path. If a line rating was
+    calculated using the legacy path, this breakdown may be empty even when the line has a rating.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallDlrInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall DLR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallDlrXRegion.EU.
 
@@ -351,6 +398,7 @@ async def asyncio(
             client=client,
             quantity=quantity,
             since=since,
+            include=include,
             x_region=x_region,
         )
     ).parsed

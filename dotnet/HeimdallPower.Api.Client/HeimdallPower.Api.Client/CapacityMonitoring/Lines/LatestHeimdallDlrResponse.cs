@@ -18,4 +18,11 @@ public record LatestHeimdallDlrResponse
     /// The latest Heimdall DLR value and timestamp.
     /// </summary>
     public required HeimdallDlrDto HeimdallDlr { get; init; }
+
+    /// <summary>
+    /// Per-span breakdown of the latest Heimdall DLR, calculated at the same timestamp as <see cref="HeimdallDlr"/>.
+    /// Spans without a Heimdall DLR at that timestamp are omitted.
+    /// Only present when <see cref="HeimdallDlrInclude.Spans"/> is requested; otherwise null.
+    /// </summary>
+    public IReadOnlyList<LatestHeimdallSpanDlrDto>? HeimdallSpanDlrs { get; init; }
 }

@@ -127,7 +127,8 @@ def test_latest_heimdall_dlr_keeps_since_alongside_quantity():
     [
         ("get_latest_current", "include"),
         ("get_currents", "include"),
-        ("get_latest_heimdall_dlr", "quantity"),
+        ("get_latest_heimdall_dlr", "include"),
+        ("get_heimdall_dlrs", "include"),
         ("get_latest_heimdall_aar", "quantity"),
         ("get_latest_heimdall_dlr_forecasts", "quantity"),
         ("get_latest_heimdall_aar_forecasts", "quantity"),
