@@ -19,4 +19,11 @@ public record HeimdallAarsResponse
     /// List of Heimdall AAR values within the requested time range. May be empty if no data exists for the period.
     /// </summary>
     public required IReadOnlyList<HeimdallAarDto> HeimdallAars { get; init; }
+
+    /// <summary>
+    /// Per-span breakdown of Heimdall AAR over the requested time range, at the timestamps where the line has a Heimdall AAR.
+    /// Spans without any Heimdall AAR in the period are omitted.
+    /// Only present when <see cref="HeimdallAarInclude.Spans"/> is requested; otherwise null.
+    /// </summary>
+    public IReadOnlyList<HeimdallSpanAarSeriesDto>? HeimdallSpanAars { get; init; }
 }

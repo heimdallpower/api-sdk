@@ -18,4 +18,11 @@ public record LatestHeimdallAarResponse
     /// The latest Heimdall ambient-adjusted rating value and timestamp.
     /// </summary>
     public required HeimdallAarDto HeimdallAar { get; init; }
+
+    /// <summary>
+    /// Per-span breakdown of the latest Heimdall AAR, calculated at the same timestamp as <see cref="HeimdallAar"/>.
+    /// Spans without a Heimdall AAR at that timestamp are omitted.
+    /// Only present when <see cref="HeimdallAarInclude.Spans"/> is requested; otherwise null.
+    /// </summary>
+    public IReadOnlyList<LatestHeimdallSpanAarDto>? HeimdallSpanAars { get; init; }
 }
