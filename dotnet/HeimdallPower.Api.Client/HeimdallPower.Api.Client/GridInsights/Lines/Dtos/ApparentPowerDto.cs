@@ -13,4 +13,10 @@ public record ApparentPowerDto
     /// </summary>
     /// <example>156.7</example>
     public double Value { get; init; }
+
+    /// <summary>
+    /// The id of the span where the current used to derive the apparent power was measured.
+    /// </summary>
+    /// <example>00000000-0000-0000-0000-000000000000</example>
+    public Guid AtSpanId { get; init; }
 }
