@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     from heimdall_api_client.capacity_monitoring_api_client.models.capacity_monitoring_v1_lines_get_latest_transient_rating_response_200 import (  # noqa: E501
         CapacityMonitoringV1LinesGetLatestTransientRatingResponse200,
     )
+    from heimdall_api_client.capacity_monitoring_api_client.models.heimdall_aar_include import HeimdallAarInclude
     from heimdall_api_client.capacity_monitoring_api_client.models.heimdall_dlr_include import HeimdallDlrInclude
     from heimdall_api_client.grid_insights_api_client.models.current_include import CurrentInclude
     from heimdall_api_client.grid_insights_api_client.models.grid_insights_v1_lines_get_apparent_power_response_200 import (  # noqa: E501
@@ -299,6 +300,7 @@ class HeimdallApiClient:
         line_id: UUID,
         since: datetime.datetime | None = None,
         quantity: Quantity | str | None = None,
+        include: HeimdallAarInclude | str | None = None,
     ) -> CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200:
         """
         Returns the latest Heimdall AAR (Available Ampacity Rating) data.
@@ -306,6 +308,9 @@ class HeimdallApiClient:
         `since` bounds how old the returned value may be.
 
         `quantity` selects amperes (`"current"`, default) or MVA (`"apparent_power"`).
+
+        `include="spans"` additionally returns a per-span breakdown of the latest
+        Heimdall AAR, calculated at the same timestamp as the line value.
         """
         return self._execute_with_retry(
             lambda: get_latest_heimdall_aar(
@@ -314,6 +319,7 @@ class HeimdallApiClient:
                 region=self._get_region(),
                 since=since,
                 quantity=quantity,
+                include=include,
             )
         )
 
@@ -628,9 +634,13 @@ class HeimdallApiClient:
         from_timestamp: datetime.datetime,
         to_timestamp: datetime.datetime,
         quantity: Quantity | str | None = None,
+        include: HeimdallAarInclude | str | None = None,
     ) -> CapacityMonitoringV1LinesGetHeimdallAarsResponse200:
         """
         Returns historical Heimdall AAR (Available Ampacity Rating) values for a given line.
+
+        `include="spans"` additionally returns a per-span breakdown of Heimdall AAR at the
+        timestamps where the line has a value. When set, the period must not exceed 7 days.
         """
         return self._execute_with_retry(
             lambda: get_heimdall_aars(
@@ -640,6 +650,7 @@ class HeimdallApiClient:
                 from_timestamp=from_timestamp,
                 to_timestamp=to_timestamp,
                 quantity=quantity,
+                include=include,
             )
         )
 

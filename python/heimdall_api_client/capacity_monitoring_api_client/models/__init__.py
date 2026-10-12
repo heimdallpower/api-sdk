@@ -70,17 +70,21 @@ from .circuit_transient_rating import CircuitTransientRating
 from .circuit_transient_rating_value import CircuitTransientRatingValue
 from .heimdall_aar import HeimdallAar
 from .heimdall_aar_forecasts import HeimdallAarForecasts
+from .heimdall_aar_include import HeimdallAarInclude
 from .heimdall_aars import HeimdallAars
 from .heimdall_dlr import HeimdallDlr
 from .heimdall_dlr_forecasts import HeimdallDlrForecasts
 from .heimdall_dlr_include import HeimdallDlrInclude
 from .heimdall_dlrs import HeimdallDlrs
+from .heimdall_span_aar import HeimdallSpanAar
+from .heimdall_span_aar_series import HeimdallSpanAarSeries
 from .heimdall_span_dlr import HeimdallSpanDlr
 from .heimdall_span_dlr_series import HeimdallSpanDlrSeries
 from .latest_circuit_rating import LatestCircuitRating
 from .latest_circuit_transient_rating import LatestCircuitTransientRating
 from .latest_heimdall_aar import LatestHeimdallAar
 from .latest_heimdall_dlr import LatestHeimdallDlr
+from .latest_heimdall_span_aar import LatestHeimdallSpanAar
 from .latest_heimdall_span_dlr import LatestHeimdallSpanDlr
 from .latest_line_transient_rating import LatestLineTransientRating
 from .line_transient_rating import LineTransientRating
@@ -123,17 +127,21 @@ __all__ = (
     "CircuitTransientRatingValue",
     "HeimdallAar",
     "HeimdallAarForecasts",
+    "HeimdallAarInclude",
     "HeimdallAars",
     "HeimdallDlr",
     "HeimdallDlrForecasts",
     "HeimdallDlrInclude",
     "HeimdallDlrs",
+    "HeimdallSpanAar",
+    "HeimdallSpanAarSeries",
     "HeimdallSpanDlr",
     "HeimdallSpanDlrSeries",
     "LatestCircuitRating",
     "LatestCircuitTransientRating",
     "LatestHeimdallAar",
     "LatestHeimdallDlr",
+    "LatestHeimdallSpanAar",
     "LatestHeimdallSpanDlr",
     "LatestLineTransientRating",
     "LineTransientRating",

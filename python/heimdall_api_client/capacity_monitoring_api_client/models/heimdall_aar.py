@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,10 +23,13 @@ class HeimdallAar:
               - When `quantity=current` (default) → amperes.
               - When `quantity=apparent_power` → MVA.
              Example: 375.4.
+        at_span_id (UUID): Identifier of the span at which the lowest ampacity was calculated. Example:
+            00000000-0000-0000-0000-000000000000.
     """
 
     timestamp: datetime.datetime
     value: float
+    at_span_id: UUID
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,12 +37,15 @@ class HeimdallAar:
 
         value = self.value
 
+        at_span_id = str(self.at_span_id)
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "timestamp": timestamp,
                 "value": value,
+                "at_span_id": at_span_id,
             }
         )
 
@@ -51,9 +58,12 @@ class HeimdallAar:
 
         value = d.pop("value")
 
+        at_span_id = UUID(d.pop("at_span_id"))
+
         heimdall_aar = cls(
             timestamp=timestamp,
             value=value,
+            at_span_id=at_span_id,
         )
 
         heimdall_aar.additional_properties = d
