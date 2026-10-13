@@ -13,4 +13,10 @@ public record CurrentDto
     /// </summary>
     /// <example>500.5</example>
     public double Value { get; init; }
+
+    /// <summary>
+    /// The id of the span where the maximum current was measured.
+    /// </summary>
+    /// <example>00000000-0000-0000-0000-000000000000</example>
+    public Guid AtSpanId { get; init; }
 }
