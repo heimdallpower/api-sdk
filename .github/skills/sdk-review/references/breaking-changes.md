@@ -25,7 +25,8 @@ New optional query params go on the method's options record (e.g. `GetLatestCurr
 | New optional kwarg appended last                          | No        | Positional callers unaffected         |
 | New kwarg inserted before existing ones                   | Yes       | Positional callers shift              |
 | Renamed/removed client method, wrapper, or kwarg          | Yes       | Imports/calls fail                    |
-| Generated model gains a required field                    | Yes       | Hand construction fails; positional args shift into the wrong field |
+| Generated response model gains a field, optional or required | No   | The client builds response models from the API response; hand-built instances (e.g. test fakes) are not covered by the compatibility guarantee |
+| Generated request model gains a required field            | Yes       | Callers build request models; construction fails or positional args shift |
 | Generated model/enum renamed by the spec                  | Yes       | Imports fail                          |
 
 ## API-side changes
