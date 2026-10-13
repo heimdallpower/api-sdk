@@ -13,4 +13,10 @@ public record HeimdallAarDto
     /// </summary>
     /// <example>450.5</example>
     public double Value { get; init; }
+
+    /// <summary>
+    /// Identifier of the span at which the lowest ampacity was calculated.
+    /// </summary>
+    /// <example>00000000-0000-0000-0000-000000000000</example>
+    public Guid AtSpanId { get; init; }
 }

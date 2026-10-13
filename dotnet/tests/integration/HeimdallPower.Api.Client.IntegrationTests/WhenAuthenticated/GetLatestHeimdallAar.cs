@@ -51,4 +51,68 @@ public class GetLatestHeimdallAar(GetLatestHeimdallAar.Scenario scenario) : ICla
         Assert.True(scenario.Mva.HeimdallAar.Value > 0, $"Apparent power {scenario.Mva.HeimdallAar.Value} should be positive");
         scenario.Line.AssertIsApparentPowerOf(scenario.Mva.HeimdallAar.Value, scenario.Amperes.HeimdallAar.Value, "Latest Heimdall AAR");
     }
+
+    [Fact]
+    public void AtSpanIdShouldReferToASpanOnTheLine()
+    {
+        Assert.Contains(scenario.Amperes.HeimdallAar.AtSpanId, scenario.Line.SpanIds);
+    }
+
+    [Fact]
+    public void AtSpanIdShouldNotDependOnQuantity()
+    {
+        Assert.Equal(scenario.Amperes.HeimdallAar.AtSpanId, scenario.Mva.HeimdallAar.AtSpanId);
+    }
+
+    [Fact]
+    public void HeimdallSpanAarsShouldBeNull_WhenNotRequested()
+    {
+        Assert.Null(scenario.Amperes.HeimdallSpanAars);
+    }
+}
+
+/// <summary>
+/// Queries the latest Heimdall AAR for "Heimdall Power Line" with <c>include=spans</c> and cross-checks the
+/// per-span breakdown against the asset hierarchy and the line-level timestamp.
+/// </summary>
+[Trait("Category", "Integration")]
+public class GetLatestHeimdallAarWithSpans(GetLatestHeimdallAarWithSpans.Scenario scenario)
+    : IClassFixture<GetLatestHeimdallAarWithSpans.Scenario>
+{
+    public class Scenario : AuthenticatedHeimdallApiClient
+    {
+        public LatestHeimdallAarResponse Result { get; }
+        public LineAssets Line { get; }
+
+        public Scenario()
+        {
+            Line = LineAssets.Resolve(Client.GetAssetsAsync().GetAwaiter().GetResult(), LineAssets.HeimdallPowerLineId);
+            Result = Client.GetLatestHeimdallAarAsync(Line.LineId, new() { Include = HeimdallAarInclude.Spans }).GetAwaiter().GetResult();
+        }
+    }
+
+    [Fact]
+    public void HeimdallSpanAarsShouldBePresentWithSpanIdsFromAssets_WhenRequested()
+    {
+        // The list may be empty: spans without a Heimdall AAR at the line timestamp are omitted.
+        Assert.NotNull(scenario.Result.HeimdallSpanAars);
+        Assert.All(scenario.Result.HeimdallSpanAars!, span => Assert.Contains(span.SpanId, scenario.Line.SpanIds));
+    }
+
+    [Fact]
+    public void HeimdallSpanAarsShouldBeCalculatedAtTheLineTimestampWithPositiveValues()
+    {
+        Assert.All(scenario.Result.HeimdallSpanAars!, span =>
+        {
+            Assert.Equal(scenario.Result.HeimdallAar.Timestamp, span.HeimdallAar.Timestamp);
+            Assert.True(span.HeimdallAar.Value > 0, $"Span AAR {span.HeimdallAar.Value} on span {span.SpanId} should be positive");
+        });
+    }
+
+    [Fact]
+    public void HeimdallSpanAarsShouldListEachSpanOnce()
+    {
+        var spanIds = scenario.Result.HeimdallSpanAars!.Select(span => span.SpanId).ToList();
+        Assert.Equal(spanIds.Count, spanIds.Distinct().Count());
+    }
 }

@@ -15,4 +15,9 @@ public sealed record GetLatestHeimdallAarOptions
     /// Optional cut-off time (UTC). If the latest Heimdall AAR is older than this value, the API returns 404 Not Found.
     /// </summary>
     public DateTimeOffset? Since { get; init; }
+
+    /// <summary>
+    /// Set to <see cref="HeimdallAarInclude.Spans"/> to additionally include a per-span breakdown of the latest Heimdall AAR, calculated at the same timestamp as the line value. Omitted by default.
+    /// </summary>
+    public HeimdallAarInclude? Include { get; init; }
 }
