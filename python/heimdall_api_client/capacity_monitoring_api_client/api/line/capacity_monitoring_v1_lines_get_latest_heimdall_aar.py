@@ -14,6 +14,7 @@ from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_response_200
 from ...models.capacity_monitoring_v1_lines_get_latest_heimdall_aar_x_region import (
     CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion,
 )
+from ...models.heimdall_aar_include import HeimdallAarInclude
 from ...models.problem_details import ProblemDetails
 from ...models.quantity import Quantity
 from ...types import UNSET, Response, Unset
@@ -24,6 +25,7 @@ def _get_kwargs(
     *,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallAarInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
 ) -> dict[str, Any]:
@@ -43,6 +45,12 @@ def _get_kwargs(
     if not isinstance(since, Unset):
         json_since = since.isoformat()
     params["since"] = json_since
+
+    json_include: str | Unset = UNSET
+    if not isinstance(include, Unset):
+        json_include = include.value
+
+    params["include"] = json_include
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -112,6 +120,7 @@ def sync_detailed(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallAarInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
@@ -141,12 +150,18 @@ def sync_detailed(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall AAR calculated
+    for each span on the line at the same timestamp as the line value.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallAarInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall AAR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
@@ -162,6 +177,7 @@ def sync_detailed(
         line_id=line_id,
         quantity=quantity,
         since=since,
+        include=include,
         x_region=x_region,
     )
 
@@ -178,6 +194,7 @@ def sync(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallAarInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
@@ -207,12 +224,18 @@ def sync(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall AAR calculated
+    for each span on the line at the same timestamp as the line value.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallAarInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall AAR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
@@ -229,6 +252,7 @@ def sync(
         client=client,
         quantity=quantity,
         since=since,
+        include=include,
         x_region=x_region,
     ).parsed
 
@@ -239,6 +263,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallAarInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
 ) -> Response[Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails]:
@@ -268,12 +293,18 @@ async def asyncio_detailed(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall AAR calculated
+    for each span on the line at the same timestamp as the line value.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallAarInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall AAR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
@@ -289,6 +320,7 @@ async def asyncio_detailed(
         line_id=line_id,
         quantity=quantity,
         since=since,
+        include=include,
         x_region=x_region,
     )
 
@@ -303,6 +335,7 @@ async def asyncio(
     client: AuthenticatedClient | Client,
     quantity: Quantity | Unset = UNSET,
     since: datetime.datetime | Unset = UNSET,
+    include: HeimdallAarInclude | Unset = UNSET,
     x_region: CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion
     | Unset = CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU,
 ) -> Any | CapacityMonitoringV1LinesGetLatestHeimdallAarResponse200 | ProblemDetails | None:
@@ -332,12 +365,18 @@ async def asyncio(
     verify which value the calculation would use.
     If neither voltage is usable, the response is `404`.
 
+    ### Per-span breakdown
+    Use the optional `include=spans` query parameter to additionally return the Heimdall AAR calculated
+    for each span on the line at the same timestamp as the line value.
+
     Args:
         line_id (UUID):
         quantity (Quantity | Unset): Which quantity to return from a rating endpoint:
               - `current` — value in amperes.
               - `apparent_power` — value converted to MVA using `S = sqrt(3) * V * I / 1,000,000`.
         since (datetime.datetime | Unset):  Example: 2024-07-01 12:00:00.001000+00:00.
+        include (HeimdallAarInclude | Unset): Set to `spans` to additionally include a per-span
+            breakdown of Heimdall AAR (as unaggregated data).
         x_region (CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion | Unset):  Default:
             CapacityMonitoringV1LinesGetLatestHeimdallAarXRegion.EU.
 
@@ -355,6 +394,7 @@ async def asyncio(
             client=client,
             quantity=quantity,
             since=since,
+            include=include,
             x_region=x_region,
         )
     ).parsed

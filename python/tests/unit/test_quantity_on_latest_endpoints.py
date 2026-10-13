@@ -48,7 +48,10 @@ _CASES: list[tuple[str, dict[str, Any], str, Callable[..., Any]]] = [
     ),
     (
         "latest Heimdall AAR",
-        _body("heimdall_aar", {"timestamp": "2026-01-01T12:00:00Z", "value": 1.0}),
+        _body(
+            "heimdall_aar",
+            {"timestamp": "2026-01-01T12:00:00Z", "value": 1.0, "at_span_id": "00000000-0000-0000-0000-000000000000"},
+        ),
         f"/capacity_monitoring/v1/lines/{ASSET_ID}/heimdall_aars/latest",
         lambda client, **kw: client.get_latest_heimdall_aar(ASSET_ID, **kw),
     ),
@@ -129,7 +132,8 @@ def test_latest_heimdall_dlr_keeps_since_alongside_quantity():
         ("get_currents", "include"),
         ("get_latest_heimdall_dlr", "include"),
         ("get_heimdall_dlrs", "include"),
-        ("get_latest_heimdall_aar", "quantity"),
+        ("get_latest_heimdall_aar", "include"),
+        ("get_heimdall_aars", "include"),
         ("get_latest_heimdall_dlr_forecasts", "quantity"),
         ("get_latest_heimdall_aar_forecasts", "quantity"),
         ("get_latest_circuit_rating", "quantity"),
