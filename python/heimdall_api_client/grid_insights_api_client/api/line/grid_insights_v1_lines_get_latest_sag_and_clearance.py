@@ -119,6 +119,10 @@ def sync_detailed(
 
      This endpoint returns the most recent sag and clearance data for the line.
 
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The sag and clearance data is divided into three sections:
 
     - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
@@ -135,8 +139,7 @@ def sync_detailed(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
-    phase is returned regardless of age.
+    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.
@@ -185,6 +188,10 @@ def sync(
 
      This endpoint returns the most recent sag and clearance data for the line.
 
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The sag and clearance data is divided into three sections:
 
     - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
@@ -201,8 +208,7 @@ def sync(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
-    phase is returned regardless of age.
+    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.
@@ -246,6 +252,10 @@ async def asyncio_detailed(
 
      This endpoint returns the most recent sag and clearance data for the line.
 
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The sag and clearance data is divided into three sections:
 
     - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
@@ -262,8 +272,7 @@ async def asyncio_detailed(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
-    phase is returned regardless of age.
+    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.
@@ -310,6 +319,10 @@ async def asyncio(
 
      This endpoint returns the most recent sag and clearance data for the line.
 
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The sag and clearance data is divided into three sections:
 
     - **`max_sag`**: The span phase with the maximum sag across all span phases on the line.
@@ -326,8 +339,7 @@ async def asyncio(
     phase. Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included measurements. Only measurements with
-    timestamps at or after `since` are considered. If omitted, the latest sag and clearance per span
-    phase is returned regardless of age.
+    timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest sag and clearance data for a span phase is older than `since`, that span phase is
     excluded.

@@ -116,6 +116,10 @@ def sync_detailed(
 
      This endpoint returns icing data for the line within a specified time range.
 
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
@@ -182,6 +186,10 @@ def sync(
 
      This endpoint returns icing data for the line within a specified time range.
 
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
@@ -242,6 +250,10 @@ async def asyncio_detailed(
     """Get icing
 
      This endpoint returns icing data for the line within a specified time range.
+
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
 
     The icing data is divided into two sections:
 
@@ -306,6 +318,10 @@ async def asyncio(
     """Get icing
 
      This endpoint returns icing data for the line within a specified time range.
+
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
 
     The icing data is divided into two sections:
 

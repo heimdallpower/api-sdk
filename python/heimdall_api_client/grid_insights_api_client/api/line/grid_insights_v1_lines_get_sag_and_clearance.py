@@ -118,6 +118,10 @@ def sync_detailed(
 
      This endpoint returns sag and clearance data for the line within a specified time range.
 
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The sag and clearance data is divided into three sections:
 
     - **`max_sag`**: The span phase with the maximum sag across all span phases on the line over the
@@ -183,6 +187,10 @@ def sync(
 
      This endpoint returns sag and clearance data for the line within a specified time range.
 
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The sag and clearance data is divided into three sections:
 
     - **`max_sag`**: The span phase with the maximum sag across all span phases on the line over the
@@ -242,6 +250,10 @@ async def asyncio_detailed(
     """Get sag and clearance
 
      This endpoint returns sag and clearance data for the line within a specified time range.
+
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
 
     The sag and clearance data is divided into three sections:
 
@@ -305,6 +317,10 @@ async def asyncio(
     """Get sag and clearance
 
      This endpoint returns sag and clearance data for the line within a specified time range.
+
+    Sag and clearance are aggregated per span phase using a 30-minute sliding window. More details on
+    how we aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
 
     The sag and clearance data is divided into three sections:
 

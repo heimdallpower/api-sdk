@@ -113,6 +113,10 @@ def sync_detailed(
 
      This endpoint returns the most recent icing data for the line.
 
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
@@ -130,8 +134,7 @@ def sync_detailed(
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
-    returned regardless of age.
+    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 
@@ -178,6 +181,10 @@ def sync(
 
      This endpoint returns the most recent icing data for the line.
 
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
@@ -195,8 +202,7 @@ def sync(
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
-    returned regardless of age.
+    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 
@@ -238,6 +244,10 @@ async def asyncio_detailed(
 
      This endpoint returns the most recent icing data for the line.
 
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
@@ -255,8 +265,7 @@ async def asyncio_detailed(
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
-    returned regardless of age.
+    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 
@@ -301,6 +310,10 @@ async def asyncio(
 
      This endpoint returns the most recent icing data for the line.
 
+    Icing is aggregated per span phase using a 30-minute sliding window. More details on how we
+    aggregate data can be found in our [user
+    guide](https://heimdallbrain.atlassian.net/servicedesk/customer/portal/1/article/2203549997).
+
     The icing data is divided into two sections:
 
     - **`max`**: Maximum icing measurements, i.e. maximum ice weight, maximum tension and maximum
@@ -318,8 +331,7 @@ async def asyncio(
     Timestamps may differ per conductor due to data availability.
 
     Query parameter `since` sets a cut-off time (UTC) for included icing measurements. Only measurements
-    with timestamps at or after `since` are considered. If omitted, the latest icing per span phase is
-    returned regardless of age.
+    with timestamps at or after `since` are considered. If omitted, `since` defaults to 30 minutes ago.
 
     If the latest icing data for a span phase is older than `since`, that span phase is excluded.
 
