@@ -18,7 +18,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.14" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="11.0.0" />
         <PackageReference Include="Microsoft.Identity.Web" Version="4.18.0" />
         <!-- Pin patched transitives of Microsoft.Identity.Web (via AspNetCore.DataProtection).
              10.0.10 is flagged by GHSA-c399-9853-6jmj, GHSA-7hqp-7c5m-4vq6, GHSA-r955-8q5j-3h83,
