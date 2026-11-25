@@ -155,6 +155,10 @@ class HeimdallApiClient:
     If all 3 retry attempts are exhausted the last
     :class:`~heimdall_api_client.errors.HeimdallApiError` is re-raised.
 
+    The access token request is retried the same way on connection errors,
+    timeouts and HTTP 429, 500, 502, 503, 504 from the token endpoint.
+    400 and 401 (e.g. invalid credentials) are not retried.
+
     Note
     ----
     Python synchronous code has no native cancellation equivalent to
@@ -167,7 +171,9 @@ class HeimdallApiClient:
     non-transient HTTP errors (e.g. 400, 403, 404, 500) or after all retries
     are exhausted on transient errors. The ``status_code`` attribute carries
     the HTTP status code.  ``httpx.TimeoutException`` is raised if a request
-    exceeds the configured timeout.
+    exceeds the configured timeout.  A failed token request raises a
+    ``requests.RequestException`` (e.g. ``requests.ConnectionError``,
+    ``requests.Timeout`` or ``requests.HTTPError``).
     """
 
     def __init__(
