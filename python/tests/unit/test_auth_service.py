@@ -200,6 +200,23 @@ class TestTokenRequestRetry:
         assert mock_post.call_count == 4
         assert mock_sleep.call_args_list == [call(1), call(2), call(4)]
 
+    @patch("heimdall_api_client.auth.time.sleep")
+    @patch("heimdall_api_client.auth.requests.post")
+    def test_client_logs_token_retries_to_its_logger(self, mock_post, mock_sleep):
+        """The logger passed to HeimdallApiClient receives the token retry warnings and the final error."""
+        from heimdall_api_client.client import HeimdallApiClient
+
+        mock_post.side_effect = [_connection_reset() for _ in range(4)]
+        logger = MagicMock()
+        client = HeimdallApiClient(client_id="test-id", client_secret="test-secret", logger=logger)
+
+        with pytest.raises(requests.ConnectionError):
+            client.get_assets()
+
+        assert logger.warning.call_count == 3  # one per retry
+        assert "Transient token request error" in logger.warning.call_args_list[0].args[0]
+        logger.error.assert_called_once()
+
 
 class TestGetRegionFromToken:
     def test_defaults_to_eu_when_region_missing(self):

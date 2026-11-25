@@ -198,6 +198,7 @@ class HeimdallApiClient:
             tenant=tenant,
             authority_domain=auth_authority_domain,
             scope=auth_scope,
+            logger=logger,
         )
 
         self.api_base_url = api_base_url

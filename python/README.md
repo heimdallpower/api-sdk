@@ -68,7 +68,7 @@ All methods retry **up to 3 times** with exponential backoff (1 s → 2 s → 4 
 The access token request is retried the same way (up to 3 times, 1 s → 2 s → 4 s) on connection errors and timeouts (for example `Connection reset by peer`), and on `429`, `500`, `502`, `503` and `504` from the token endpoint.
 
 - `400` and `401` (for example invalid credentials) are not retried.
-- Each retry logs a `WARNING`; the final failure logs an `ERROR`.
+- Each retry logs a `WARNING`; the final failure logs an `ERROR`. Both go to the `logger` passed to `HeimdallApiClient`, if any.
 - After 3 failed retries, the last `requests.RequestException` is raised (for example `requests.ConnectionError`, `requests.Timeout` or `requests.HTTPError`).
 
 ### Exceptions
