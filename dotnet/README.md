@@ -105,7 +105,7 @@ services.AddHeimdallPowerApiClient(options =>
 
 ### Resilience and retry
 
-- **The core package does not retry.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`.
+- **The core package does not retry API calls.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`. A failed access token request is retried once after 1 s on 5xx or a timeout; 429 and connection errors (e.g. connection reset) are not retried.
 - **The Extensions package adds resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience). `AddHeimdallPowerApiClient` enables this pipeline:
 
 | Layer | Behaviour |
@@ -119,7 +119,8 @@ services.AddHeimdallPowerApiClient(options =>
 | Exception | When |
 |---|---|
 | `HeimdallApiException` | Non-success HTTP status. `StatusCode` holds the status, `RequestUrl` the request, and `Title`, `Detail` and `Errors` the problem details. |
-| `UnauthorizedAccessException` | Authentication failed after a token-refresh attempt. |
+| `UnauthorizedAccessException` | The token endpoint answered with an error status (e.g. 400/401 for invalid credentials, or 5xx/429 after any retries), or the API answered 401 again on a second attempt. Also a token request that timed out. |
+| `HttpRequestException` | The API or the token endpoint could not be reached (e.g. connection reset), after any retries. |
 | `OperationCanceledException` | The provided `CancellationToken` was cancelled. |
 
 ```csharp

@@ -90,13 +90,18 @@ internal class HeimdallApiHttpClient(
 
     private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc, CancellationToken cancellationToken)
     {
+        // Outside the try: a failed token acquisition is not acquired again here. The token request
+        // has its own retry policy (the token library's, or the TokenHttpClient's); another acquisition
+        // would multiply its attempts.
+        await UpdateAccessTokenIfExpired(cancellationToken);
         try
         {
-            await UpdateAccessTokenIfExpired(cancellationToken);
             return await operationFunc();
         }
         catch (UnauthorizedAccessException)
         {
+            // The API answered 401: try once more. RefreshAccessToken only acquires a new token when the
+            // current one is near expiry, so this usually retries with the same token.
             await RefreshAccessToken(cancellationToken);
             return await operationFunc();
         }
