@@ -15,18 +15,24 @@ internal class AccessTokenProvider(
     string clientSecret,
     string authority,
     string scope,
-    HttpMessageHandler? proxyHandler = null) : IAccessTokenProvider
+    HttpMessageHandler? proxyHandler = null,
+    HttpClient? tokenHttpClient = null) : IAccessTokenProvider
 {
-    private readonly IConfidentialClientApplication _msalClient = BuildMsalClient(clientId, clientSecret, authority, proxyHandler);
+    private readonly IConfidentialClientApplication _msalClient = BuildMsalClient(clientId, clientSecret, authority, proxyHandler, tokenHttpClient);
 
     private static IConfidentialClientApplication BuildMsalClient(
-        string clientId, string clientSecret, string authority, HttpMessageHandler? proxyHandler)
+        string clientId, string clientSecret, string authority, HttpMessageHandler? proxyHandler, HttpClient? tokenHttpClient)
     {
         var builder = ConfidentialClientApplicationBuilder.Create(clientId)
             .WithClientSecret(clientSecret)
             .WithAuthority(authority);
 
-        if (proxyHandler != null)
+        if (tokenHttpClient != null)
+        {
+            // The caller's client retries transient errors; MSAL's own retry would multiply the attempts.
+            builder.WithHttpClientFactory(new MsalHttpClientFactory(tokenHttpClient), retryOnceOn5xx: false);
+        }
+        else if (proxyHandler != null)
         {
             builder.WithHttpClientFactory(new MsalProxyHttpClientFactory(proxyHandler));
         }
@@ -88,4 +94,13 @@ internal class AccessTokenProvider(
 internal class MsalProxyHttpClientFactory(HttpMessageHandler handler) : IMsalHttpClientFactory
 {
     public HttpClient GetHttpClient() => new(handler, disposeHandler: false);
+}
+
+/// <summary>
+/// Adapts a caller-supplied <see cref="HttpClient"/> to MSAL's <see cref="IMsalHttpClientFactory"/>
+/// so that MSAL token requests go through that client's handler pipeline.
+/// </summary>
+internal class MsalHttpClientFactory(HttpClient httpClient) : IMsalHttpClientFactory
+{
+    public HttpClient GetHttpClient() => httpClient;
 }

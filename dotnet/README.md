@@ -105,7 +105,7 @@ services.AddHeimdallPowerApiClient(options =>
 
 ### Resilience and retry
 
-- **The core package does not retry API calls.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`. A failed access token request is retried once after 1 s on 5xx or a timeout; 429 and connection errors (e.g. connection reset) are not retried.
+- **The core package does not retry API calls.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`. A failed access token request is retried once after 1 s on 5xx or a timeout; 429 and connection errors (e.g. connection reset) are not retried. To retry token requests, pass a `TokenHttpClient` with a resilience handler in `HeimdallApiClientSettings`.
 - **The Extensions package adds resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience). `AddHeimdallPowerApiClient` enables this pipeline:
 
 | Layer | Behaviour |
