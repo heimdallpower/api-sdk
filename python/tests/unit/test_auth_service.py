@@ -66,6 +66,32 @@ class TestGetValidToken:
 
         assert mock_post.call_count == 2
 
+    @patch("heimdall_api_client.auth.requests.post")
+    def test_renews_token_within_two_minutes_of_expiry(self, mock_post):
+        """A token that expires in under 2 minutes is renewed before it is used, though not yet expired."""
+        token = _make_token({"sub": "test"})
+        mock_post.return_value = _mock_token_response(token, expires_in=90)
+
+        auth = AuthService(client_id="test-id", client_secret="test-secret")
+        auth.get_valid_token()
+
+        assert not auth.is_token_expired()
+        auth.get_valid_token()
+
+        assert mock_post.call_count == 2
+
+    @patch("heimdall_api_client.auth.requests.post")
+    def test_reuses_token_more_than_two_minutes_before_expiry(self, mock_post):
+        """A token that expires in over 2 minutes is reused."""
+        token = _make_token({"sub": "test"})
+        mock_post.return_value = _mock_token_response(token, expires_in=180)
+
+        auth = AuthService(client_id="test-id", client_secret="test-secret")
+        auth.get_valid_token()
+        auth.get_valid_token()
+
+        mock_post.assert_called_once()
+
 
 class TestTokenRequestRetry:
     """

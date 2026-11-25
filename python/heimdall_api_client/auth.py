@@ -7,6 +7,10 @@ import requests
 
 _MAX_TOKEN_RETRY_ATTEMPTS = 3
 
+# Renew the token this long before it expires: a token used up to its expiry can reach the API
+# after it expired, and the API rejects it with 401. Matches the .NET SDK.
+_TOKEN_RENEWAL_MARGIN = timedelta(minutes=2)
+
 # Token endpoint responses worth retrying. 400/401 (bad credentials, bad scope) are not.
 _TRANSIENT_TOKEN_STATUS_CODES = frozenset({429, 500, 502, 503, 504})
 
@@ -121,16 +125,25 @@ class AuthService:
             time.sleep(delay)
 
     def get_valid_token(self) -> str:
-        """Returns a valid access token, refreshing it if necessary."""
-        if not self._access_token or self.is_token_expired():
+        """
+        Returns a valid access token, refreshing it if necessary.
+
+        The token is renewed 2 minutes before it expires, so requests don't use a token that is
+        about to expire.
+        """
+        if not self._access_token or self._expires_within(_TOKEN_RENEWAL_MARGIN):
             return self.get_token()
         return self._access_token
 
     def is_token_expired(self) -> bool:
         """Returns True if the token is expired or missing."""
+        return self._expires_within(timedelta(0))
+
+    def _expires_within(self, margin: timedelta) -> bool:
+        """Returns True if the token is missing or expires within ``margin`` from now."""
         if not self._expires_at:
             return True
-        return datetime.now(UTC) >= self._expires_at
+        return datetime.now(UTC) >= self._expires_at - margin
 
     def get_token_claims(self) -> dict:
         """Returns the decoded claims from the current access token."""

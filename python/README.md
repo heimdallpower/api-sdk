@@ -63,6 +63,10 @@ All methods retry **up to 3 times** with exponential backoff (1 s → 2 s → 4 
 - After 3 failed retries, the last `HeimdallApiError` is raised.
 - `500 Internal Server Error` is not retried.
 
+### Token renewal
+
+The access token is renewed 2 minutes before it expires, so requests don't use a token that is about to expire. A `401` from the API is not retried; it is raised as `HeimdallApiError`.
+
 ### Token request retry
 
 The access token request is retried the same way (up to 3 times, 1 s → 2 s → 4 s) on connection errors and timeouts (for example `Connection reset by peer`), and on `429`, `500`, `502`, `503` and `504` from the token endpoint.
