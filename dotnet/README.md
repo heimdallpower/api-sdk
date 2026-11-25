@@ -121,6 +121,7 @@ services.AddHeimdallPowerApiClient(options =>
 | `HeimdallApiException` | Non-success HTTP status. `StatusCode` holds the status, `RequestUrl` the request, and `Title`, `Detail` and `Errors` the problem details. |
 | `UnauthorizedAccessException` | The token endpoint answered with an error status (e.g. 400/401 for invalid credentials, or 5xx/429 after any retries), or the API answered 401 again on a second attempt. In the core package, also a token request that timed out. |
 | `HttpRequestException` | The API or the token endpoint could not be reached (e.g. connection reset), after any retries. |
+| `TimeoutException` | The request waited over 30 s for another request to acquire an access token, e.g. while the token endpoint was unavailable. |
 | `Polly.Timeout.TimeoutRejectedException` | Extensions package only: a request, including a token request, exceeded the resilience pipeline's timeout. |
 | `OperationCanceledException` | The provided `CancellationToken` was cancelled. |
 
