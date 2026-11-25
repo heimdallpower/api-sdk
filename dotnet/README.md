@@ -106,7 +106,7 @@ services.AddHeimdallPowerApiClient(options =>
 ### Resilience and retry
 
 - **The core package does not retry API calls.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`. A failed access token request is retried once after 1 s on 5xx or a timeout; 429 and connection errors (e.g. connection reset) are not retried. To retry token requests, pass a `TokenHttpClient` with a resilience handler in `HeimdallApiClientSettings`.
-- **The Extensions package adds resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience). `AddHeimdallPowerApiClient` enables this pipeline:
+- **The Extensions package adds resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience). `AddHeimdallPowerApiClient` enables this pipeline for API calls and for access token requests (each with its own circuit breaker):
 
 | Layer | Behaviour |
 |---|---|
@@ -119,8 +119,9 @@ services.AddHeimdallPowerApiClient(options =>
 | Exception | When |
 |---|---|
 | `HeimdallApiException` | Non-success HTTP status. `StatusCode` holds the status, `RequestUrl` the request, and `Title`, `Detail` and `Errors` the problem details. |
-| `UnauthorizedAccessException` | The token endpoint answered with an error status (e.g. 400/401 for invalid credentials, or 5xx/429 after any retries), or the API answered 401 again on a second attempt. Also a token request that timed out. |
+| `UnauthorizedAccessException` | The token endpoint answered with an error status (e.g. 400/401 for invalid credentials, or 5xx/429 after any retries), or the API answered 401 again on a second attempt. In the core package, also a token request that timed out. |
 | `HttpRequestException` | The API or the token endpoint could not be reached (e.g. connection reset), after any retries. |
+| `Polly.Timeout.TimeoutRejectedException` | Extensions package only: a request, including a token request, exceeded the resilience pipeline's timeout. |
 | `OperationCanceledException` | The provided `CancellationToken` was cancelled. |
 
 ```csharp

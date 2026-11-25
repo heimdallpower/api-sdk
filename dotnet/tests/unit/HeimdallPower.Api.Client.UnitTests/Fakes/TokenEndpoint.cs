@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Sockets;
@@ -32,6 +33,13 @@ internal static class TokenEndpoint
     public static TaskCanceledException TimedOut() =>
         new("The request was canceled due to the configured HttpClient.Timeout of 100 seconds elapsing.",
             new TimeoutException("A task was canceled."));
+
+    /// <summary>An endpoint that never answers; the request ends only when it is cancelled.</summary>
+    public static async Task<HttpResponseMessage> NoResponse(CancellationToken cancellationToken)
+    {
+        await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+        throw new UnreachableException();
+    }
 
     private static HttpResponseMessage Json(HttpStatusCode statusCode, string json) =>
         new(statusCode) { Content = new StringContent(json, Encoding.UTF8, "application/json") };
