@@ -16,7 +16,9 @@ class CurrentDataPoint:
     """
     Attributes:
         timestamp (datetime.datetime): Time (in UTC) when the current was measured. Example: 2024-07-01 12:00:00+00:00.
-        value (float): The current measured at this measurement point at the given timestamp. Example: 452.3.
+        value (float): The current measured at this measurement point at the given timestamp, in amperes. A measurement
+            point sits on a single sub conductor, so this is the current of that sub conductor, not of the whole span phase.
+            For a span phase with more than one sub conductor it is lower than the line's phase current. Example: 452.3.
     """
 
     timestamp: datetime.datetime

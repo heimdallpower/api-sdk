@@ -39,9 +39,18 @@ Not every line has Neurons installed.
 Data endpoints return 404 or no data for lines without active measurement points.
 `get_instrumented_lines()` returns only lines with at least one active measurement point, with their facility.
 
+An instrumented line can still have no recent data. Without `since`, the latest current, apparent power and conductor temperature cover the last 20 minutes and raise `HeimdallApiError` with status 404 when the line has not reported in that time. Pass an earlier `since` to accept older values.
+
 ```python
+from heimdall_api_client.errors import HeimdallApiError
+
 for instrumented in client.get_instrumented_lines():
-    current = client.get_latest_current(instrumented.line.id)
+    try:
+        current = client.get_latest_current(instrumented.line.id)
+    except HeimdallApiError as e:
+        if e.status_code == 404:  # no current in the last 20 minutes
+            continue
+        raise
     print(instrumented.facility.name, instrumented.line.name, current.data.current.value, current.data.unit)
 ```
 
@@ -62,6 +71,18 @@ All methods retry **up to 3 times** with exponential backoff (1 s → 2 s → 4 
 - Each retry logs a `WARNING`.
 - After 3 failed retries, the last `HeimdallApiError` is raised.
 - `500 Internal Server Error` is not retried.
+
+### Token renewal
+
+The access token is renewed 2 minutes before it expires, so requests don't use a token that is about to expire. A `401` from the API is not retried; it is raised as `HeimdallApiError`.
+
+### Token request retry
+
+The access token request is retried the same way (up to 3 times, 1 s → 2 s → 4 s) on connection errors and timeouts (for example `Connection reset by peer`), and on `429`, `500`, `502`, `503` and `504` from the token endpoint.
+
+- `400` and `401` (for example invalid credentials) are not retried.
+- Each retry logs a `WARNING`; the final failure logs an `ERROR`. Both go to the `logger` passed to `HeimdallApiClient`, if any.
+- After 3 failed retries, the last `requests.RequestException` is raised (for example `requests.ConnectionError`, `requests.Timeout` or `requests.HTTPError`).
 
 ### Exceptions
 

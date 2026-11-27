@@ -8,11 +8,15 @@ namespace HeimdallPower.Api.Client;
 internal class HeimdallApiHttpClient(
     IAccessTokenProvider accessTokenProvider,
     HttpClient httpClient,
-    IReadOnlyDictionary<string, string>? clientMetadata = null)
+    IReadOnlyDictionary<string, string>? clientMetadata = null,
+    TimeSpan? tokenLockTimeout = null)
 {
     private HttpClient HttpClient { get; } = httpClient;
 
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
+
+    /// <summary>How long a request waits for another request that is acquiring an access token.</summary>
+    private readonly TimeSpan _tokenLockTimeout = tokenLockTimeout ?? TimeSpan.FromSeconds(30);
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -90,13 +94,18 @@ internal class HeimdallApiHttpClient(
 
     private async Task<T> ExecuteWithAuthRetry<T>(Func<Task<T>> operationFunc, CancellationToken cancellationToken)
     {
+        // Outside the try: a failed token acquisition is not acquired again here. The token request
+        // has its own retry policy (the token library's, or the TokenHttpClient's); another acquisition
+        // would multiply its attempts.
+        await UpdateAccessTokenIfExpired(cancellationToken);
         try
         {
-            await UpdateAccessTokenIfExpired(cancellationToken);
             return await operationFunc();
         }
         catch (UnauthorizedAccessException)
         {
+            // The API answered 401: try once more. RefreshAccessToken only acquires a new token when the
+            // current one is near expiry, so this usually retries with the same token.
             await RefreshAccessToken(cancellationToken);
             return await operationFunc();
         }
@@ -139,7 +148,13 @@ internal class HeimdallApiHttpClient(
 
     private async Task RefreshAccessToken(CancellationToken cancellationToken)
     {
-        await _tokenLock.WaitAsync(TimeSpan.FromSeconds(30), cancellationToken);
+        // Proceeding without the lock would race another acquisition and over-release the semaphore.
+        if (!await _tokenLock.WaitAsync(_tokenLockTimeout, cancellationToken))
+        {
+            throw new TimeoutException(
+                $"Timed out after {_tokenLockTimeout.TotalSeconds:0.###} s waiting for another request to acquire an access token.");
+        }
+
         try
         {
             // Check if another thread already refreshed while we were waiting

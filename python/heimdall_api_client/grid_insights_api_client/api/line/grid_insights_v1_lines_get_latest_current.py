@@ -115,7 +115,10 @@ def sync_detailed(
 
      This endpoint returns the most recent current for the line.
 
-    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp.
+    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp. It
+    is the current of a whole span phase, summed over all its sub conductors. The per-measurement-point
+    breakdown, available with `include=measurement_points`, reports the current of the single sub
+    conductor each measurement point sits on.
 
     The current is aggregated across the entire line using a 5-minute sliding window, where the maximum
     value is calculated for each window.
@@ -163,7 +166,10 @@ def sync(
 
      This endpoint returns the most recent current for the line.
 
-    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp.
+    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp. It
+    is the current of a whole span phase, summed over all its sub conductors. The per-measurement-point
+    breakdown, available with `include=measurement_points`, reports the current of the single sub
+    conductor each measurement point sits on.
 
     The current is aggregated across the entire line using a 5-minute sliding window, where the maximum
     value is calculated for each window.
@@ -206,7 +212,10 @@ async def asyncio_detailed(
 
      This endpoint returns the most recent current for the line.
 
-    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp.
+    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp. It
+    is the current of a whole span phase, summed over all its sub conductors. The per-measurement-point
+    breakdown, available with `include=measurement_points`, reports the current of the single sub
+    conductor each measurement point sits on.
 
     The current is aggregated across the entire line using a 5-minute sliding window, where the maximum
     value is calculated for each window.
@@ -252,7 +261,10 @@ async def asyncio(
 
      This endpoint returns the most recent current for the line.
 
-    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp.
+    Current is defined as the maximum current, in amperes, measured on the line at a given timestamp. It
+    is the current of a whole span phase, summed over all its sub conductors. The per-measurement-point
+    breakdown, available with `include=measurement_points`, reports the current of the single sub
+    conductor each measurement point sits on.
 
     The current is aggregated across the entire line using a 5-minute sliding window, where the maximum
     value is calculated for each window.

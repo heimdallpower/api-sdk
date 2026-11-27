@@ -5,7 +5,8 @@ namespace HeimdallPower.Api.Client.IntegrationTests.WhenAuthenticated;
 
 /// <summary>
 /// Fetches the instrumented lines and the latest current for each, proving the helper only returns lines
-/// with active measurement points that the data endpoints can serve.
+/// with active measurement points that the data endpoints can serve. The latest current uses the API's default
+/// <c>since</c> (20 minutes), so a line that has not reported in that time answers 404, which is not a failure.
 /// </summary>
 [Trait("Category", "Integration")]
 public class GetInstrumentedLines(GetInstrumentedLines.Scenario scenario) : IClassFixture<GetInstrumentedLines.Scenario>
@@ -27,6 +28,10 @@ public class GetInstrumentedLines(GetInstrumentedLines.Scenario scenario) : ICla
                 try
                 {
                     Client.GetLatestCurrentAsync(instrumented.Line.Id).GetAwaiter().GetResult();
+                }
+                catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // No current in the last 20 minutes (the API's default since): not a failure.
                 }
                 catch (HeimdallApiException ex)
                 {
@@ -75,7 +80,7 @@ public class GetInstrumentedLines(GetInstrumentedLines.Scenario scenario) : ICla
     }
 
     [Fact]
-    public void LatestCurrentShouldSucceedForEveryInstrumentedLine()
+    public void LatestCurrentShouldSucceedOrReportNoRecentDataForEveryInstrumentedLine()
     {
         Assert.True(scenario.LatestCurrentFailures.Count == 0,
             "Latest current failed for lines: " + string.Join(", ", scenario.LatestCurrentFailures.Select(f => $"{f.Key} ({(int?)f.Value})")));

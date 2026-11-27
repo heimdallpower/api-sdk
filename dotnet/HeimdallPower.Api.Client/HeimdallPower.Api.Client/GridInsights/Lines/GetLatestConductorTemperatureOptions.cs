@@ -13,6 +13,7 @@ public sealed record GetLatestConductorTemperatureOptions
 
     /// <summary>
     /// Optional cut-off time (UTC). If the latest conductor temperature is older than this value, the API returns 404 Not Found.
+    /// If omitted, the API defaults to 20 minutes before the request, so a line that has not reported since then returns 404.
     /// </summary>
     public DateTimeOffset? Since { get; init; }
 

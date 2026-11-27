@@ -62,11 +62,14 @@ def instrumented_lines(assets: Assets) -> list[InstrumentedLine]:
 
     A measurement point is active while its ``unregistered_timestamp`` is unset or in the future.
     Lines with no measurement points, or only retired ones, are left out: data endpoints return
-    404 or no data for them.
+    404 or no data for them. An instrumented line can still have no recent data: the latest
+    current, apparent power and conductor temperature return 404 when the line has not reported
+    in the last 20 minutes, unless an earlier ``since`` is passed.
 
     Example::
 
         for instrumented in instrumented_lines(client.get_assets().data):
+            # Raises HeimdallApiError with status 404 when the line has no current from the last 20 minutes.
             current = client.get_latest_current(instrumented.line.id)
     """
     now = datetime.datetime.now(datetime.UTC)

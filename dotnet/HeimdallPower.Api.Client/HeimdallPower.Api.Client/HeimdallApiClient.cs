@@ -28,10 +28,21 @@ public class HeimdallApiClient : IHeimdallApiClient
     /// <param name="clientId">The client ID issued by Heimdall Power.</param>
     /// <param name="clientSecret">The client secret issued by Heimdall Power.</param>
     /// <param name="settings">Optional settings, see <see cref="HeimdallApiClientSettings"/>. Defaults apply when null.</param>
+    /// <exception cref="ArgumentException">
+    /// Both <see cref="HeimdallApiClientSettings.TokenHttpClient"/> and <see cref="HeimdallApiClientSettings.TokenProxyHandler"/> are set.
+    /// </exception>
     public HeimdallApiClient(string clientId, string clientSecret, HeimdallApiClientSettings? settings = null)
     {
         settings ??= new();
-        var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, Authority, Scope, settings.TokenProxyHandler);
+        if (settings.TokenHttpClient != null && settings.TokenProxyHandler != null)
+        {
+            throw new ArgumentException(
+                $"Set either {nameof(HeimdallApiClientSettings.TokenHttpClient)} or {nameof(HeimdallApiClientSettings.TokenProxyHandler)}, not both. " +
+                $"To use a proxy with {nameof(HeimdallApiClientSettings.TokenHttpClient)}, configure it on that client's handler.",
+                nameof(settings));
+        }
+
+        var accessTokenProvider = new AccessTokenProvider(clientId, clientSecret, Authority, Scope, settings.TokenProxyHandler, settings.TokenHttpClient);
         _heimdallApiClient = new HeimdallApiHttpClient(accessTokenProvider, settings.HttpClient ?? new HttpClient { BaseAddress = new Uri(ApiUrl) }, settings.ClientMetadata);
     }
 

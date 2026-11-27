@@ -125,11 +125,13 @@ def sync_detailed(
     ice measurements.
 
     Each span phase provides the following data:
-    - **`ice_weight`**: The mass of ice accumulated on the conductor.
+    - **`ice_weight`**: The mass of ice accumulated on the conductor, for the whole span phase (summed
+    over all its sub conductors).
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
+    It is the tension of the whole span phase, summed over all its sub conductors.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
     is to its breaking point or how close it is to the maximum tension it's designed to safely
-    withstand.
+    withstand. It is the highest value among the span phase's sub conductors.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
@@ -193,11 +195,13 @@ def sync(
     ice measurements.
 
     Each span phase provides the following data:
-    - **`ice_weight`**: The mass of ice accumulated on the conductor.
+    - **`ice_weight`**: The mass of ice accumulated on the conductor, for the whole span phase (summed
+    over all its sub conductors).
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
+    It is the tension of the whole span phase, summed over all its sub conductors.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
     is to its breaking point or how close it is to the maximum tension it's designed to safely
-    withstand.
+    withstand. It is the highest value among the span phase's sub conductors.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
@@ -256,11 +260,13 @@ async def asyncio_detailed(
     ice measurements.
 
     Each span phase provides the following data:
-    - **`ice_weight`**: The mass of ice accumulated on the conductor.
+    - **`ice_weight`**: The mass of ice accumulated on the conductor, for the whole span phase (summed
+    over all its sub conductors).
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
+    It is the tension of the whole span phase, summed over all its sub conductors.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
     is to its breaking point or how close it is to the maximum tension it's designed to safely
-    withstand.
+    withstand. It is the highest value among the span phase's sub conductors.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 
@@ -322,11 +328,13 @@ async def asyncio(
     ice measurements.
 
     Each span phase provides the following data:
-    - **`ice_weight`**: The mass of ice accumulated on the conductor.
+    - **`ice_weight`**: The mass of ice accumulated on the conductor, for the whole span phase (summed
+    over all its sub conductors).
     - **`tension`**: The mechanical tension force in the conductor, which increases as ice accumulates.
+    It is the tension of the whole span phase, summed over all its sub conductors.
     - **`tension_percentage_of_break_strength`**: Safety-critical metric showing how close the conductor
     is to its breaking point or how close it is to the maximum tension it's designed to safely
-    withstand.
+    withstand. It is the highest value among the span phase's sub conductors.
     - **`timestamp`**: Time (UTC) when the icing measurements were calculated for the span phase.
     Timestamps may differ per conductor due to data availability.
 

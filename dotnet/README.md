@@ -54,11 +54,22 @@ Not every line has Neurons installed.
 Data endpoints return 404 or no data for lines without active measurement points.
 `GetInstrumentedLinesAsync` returns only lines with at least one active measurement point, with their facility.
 
+An instrumented line can still have no recent data. Without `Since`, the latest current, apparent power and conductor temperature cover the last 20 minutes and throw `HeimdallApiException` with 404 when the line has not reported in that time. Pass an earlier `Since` to accept older values.
+
 ```csharp
+using System.Net;
+
 foreach (var instrumented in await client.GetInstrumentedLinesAsync())
 {
-    var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
-    Console.WriteLine($"{instrumented.Facility.Name} / {instrumented.Line.Name}: {current.Current.Value} {current.Unit}");
+    try
+    {
+        var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
+        Console.WriteLine($"{instrumented.Facility.Name} / {instrumented.Line.Name}: {current.Current.Value} {current.Unit}");
+    }
+    catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+    {
+        // No current in the last 20 minutes
+    }
 }
 ```
 
@@ -105,8 +116,8 @@ services.AddHeimdallPowerApiClient(options =>
 
 ### Resilience and retry
 
-- **The core package does not retry.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`.
-- **The Extensions package adds resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience). `AddHeimdallPowerApiClient` enables this pipeline:
+- **The core package does not retry API calls.** A directly created `HeimdallApiClient` throws transient errors (502/503/504) immediately as `HeimdallApiException`. A failed access token request is retried once after 1 s on 5xx or a timeout; 429 and connection errors (e.g. connection reset) are not retried. To retry token requests, pass a `TokenHttpClient` with a resilience handler in `HeimdallApiClientSettings`.
+- **The Extensions package adds resilience** via [`AddStandardResilienceHandler`](https://learn.microsoft.com/en-us/dotnet/core/resilience/http-resilience). `AddHeimdallPowerApiClient` enables this pipeline for API calls and for access token requests (each with its own circuit breaker):
 
 | Layer | Behaviour |
 |---|---|
@@ -119,7 +130,10 @@ services.AddHeimdallPowerApiClient(options =>
 | Exception | When |
 |---|---|
 | `HeimdallApiException` | Non-success HTTP status. `StatusCode` holds the status, `RequestUrl` the request, and `Title`, `Detail` and `Errors` the problem details. |
-| `UnauthorizedAccessException` | Authentication failed after a token-refresh attempt. |
+| `UnauthorizedAccessException` | The token endpoint answered with an error status (e.g. 400/401 for invalid credentials, or 5xx/429 after any retries), or the API answered 401 again on a second attempt. In the core package, also a token request that timed out. |
+| `HttpRequestException` | The API or the token endpoint could not be reached (e.g. connection reset), after any retries. |
+| `TimeoutException` | The request waited over 30 s for another request to acquire an access token, e.g. while the token endpoint was unavailable. |
+| `Polly.Timeout.TimeoutRejectedException` | Extensions package only: a request, including a token request, exceeded the resilience pipeline's timeout. |
 | `OperationCanceledException` | The provided `CancellationToken` was cancelled. |
 
 ```csharp
