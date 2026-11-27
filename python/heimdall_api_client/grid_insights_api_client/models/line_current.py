@@ -18,7 +18,8 @@ class LineCurrent:
     Attributes:
         timestamp (datetime.datetime): Time (in UTC) when the current was measured. Example: 2024-07-01
             12:00:00.001000+00:00.
-        value (float): The maximum current measured for the line at the given time. Example: 452.3.
+        value (float): The maximum phase current measured for the line at the given time, summed over all sub conductors
+            of the span phase. Example: 452.3.
         at_span_id (UUID): The id of the span where the maximum current was measured. Example:
             00000000-0000-0000-0000-000000000000.
     """
