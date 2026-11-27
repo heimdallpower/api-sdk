@@ -52,11 +52,14 @@ public static class AssetsResponseExtensions
     /// Get the lines that have at least one active measurement point, with their facility and active measurement points.
     /// A measurement point is active while its <see cref="MeasurementPointDto.UnregisteredTimestamp"/> is null or in the future.
     /// Lines with no measurement points, or only retired ones, are left out: data endpoints return 404 or no data for them.
+    /// An instrumented line can still have no recent data: the latest current, apparent power and conductor temperature
+    /// return 404 when the line has not reported in the last 20 minutes, unless an earlier <c>Since</c> is passed.
     /// </summary>
     /// <example>
     /// <code>
     /// foreach (var instrumented in assets.InstrumentedLines())
     /// {
+    ///     // Throws HeimdallApiException with 404 when the line has no current from the last 20 minutes.
     ///     var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
     /// }
     /// </code>

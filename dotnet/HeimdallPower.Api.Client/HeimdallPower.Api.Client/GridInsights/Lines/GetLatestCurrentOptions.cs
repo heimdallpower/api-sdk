@@ -8,6 +8,7 @@ public sealed record GetLatestCurrentOptions
 {
     /// <summary>
     /// Optional cut-off time (UTC). If the latest current is older than this value, the API returns 404 Not Found.
+    /// If omitted, the API defaults to 20 minutes before the request, so a line that has not reported since then returns 404.
     /// </summary>
     public DateTimeOffset? Since { get; init; }
 

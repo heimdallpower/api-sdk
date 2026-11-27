@@ -11,13 +11,22 @@ public static class HeimdallApiClientAssetsExtensions
     /// Get the lines that have at least one active measurement point, with their facility and active measurement points.
     /// Use this instead of <see cref="IHeimdallApiClient.GetLinesAsync"/> when looping over lines to fetch data:
     /// lines with no measurement points, or only retired ones, return 404 or no data and are left out.
+    /// An instrumented line can still have no recent data: the latest current, apparent power and conductor temperature
+    /// return 404 when the line has not reported in the last 20 minutes, unless an earlier <c>Since</c> is passed.
     /// </summary>
     /// <example>
     /// <code>
     /// foreach (var instrumented in await client.GetInstrumentedLinesAsync())
     /// {
-    ///     var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
-    ///     Console.WriteLine($"{instrumented.Facility.Name} / {instrumented.Line.Name}: {current.Current.Value} {current.Unit}");
+    ///     try
+    ///     {
+    ///         var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
+    ///         Console.WriteLine($"{instrumented.Facility.Name} / {instrumented.Line.Name}: {current.Current.Value} {current.Unit}");
+    ///     }
+    ///     catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+    ///     {
+    ///         // No current in the last 20 minutes.
+    ///     }
     /// }
     /// </code>
     /// </example>

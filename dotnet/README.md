@@ -54,11 +54,22 @@ Not every line has Neurons installed.
 Data endpoints return 404 or no data for lines without active measurement points.
 `GetInstrumentedLinesAsync` returns only lines with at least one active measurement point, with their facility.
 
+An instrumented line can still have no recent data. Without `Since`, the latest current, apparent power and conductor temperature cover the last 20 minutes and throw `HeimdallApiException` with 404 when the line has not reported in that time. Pass an earlier `Since` to accept older values.
+
 ```csharp
+using System.Net;
+
 foreach (var instrumented in await client.GetInstrumentedLinesAsync())
 {
-    var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
-    Console.WriteLine($"{instrumented.Facility.Name} / {instrumented.Line.Name}: {current.Current.Value} {current.Unit}");
+    try
+    {
+        var current = await client.GetLatestCurrentAsync(instrumented.Line.Id);
+        Console.WriteLine($"{instrumented.Facility.Name} / {instrumented.Line.Name}: {current.Current.Value} {current.Unit}");
+    }
+    catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+    {
+        // No current in the last 20 minutes
+    }
 }
 ```
 

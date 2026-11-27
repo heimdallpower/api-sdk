@@ -266,10 +266,19 @@ class HeimdallApiClient:
         left out. A measurement point is active while its `unregistered_timestamp` is unset or
         in the future.
 
+        An instrumented line can still have no recent data: the latest current, apparent power
+        and conductor temperature raise `HeimdallApiError` with status 404 when the line has not
+        reported in the last 20 minutes, unless an earlier `since` is passed.
+
         Example::
 
             for instrumented in client.get_instrumented_lines():
-                current = client.get_latest_current(instrumented.line.id)
+                try:
+                    current = client.get_latest_current(instrumented.line.id)
+                except HeimdallApiError as e:
+                    if e.status_code == 404:  # no current in the last 20 minutes
+                        continue
+                    raise
                 print(instrumented.facility.name, instrumented.line.name, current.data.current.value)
         """
         return instrumented_lines(self.get_assets().data)
@@ -467,7 +476,9 @@ class HeimdallApiClient:
         """
         Returns the latest conductor temperature for a given line.
 
-        `since` bounds how old the returned measurement may be.
+        `since` bounds how old the returned measurement may be. If omitted, the API uses
+        20 minutes ago, and raises `HeimdallApiError` with status 404 when the line has not
+        reported since then.
 
         `include="measurement_points"` additionally returns a per-measurement-point
         breakdown of conductor temperature, organized by span and span phase.
@@ -496,7 +507,9 @@ class HeimdallApiClient:
         """
         Returns the latest current for a given line.
 
-        `since` bounds how old the returned measurement may be.
+        `since` bounds how old the returned measurement may be. If omitted, the API uses
+        20 minutes ago, and raises `HeimdallApiError` with status 404 when the line has not
+        reported since then.
 
         `include="measurement_points"` additionally returns a per-measurement-point
         breakdown of current, organized by span and span phase.
@@ -755,7 +768,9 @@ class HeimdallApiClient:
         """
         Returns the latest apparent power measurement for a given line.
 
-        `since` bounds how old the returned measurement may be.
+        `since` bounds how old the returned measurement may be. If omitted, the API uses
+        20 minutes ago, and raises `HeimdallApiError` with status 404 when the line has not
+        reported since then.
         """
         from heimdall_api_client.grid_insights import get_latest_apparent_power
 

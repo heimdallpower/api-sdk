@@ -39,9 +39,18 @@ Not every line has Neurons installed.
 Data endpoints return 404 or no data for lines without active measurement points.
 `get_instrumented_lines()` returns only lines with at least one active measurement point, with their facility.
 
+An instrumented line can still have no recent data. Without `since`, the latest current, apparent power and conductor temperature cover the last 20 minutes and raise `HeimdallApiError` with status 404 when the line has not reported in that time. Pass an earlier `since` to accept older values.
+
 ```python
+from heimdall_api_client.errors import HeimdallApiError
+
 for instrumented in client.get_instrumented_lines():
-    current = client.get_latest_current(instrumented.line.id)
+    try:
+        current = client.get_latest_current(instrumented.line.id)
+    except HeimdallApiError as e:
+        if e.status_code == 404:  # no current in the last 20 minutes
+            continue
+        raise
     print(instrumented.facility.name, instrumented.line.name, current.data.current.value, current.data.unit)
 ```
 

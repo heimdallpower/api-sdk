@@ -1,6 +1,8 @@
 """
 Fetches the instrumented lines and the latest current for each, proving the helper
 only returns lines with active measurement points that the data endpoints can serve.
+The latest current uses the API's default `since` (20 minutes), so a line that has
+not reported in that time answers 404, which is not a failure.
 """
 
 import datetime
@@ -41,11 +43,12 @@ def test_every_line_belongs_to_its_facility_in_the_assets(api_client, instrument
 
 
 @pytest.mark.integration
-def test_latest_current_succeeds_for_every_instrumented_line(api_client, instrumented):
+def test_latest_current_succeeds_or_reports_no_recent_data_for_every_instrumented_line(api_client, instrumented):
     failures = {}
     for item in instrumented:
         try:
             api_client.get_latest_current(item.line.id)
         except HeimdallApiError as e:
-            failures[item.line.id] = e.status_code
+            if e.status_code != 404:  # 404: no current in the last 20 minutes
+                failures[item.line.id] = e.status_code
     assert not failures, f"latest current failed for lines: {failures}"
