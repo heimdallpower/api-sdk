@@ -29,7 +29,11 @@ public class GetInstrumentedLines(GetInstrumentedLines.Scenario scenario) : ICla
                 {
                     Client.GetLatestCurrentAsync(instrumented.Line.Id).GetAwaiter().GetResult();
                 }
-                catch (HeimdallApiException ex) when (ex.StatusCode != HttpStatusCode.NotFound)
+                catch (HeimdallApiException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    // No current in the last 20 minutes (the API's default since): not a failure.
+                }
+                catch (HeimdallApiException ex)
                 {
                     failures[instrumented.Line.Id] = ex.StatusCode;
                 }
